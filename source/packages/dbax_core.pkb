@@ -1,4 +1,4 @@
-/* Formatted on 17/01/2017 14:59:56 (QP5 v5.115.810.9015) */
+/* Formatted on 20/01/2017 15:48:25 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY dbax_core
 AS
    PROCEDURE print_http_header;
@@ -122,15 +122,15 @@ AS
    FUNCTION get_property (p_key IN VARCHAR2)
       RETURN VARCHAR2
    AS
-      l_value   VARCHAR2 (3000):= null;
+      l_value   VARCHAR2 (3000) := NULL;
    BEGIN
-      l_value     := dbax_core.g$view (LOWER(p_key));
-      
-      if l_value is null 
-      then
-        l_value     := dbax_core.g$view (upper(p_key));
-      end if;
-      
+      l_value     := dbax_core.g$view (LOWER (p_key));
+
+      IF l_value IS NULL
+      THEN
+         l_value     := dbax_core.g$view (UPPER (p_key));
+      END IF;
+
       RETURN l_value;
    EXCEPTION
       WHEN OTHERS
@@ -186,83 +186,6 @@ AS
    END regex_parameters;
 
 
-   FUNCTION route (p_url_pattern IN VARCHAR2)
-      RETURN BOOLEAN
-   AS
-      l_path              VARCHAR2 (2000);
-      l_url_pattern       VARCHAR2 (2000);
-      l_position          PLS_INTEGER;
-      l_occurrence        PLS_INTEGER;
-      l_match_parameter   VARCHAR2 (100);
-      l_ret_arr           DBMS_UTILITY.maxname_array;
-      --
-      l_retval            PLS_INTEGER := 0;
-      l_return            VARCHAR2 (1000);
-      l_replace_string    VARCHAR2 (1000);
-   BEGIN
-      l_url_pattern := p_url_pattern;
-
-      regex_parameters (l_url_pattern
-                      , l_url_pattern
-                      , l_position
-                      , l_occurrence
-                      , l_match_parameter);
-
-      l_url_pattern := '^' || l_url_pattern || '(/|$)';
-
-      BEGIN
-         l_retval    :=
-            REGEXP_INSTR (g$path
-                        , l_url_pattern
-                        , l_position
-                        , NVL (l_occurrence, 1)
-                        , '0'
-                        , l_match_parameter);
-
-         IF l_retval > 0
-         THEN
-            --dbax_log.debug ('Route Matched:' || c1.route_name || ' URL_PATTERN:' || c1.url_pattern);
-            l_path      :=
-               REGEXP_REPLACE (g$path
-                             , l_url_pattern
-                             , l_replace_string || '/'
-                             , l_position
-                             , NVL (l_occurrence, 0)
-                             , l_match_parameter);
-
-            --Devolver los datos en g$parameter
-
-            --Tokenizer the Url
-            -- The l_path has <parameter1>/<parameterN>
-            l_ret_arr   := tokenizer (l_path, '/');
-
-            --Parameters are the rest of the url
-            IF l_ret_arr.EXISTS (1)
-            THEN
-               FOR i IN 1 .. l_ret_arr.LAST
-               LOOP
-                  g$parameter (i) := l_ret_arr (i);
-               --dbax_log.info ('Paramter g$parameter(' || i || ') = ' || g$parameter (i));
-               --HTP.p ('<br>Paramter g$parameter(' || i || ') = ' || g$parameter (i));
-               END LOOP;
-            END IF;
-
-            RETURN TRUE;
-         ELSE
-            RETURN FALSE;
-         END IF;
-      EXCEPTION
-         WHEN OTHERS
-         THEN
-            RETURN FALSE;
-            HTP.p (SQLERRM);
-      --                     dbax_log.error(   'Routing error with '
-      --                                    || c1.route_name
-      --                                    || ' route. Check the advanced parameters to REGEXP_INSTR in the URL Pattern. '
-      --                                    || SQLERRM);
-
-      END;
-   END route;
 
    PROCEDURE execute_app_router (p_router IN VARCHAR2)
    AS
@@ -412,7 +335,7 @@ AS
       THEN
          HTP.init;
          OWA_UTIL.mime_header (g$content_type, FALSE, get_property ('ENCODING'));
-         OWA_UTIL.status_line (nstatus => g$status_line, creason => NULL, bclose_header => FALSE);         
+         OWA_UTIL.status_line (nstatus => g$status_line, creason => NULL, bclose_header => FALSE);
          --HTP.prn (dbax_cookie.generate_cookie_header);
          --TODO
          --dbax_log.debug ('Print HTTP Header');
@@ -425,7 +348,7 @@ AS
          IF g$view_name IS NOT NULL
          THEN
             --dbax_log.debug ('Execute view: ' || g$view_name);
-            
+
             dbax_teplsql.execute (p_template_name => g$view_name);
          END IF;
       ELSE
@@ -462,7 +385,6 @@ AS
    AS
       l_source   CLOB;
    BEGIN
-      
       SELECT /*+ result_cache */
             title, name
         INTO   dbax_core.g$view ('title'), g$view_name
@@ -592,5 +514,229 @@ AS
          END LOOP;
       END IF;
    END print_http_header;
+
+
+   /************************************************************************
+   *                            ROUTING
+   *        Procedures and functions to manage Application Routing
+   *************************************************************************/
+
+   FUNCTION get_url_parameters (p_user_url_pattern IN VARCHAR2, p_url_pattern IN VARCHAR2)
+      RETURN g_assoc_array
+   AS
+      l_parameter_value    VARCHAR2 (3000);
+      l_user_url_pattern   VARCHAR2 (2000);
+      l_url_parameters     g_assoc_array;
+      --
+      l_position           PLS_INTEGER;
+      l_occurrence         PLS_INTEGER;
+      l_match_parameter    VARCHAR2 (100);
+   BEGIN
+      --Obtengo el advanced regex de la URL
+      regex_parameters (p_user_url_pattern
+                      , l_user_url_pattern
+                      , l_position
+                      , l_occurrence
+                      , l_match_parameter);
+
+
+      FOR v_reg IN (    SELECT   REGEXP_SUBSTR (l_user_url_pattern
+                                              , '{(.*?)}'
+                                              , 1
+                                              , LEVEL
+                                              , 'n'
+                                              , 1)
+                                    var_name, LEVEL
+                          FROM   DUAL
+                    CONNECT BY   REGEXP_SUBSTR (l_user_url_pattern
+                                              , '{(.*?)}'
+                                              , 1
+                                              , LEVEL
+                                              , 'n'
+                                              , 1) IS NOT NULL)
+      LOOP
+         l_parameter_value :=
+            REGEXP_SUBSTR (g$path
+                         , p_url_pattern
+                         , l_position
+                         , NVL (l_occurrence, 1)
+                         , l_match_parameter
+                         , v_reg.LEVEL);
+         l_url_parameters (v_reg.var_name) := l_parameter_value;
+      END LOOP;
+
+      RETURN l_url_parameters;
+   END get_url_parameters;
+
+
+   FUNCTION router (p_url_pattern IN VARCHAR2, p_parameters OUT g_assoc_array)
+      RETURN BOOLEAN
+   AS
+      l_path              VARCHAR2 (2000);
+      l_url_pattern       VARCHAR2 (2000);
+      l_position          PLS_INTEGER;
+      l_occurrence        PLS_INTEGER;
+      l_match_parameter   VARCHAR2 (100);
+      l_ret_arr           DBMS_UTILITY.maxname_array;
+      --
+      l_retval            PLS_INTEGER := 0;
+      l_return            VARCHAR2 (1000);
+      l_replace_string    VARCHAR2 (1000);
+      --
+      l_is_parameter      BOOLEAN := FALSE;
+   BEGIN
+      l_url_pattern := p_url_pattern;
+
+      --Si el url_pattern contiene una {} sustituirlo por ([[:print:]]+)
+      IF INSTR (l_url_pattern, '{') > 0 AND INSTR (l_url_pattern, '}') > 0
+      THEN
+         l_url_pattern :=
+            REGEXP_REPLACE (l_url_pattern
+                          , '{(.*?)}'
+                          , '([[:print:]].*?)'
+                          , 1
+                          , 0
+                          , 'n');
+
+         l_is_parameter := TRUE;
+      END IF;
+
+      regex_parameters (l_url_pattern
+                      , l_url_pattern
+                      , l_position
+                      , l_occurrence
+                      , l_match_parameter);
+
+      l_url_pattern := '^' || l_url_pattern || '(/|$)';
+
+      BEGIN
+         l_retval    :=
+            REGEXP_INSTR (g$path
+                        , l_url_pattern
+                        , l_position
+                        , NVL (l_occurrence, 1)
+                        , '0'
+                        , l_match_parameter);
+
+         IF l_retval > 0
+         THEN
+            --dbax_log.debug ('Route Matched:' || c1.route_name || ' URL_PATTERN:' || c1.url_pattern);
+
+            IF l_is_parameter
+            THEN
+               p_parameters := get_url_parameters (p_url_pattern, l_url_pattern);
+            END IF;
+
+            l_path      :=
+               REGEXP_REPLACE (g$path
+                             , l_url_pattern
+                             , l_replace_string || '/'
+                             , l_position
+                             , NVL (l_occurrence, 0)
+                             , l_match_parameter);
+
+
+            --Tokenizer the Url
+            -- The l_path has <parameter1>/<parameterN>
+            l_ret_arr   := tokenizer (l_path, '/');
+
+            --Parameters are the rest of the url
+            IF l_ret_arr.EXISTS (1)
+            THEN
+               FOR i IN 1 .. l_ret_arr.LAST
+               LOOP
+                  g$parameter (i) := l_ret_arr (i);
+               --dbax_log.info ('Paramter g$parameter(' || i || ') = ' || g$parameter (i));
+               --HTP.p ('<br>Paramter g$parameter(' || i || ') = ' || g$parameter (i));
+               END LOOP;
+            END IF;
+
+            RETURN TRUE;
+         ELSE
+            RETURN FALSE;
+         END IF;
+      --      EXCEPTION
+      --         WHEN OTHERS
+      --         THEN
+      --
+      --            --HTP.p (SQLERRM);
+      --            DBMS_OUTPUT.PUT_LINE ( 'SQLERRM = ' || SQLERRM );
+      --      --                     dbax_log.error(   'Routing error with '
+      --      --                                    || c1.route_name
+      --      --                                    || ' route. Check the advanced parameters to REGEXP_INSTR in the URL Pattern. '
+      --      --                                    || SQLERRM);
+      --            RETURN FALSE;
+      END;
+   END router;
+
+
+   FUNCTION route (p_http_verbs IN VARCHAR2, p_url_pattern IN VARCHAR2, p_parameters OUT g_assoc_array)
+      RETURN BOOLEAN
+   AS
+      l_http_verbs   DBMS_UTILITY.maxname_array;
+   BEGIN
+      l_http_verbs := tokenizer (p_http_verbs, ',');
+
+      IF l_http_verbs.EXISTS (1)
+      THEN
+         FOR i IN 1 .. l_http_verbs.LAST
+         LOOP
+            IF g$server ('REQUEST_METHOD') = UPPER (TRIM (l_http_verbs (i))) AND router (p_url_pattern, p_parameters)
+            THEN
+               RETURN TRUE;
+            END IF;
+         END LOOP;
+      END IF;
+
+      RETURN FALSE;
+   END route;
+
+   FUNCTION route (p_http_verbs IN VARCHAR2, p_url_pattern IN VARCHAR2)
+      RETURN BOOLEAN
+   AS
+      l_dummy   g_assoc_array;
+   BEGIN
+      RETURN route (p_http_verbs, p_url_pattern, l_dummy);
+   END;
+
+   FUNCTION route_get (p_url_pattern IN VARCHAR2, p_parameters OUT g_assoc_array)
+      RETURN BOOLEAN
+   AS
+   BEGIN
+      IF g$server ('REQUEST_METHOD') = 'GET' AND router (p_url_pattern, p_parameters)
+      THEN
+         RETURN TRUE;
+      ELSE
+         RETURN FALSE;
+      END IF;
+   END route_get;
+
+   FUNCTION route_get (p_url_pattern IN VARCHAR2)
+      RETURN BOOLEAN
+   AS
+      l_dummy   g_assoc_array;
+   BEGIN
+      RETURN route_get (p_url_pattern, l_dummy);
+   END;
+
+   FUNCTION route_post (p_url_pattern IN VARCHAR2, p_parameters OUT g_assoc_array)
+      RETURN BOOLEAN
+   AS
+   BEGIN
+      IF g$server ('REQUEST_METHOD') = 'POST' AND router (p_url_pattern, p_parameters)
+      THEN
+         RETURN TRUE;
+      ELSE
+         RETURN FALSE;
+      END IF;
+   END route_post;
+
+   FUNCTION route_post (p_url_pattern IN VARCHAR2)
+      RETURN BOOLEAN
+   AS
+      l_dummy   g_assoc_array;
+   BEGIN
+      RETURN route_post (p_url_pattern, l_dummy);
+   END;
 END dbax_core;
 /

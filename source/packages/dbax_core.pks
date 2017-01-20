@@ -1,4 +1,4 @@
-/* Formatted on 17/01/2017 15:00:52 (QP5 v5.115.810.9015) */
+/* Formatted on 20/01/2017 12:09:02 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE dbax_core
 AS
    /**
@@ -131,8 +131,58 @@ AS
       RETURN BOOLEAN;
 
 
-   FUNCTION route (p_url_pattern IN VARCHAR2)
+   /************************************************************************
+   *                            ROUTING
+   *        Procedures and functions to manage Application Routing
+   *************************************************************************/
+   /**
+   * Basic route function
+   *
+   * @param     p_methods          the comma separated http verbs or REQUEST_METHOD
+   * @param     p_url_pattern      the url pattern
+   * @return    boolean
+   */
+   FUNCTION route (p_http_verbs IN VARCHAR2, p_url_pattern IN VARCHAR2)
       RETURN BOOLEAN;
-      
+
+   FUNCTION route (p_http_verbs IN VARCHAR2, p_url_pattern IN VARCHAR2, p_parameters OUT g_assoc_array)
+      RETURN BOOLEAN;
+
+   /**
+   * Route function for GET requests
+   *
+   * @param     p_url_pattern      the url pattern
+   * @return    boolean
+   */
+   FUNCTION route_get (p_url_pattern IN VARCHAR2)
+      RETURN BOOLEAN;
+
+   FUNCTION route_get (p_url_pattern IN VARCHAR2, p_parameters OUT g_assoc_array)
+      RETURN BOOLEAN;
+
+   /**
+   * Route function for POST requests
+   *
+   * @param     p_url_pattern      the url pattern
+   * @return    boolean
+   */
+   FUNCTION route_post (p_url_pattern IN VARCHAR2)
+      RETURN BOOLEAN;
+
+   FUNCTION route_post (p_url_pattern IN VARCHAR2, p_parameters OUT g_assoc_array)
+      RETURN BOOLEAN;
+/**
+* Not implemented because pl/sql gateways only accept get and post verbs
+*/
+--FUNCTION route_post (p_url_pattern IN VARCHAR2)
+--  RETURN BOOLEAN;
+--FUNCTION route_post (p_url_pattern IN VARCHAR2)
+--  RETURN BOOLEAN;
+--FUNCTION route_post (p_url_pattern IN VARCHAR2)
+--  RETURN BOOLEAN;
+--FUNCTION route_post (p_url_pattern IN VARCHAR2)
+--  RETURN BOOLEAN;
+
+
 END dbax_core;
 /
