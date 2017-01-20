@@ -77,3 +77,10 @@ then
  return;
 end if;
 ```
+
+
+### TODO
+
+NULL en el parametro para indicar la url vacia
+
+advanced regex para indicar case insensitive. 
