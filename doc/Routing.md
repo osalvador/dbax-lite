@@ -79,8 +79,22 @@ end if;
 ```
 
 
-### TODO
+## Route to root path
 
-NULL en el parametro para indicar la url vacia
+If you want to define a route to root path, sometimes to the index page, the url pattern will be: 
 
-advanced regex para indicar case insensitive. 
+```sql
+l_bool := dbax_core.route_get ('/');
+```
+
+## Case insensitive routes
+
+Occasionally you may need to specify a case insensitive routes. You may do so by using [Oracle advanced regex parameters (position, occurrence and match_parameter)](https://docs.oracle.com/cd/B28359_01/server.111/b28286/functions137.htm#SQLRF06302) with `@` as delimiter: 
+
+```sql
+if dbax_core.route_get ('USER/{id}@1,1,i', l_param)
+then
+ htp.p('The id=' ||l_param('id') ); 
+ return;
+end if;
+```

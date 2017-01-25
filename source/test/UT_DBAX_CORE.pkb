@@ -281,14 +281,14 @@ AS
       END;
 
 
-      PRINT('-- Enrutado con parametros opcionales y Advanced Regex, la url es /USER//id/22/type/ el metodo GET,el parametro name y type son opcionales');
+      PRINT('-- Enrutado con parametros opcionales y Advanced Regex Case Insentive, la url es /USER//id/22/type/ el metodo GET,el parametro name y type son opcionales');
       dbax_core.g$server ('REQUEST_METHOD') := 'GET';
-      dbax_core.g$path := 'user//id/22/type/';
+      dbax_core.g$path := 'user//ID/22/type/';
 
       DECLARE
          l_param   dbax_core.g_assoc_array;
       BEGIN
-         IF dbax_core.route_get ('USER/{name}?/id/{id}/type/{type}?@1,1,i', l_param) != TRUE
+         IF dbax_core.route_get ('user/{name}?/id/{id}/type/{type}?@1,1,i', l_param) != TRUE
          THEN
             fail ($$plsql_line);
             RETURN;
@@ -306,6 +306,18 @@ AS
             END IF;
          END IF;
       END;
+
+
+      PRINT ('-- Enrutado basico, la url está vacia lo que supone que es el index de la pagina');
+      dbax_core.g$path := '';
+
+      IF dbax_core.route_get ('/') != TRUE
+      THEN
+         PRINT ('XXX El test ha fallado XXX');
+         RETURN;
+      ELSE
+         PRINT ('   Pass');
+      END IF;
 
 
    END;

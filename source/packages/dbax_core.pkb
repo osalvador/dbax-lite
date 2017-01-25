@@ -300,13 +300,15 @@ AS
       THEN
          l_path      := SUBSTR (l_path, INSTR (l_path, '/', 2) + 1);
       ELSE
-         l_path      := 'NULL';
+         l_path      := '/';
       END IF;
 
       IF l_path IS NULL
       THEN
-         l_path      := 'NULL';
+         l_path      := '/';
       END IF;
+
+DBMS_OUTPUT.PUT_LINE ( 'l_path = ' || l_path );
 
       /***************
       *  2. Routing
@@ -587,7 +589,7 @@ AS
    BEGIN
       l_url_pattern := p_url_pattern;
 
-      --Si el url_pattern contiene una {} sustituirlo por ([[:print:]]+)
+      --Si el url_pattern contiene una {} sustituirlo por ([[:print:]].*+)
       IF INSTR (l_url_pattern, '{') > 0 AND INSTR (l_url_pattern, '}') > 0
       THEN
          l_url_pattern :=
@@ -610,8 +612,9 @@ AS
       l_url_pattern := '^' || l_url_pattern || '(/|$)';
 
       BEGIN
+      
          l_retval    :=
-            REGEXP_INSTR (g$path
+            REGEXP_INSTR (NVL(g$path, '/')
                         , l_url_pattern
                         , l_position
                         , NVL (l_occurrence, 1)
@@ -634,7 +637,6 @@ AS
                              , l_position
                              , NVL (l_occurrence, 0)
                              , l_match_parameter);
-
 
             --Tokenizer the Url
             -- The l_path has <parameter1>/<parameterN>
