@@ -216,83 +216,81 @@ AS
      END set_template_directive;/*/
 
 
-    PROCEDURE save_compiled_template (p_template_name       IN VARCHAR2
-                                    , p_appid               IN VARCHAR2 DEFAULT NULL
-                                    , p_template            IN CLOB
-                                    , p_compiled_template   IN CLOB)
-    AS
-       PRAGMA AUTONOMOUS_TRANSACTION;
-       l_view_rt   tapi_wdx_views.wdx_views_rt;
-    BEGIN
-       BEGIN
-          l_view_rt   := tapi_wdx_views.rt (NVL (p_appid, dbax_core.g$appid), p_template_name);
-       EXCEPTION
-          WHEN NO_DATA_FOUND
-          THEN
-             l_view_rt   := NULL;
-       END;
+   PROCEDURE save_compiled_template (p_template_name       IN VARCHAR2
+                                   , p_appid               IN VARCHAR2 DEFAULT NULL
+                                   , p_template            IN CLOB
+                                   , p_compiled_template   IN CLOB)
+   AS
+      PRAGMA AUTONOMOUS_TRANSACTION;
+      l_view_rt   tapi_wdx_views.wdx_views_rt;
+   BEGIN
+      BEGIN
+         l_view_rt   := tapi_wdx_views.rt (NVL (p_appid, dbax_core.g$appid), p_template_name);
+      EXCEPTION
+         WHEN NO_DATA_FOUND
+         THEN
+            l_view_rt   := NULL;
+      END;
 
-       --insert or update
-       IF l_view_rt.appid IS NULL
-       THEN
-          --INSERT
-          l_view_rt.appid := NVL (p_appid, dbax_core.g$appid);
-          l_view_rt.name := p_template_name;
-          l_view_rt.source := p_template;
-          l_view_rt.compiled_source := p_compiled_template;
-          l_view_rt.visible := 'Y';
+      --insert or update
+      IF l_view_rt.appid IS NULL
+      THEN
+         --INSERT
+         l_view_rt.appid := NVL (p_appid, dbax_core.g$appid);
+         l_view_rt.name := p_template_name;
+         l_view_rt.source := p_template;
+         l_view_rt.compiled_source := p_compiled_template;
+         l_view_rt.visible := 'Y';
 
-          tapi_wdx_views.ins (l_view_rt);
-       ELSE
-          --UPDATE
-          l_view_rt.source := p_template;
-          l_view_rt.compiled_source := p_compiled_template;
-          l_view_rt.modified_date := SYSDATE;
+         tapi_wdx_views.ins (l_view_rt);
+      ELSE
+         --UPDATE
+         l_view_rt.source := p_template;
+         l_view_rt.compiled_source := p_compiled_template;
+         l_view_rt.modified_date := SYSDATE;
 
-          tapi_wdx_views.upd (l_view_rt, TRUE);
-       END IF;
+         tapi_wdx_views.upd (l_view_rt, TRUE);
+      END IF;
 
-       COMMIT;
-    END save_compiled_template;
+      COMMIT;
+   END save_compiled_template;
 
 
 
-    FUNCTION include (p_template_name IN VARCHAR2, p_appid IN VARCHAR2 DEFAULT NULL )
-       RETURN CLOB
-    AS
-       l_template   CLOB;
-    BEGIN
-       BEGIN
-          SELECT   source
-            INTO   l_template
-            FROM   wdx_views
-           WHERE   name = p_template_name AND appid = NVL (p_appid, dbax_core.g$appid);
+   FUNCTION include (p_template_name IN VARCHAR2, p_appid IN VARCHAR2 DEFAULT NULL )
+      RETURN CLOB
+   AS
+      l_template   CLOB;
+   BEGIN
+      BEGIN
+         SELECT   source
+           INTO   l_template
+           FROM   wdx_views
+          WHERE   name = p_template_name AND appid = NVL (p_appid, dbax_core.g$appid);
+      EXCEPTION
+         WHEN NO_DATA_FOUND
+         THEN
+            --dbax_log.trace ('INCLUDE Function, NO_DATA_FOUND');
+            l_template  := EMPTY_CLOB ();
 
-       EXCEPTION
-          WHEN NO_DATA_FOUND
-          THEN
-             --dbax_log.trace ('INCLUDE Function, NO_DATA_FOUND');
-             l_template  := EMPTY_CLOB ();
+            --Si no se encuentra el template se ejecuta
+            EXECUTE IMMEDIATE 'BEGIN :l_val := ' || p_template_name || '; END;' USING OUT l_template;
+      END;
 
-             --Si no se encuentra el template se ejecuta
-             EXECUTE IMMEDIATE 'BEGIN :l_val := ' || p_template_name || '; END;' USING OUT l_template;
-       END;
-
-       RETURN l_template;
-    END include;
+      RETURN l_template;
+   END include;
 
 
    FUNCTION include_compiled (p_template_name IN VARCHAR2, p_appid IN VARCHAR2 DEFAULT NULL )
       RETURN CLOB
    AS
-      l_template   CLOB := EMPTY_CLOB ();      
+      l_template   CLOB := EMPTY_CLOB ();
    BEGIN
-      BEGIN        
-          SELECT   compiled_source
-            INTO   l_template
-            FROM   wdx_views
-           WHERE   name = p_template_name AND appid = NVL (p_appid, dbax_core.g$appid);
-         
+      BEGIN
+         SELECT   compiled_source
+           INTO   l_template
+           FROM   wdx_views
+          WHERE   name = p_template_name AND appid = NVL (p_appid, dbax_core.g$appid);
       EXCEPTION
          WHEN NO_DATA_FOUND
          THEN
@@ -301,6 +299,33 @@ AS
 
       RETURN l_template;
    END include_compiled;
+
+
+
+    FUNCTION template_has_changed (p_template_name IN VARCHAR2, p_appid IN VARCHAR2 DEFAULT NULL , p_template IN CLOB)
+       RETURN BOOLEAN
+    AS
+       l_compare   PLS_INTEGER;
+    BEGIN
+       BEGIN
+          SELECT   DBMS_LOB.compare (source, p_template)
+            INTO   l_compare
+            FROM   wdx_views
+           WHERE   name = p_template_name AND appid = NVL (p_appid, dbax_core.g$appid);
+       EXCEPTION
+          WHEN NO_DATA_FOUND
+          THEN
+             l_compare   := 1;
+       END;
+
+       -- 0 = templates are the same
+       IF l_compare != 0
+       THEN
+          RETURN TRUE;
+       ELSE
+          RETURN FALSE;
+       END IF;
+    END template_has_changed;
 
    /**
    * Bind associative array variables in the template
@@ -893,7 +918,7 @@ AS
          RAISE;
    END compile;
 
-   FUNCTION compile (p_template IN clob, p_appid IN VARCHAR2, p_error_template OUT NOCOPY CLOB)
+   FUNCTION compile (p_template IN CLOB, p_appid IN VARCHAR2, p_error_template OUT NOCOPY CLOB)
       RETURN CLOB
    AS
       l_template   CLOB;
@@ -959,9 +984,7 @@ AS
          p_error_template := p_error_template || (CHR (10));
          p_error_template := p_error_template || (SQLERRM || ' ' || DBMS_UTILITY.format_error_backtrace ());
          p_error_template := p_error_template || (CHR (10));
-         p_error_template :=
-            p_error_template
-            || ('### Processing template ' );
+         p_error_template := p_error_template || ('### Processing template ');
          p_error_template := p_error_template || (CHR (10));
          p_error_template := p_error_template || (l_template);
          --dbax_log.error (p_error_template);
@@ -988,6 +1011,7 @@ AS
          l_view_rt.modified_date := SYSDATE;
          tapi_wdx_views.upd (l_view_rt);
       END LOOP;
+
       dbax_core.g$appid := l_actual_appid;
    EXCEPTION
       WHEN OTHERS
@@ -1030,91 +1054,91 @@ AS
          tapi_wdx_views.upd (l_view_rt, TRUE);
       END LOOP;
    END compile_dependencies;
-   
 
-    PROCEDURE purge_compiled (p_appid IN VARCHAR2)
-    AS
-       PRAGMA AUTONOMOUS_TRANSACTION;
-    BEGIN
-       UPDATE   wdx_views a
-          SET   compiled_source = NULL
-        WHERE   UPPER(appid) = UPPER(p_appid);
 
-       COMMIT;
-    END purge_compiled;
-  
+   PROCEDURE purge_compiled (p_appid IN VARCHAR2)
+   AS
+      PRAGMA AUTONOMOUS_TRANSACTION;
+   BEGIN
+      UPDATE   wdx_views a
+         SET   compiled_source = NULL
+       WHERE   UPPER (appid) = UPPER (p_appid);
 
-    PROCEDURE execute (p_template_name   IN VARCHAR2 DEFAULT NULL
-                     , p_appid           IN VARCHAR2 DEFAULT NULL
-                     , p_vars            IN t_assoc_array DEFAULT null_assoc_array
-                     , p_template        IN CLOB DEFAULT NULL )
-    AS
-       l_template         CLOB;
-       l_error_template   CLOB;
-    BEGIN
-       IF p_template_name IS NULL AND p_template IS NULL
-       THEN
-          RETURN;
-       END IF;
+      COMMIT;
+   END purge_compiled;
 
-       --Get template
-       IF p_template_name IS NOT NULL AND p_template IS NOT NULL
-       THEN
-          --Si ambos parametros no son nulos se trata del model de dbax thin
-          --Comprobar si el template ha cambiado para ejecutar solo el compilado
 
-          -- si el template está compilado ejecutar ese
-          l_template  := include_compiled (p_template_name, p_appid);
+   PROCEDURE execute (p_template_name   IN VARCHAR2 DEFAULT NULL
+                    , p_appid           IN VARCHAR2 DEFAULT NULL
+                    , p_vars            IN t_assoc_array DEFAULT null_assoc_array
+                    , p_template        IN CLOB DEFAULT NULL )
+   AS
+      l_template         CLOB;
+      l_error_template   CLOB;
+   BEGIN
+      IF p_template_name IS NULL AND p_template IS NULL
+      THEN
+         RETURN;
+      END IF;
 
-          IF LENGTH (l_template) = 0 OR l_template IS NULL
-          THEN
-             -- sino compilarlo y ejecutarlo y guardarlo
-             l_template  := compile (p_template, p_appid, l_error_template);
-             
-             -- Save compiled Template
-             save_compiled_template (p_template_name => p_template_name
-                                   , p_appid     => p_appid
-                                   , p_template  => p_template
-                                   , p_compiled_template => l_template);
-          END IF;
-       ELSIF p_template IS NULL
-       THEN
-          l_template  := include_compiled (p_template_name, p_appid);
-          
-          --If template is not compiled
-          IF LENGTH (l_template) = 0 OR LENGTH (l_template) IS NULL
-          THEN
-             -- sino compilarlo y ejecutarlo y guardarlo
-             l_template  := compile (p_template_name, p_appid, l_error_template);
-             
-             -- Save compiled Template
-             save_compiled_template (p_template_name => p_template_name
-                                   , p_appid     => p_appid
-                                   , p_template  => p_template
-                                   , p_compiled_template => l_template);
-          
-          END IF;
-       ELSE
-          --compile the template
-          l_template  := compile (p_template, p_appid, l_error_template);
-       END IF;
+      --Get template
+      IF p_template_name IS NOT NULL AND p_template IS NOT NULL
+      THEN
+         --Si ambos parametros no son nulos se trata del model de dbax lite
+         --Comprobar si el template ha cambiado para ejecutar solo el compilado
 
-       --Bind the variables into template
-       IF p_vars.COUNT () = 0
-       THEN
-          bind_vars (l_template, dbax_core.g$view);
-       ELSE
-          bind_vars (l_template, p_vars);
-       END IF;
+         IF template_has_changed (p_template_name => p_template_name, p_appid => p_appid, p_template => p_template)
+         THEN
+            -- sino compilarlo y ejecutarlo y guardarlo
+            l_template  := compile (p_template, p_appid, l_error_template);
 
-       --Null all variables not binded
-       l_template  := REGEXP_REPLACE (l_template, '\$\{\S*\}', '');
+            -- Save compiled Template
+            save_compiled_template (p_template_name => p_template_name
+                                  , p_appid     => p_appid
+                                  , p_template  => p_template
+                                  , p_compiled_template => l_template);
+         ELSE
+            -- si el template está compilado ejecutar ese
+            l_template  := include_compiled (p_template_name, p_appid);
+         END IF;
 
-       --DBMS_OUTPUT.put_line ('l_template = ' || l_template);
+      ELSIF p_template IS NULL
+      THEN
+         l_template  := include_compiled (p_template_name, p_appid);
 
-       --dbax_log.trace ('Executing this template:' || l_template);
+         --If template is not compiled
+         IF LENGTH (l_template) = 0 OR LENGTH (l_template) IS NULL
+         THEN
+            -- sino compilarlo y ejecutarlo y guardarlo
+            l_template  := compile (p_template_name, p_appid, l_error_template);
 
-       EXECUTE IMMEDIATE l_template;
-    END execute;
+            -- Save compiled Template
+            save_compiled_template (p_template_name => p_template_name
+                                  , p_appid     => p_appid
+                                  , p_template  => p_template
+                                  , p_compiled_template => l_template);
+         END IF;
+      ELSE
+         --compile the template
+         l_template  := compile (p_template, p_appid, l_error_template);
+      END IF;
+
+      --Bind the variables into template
+      IF p_vars.COUNT () = 0
+      THEN
+         bind_vars (l_template, dbax_core.g$view);
+      ELSE
+         bind_vars (l_template, p_vars);
+      END IF;
+
+      --Null all variables not binded
+      l_template  := REGEXP_REPLACE (l_template, '\$\{\S*\}', '');
+
+      --DBMS_OUTPUT.put_line ('l_template = ' || l_template);
+
+      --dbax_log.trace ('Executing this template:' || l_template);
+
+      EXECUTE IMMEDIATE l_template;
+   END execute;
 END dbax_teplsql;
 /
