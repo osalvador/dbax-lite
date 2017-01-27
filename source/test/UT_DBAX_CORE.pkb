@@ -23,7 +23,7 @@ AS
    AS
    BEGIN
       PRINT ('**********');
-      PRINT ('Probando el metodo DBAX_CORE.ROUTE_GET');
+      PRINT ('Probando el metodo route.GET');
       PRINT ('**********');
       dbax_core.g$server ('REQUEST_METHOD') := 'GET';
 
@@ -31,7 +31,7 @@ AS
       PRINT ('-- Enrutado basico, la url es /foo tiene que devolver TRUE');
       dbax_core.g$path := 'foo';
 
-      IF dbax_core.route_get ('foo') != TRUE
+      IF route.get ('foo') != TRUE
       THEN
          PRINT ('XXX El test ha fallado XXX');
          RETURN;
@@ -42,7 +42,7 @@ AS
       --      PRINT ('Enrutado con expresiones regulares');
 
       PRINT ('**********');
-      PRINT ('Probando el metodo DBAX_CORE.ROUTE_POST');
+      PRINT ('Probando el metodo route.POST');
       PRINT ('**********');
       dbax_core.g$server ('REQUEST_METHOD') := 'POST';
 
@@ -50,7 +50,7 @@ AS
       PRINT ('-- Enrutado basico, la url es /foo tiene que devolver TRUE');
       dbax_core.g$path := 'foo';
 
-      IF dbax_core.route_post ('foo') != TRUE
+      IF route.post ('foo') != TRUE
       THEN
          PRINT ('XXX El test ha fallado XXX');
          RETURN;
@@ -67,7 +67,7 @@ AS
       dbax_core.g$server ('REQUEST_METHOD') := 'GET';
       dbax_core.g$path := 'foo';
 
-      IF dbax_core.route ('get', 'foo') != TRUE
+      IF route.match ('foo', 'get') != TRUE
       THEN
          PRINT ('XXX El test ha fallado XXX');
          RETURN;
@@ -79,7 +79,7 @@ AS
       dbax_core.g$server ('REQUEST_METHOD') := 'POST';
       dbax_core.g$path := 'foo';
 
-      IF dbax_core.route ('post', 'foo') != TRUE
+      IF route.match ('foo', 'post') != TRUE
       THEN
          PRINT ('XXX El test ha fallado XXX');
          RETURN;
@@ -91,7 +91,7 @@ AS
       dbax_core.g$server ('REQUEST_METHOD') := 'POST';
       dbax_core.g$path := 'foo';
 
-      IF dbax_core.route ('post,get', 'foo') != TRUE
+      IF route.match ('foo', 'post,get') != TRUE
       THEN
          PRINT ('XXX El test ha fallado XXX');
          RETURN;
@@ -103,7 +103,7 @@ AS
       dbax_core.g$server ('REQUEST_METHOD') := 'GET';
       dbax_core.g$path := 'foo';
 
-      IF dbax_core.route ('post,get', 'foo') != TRUE
+      IF route.match ('foo', 'post,get') != TRUE
       THEN
          PRINT ('XXX El test ha fallado XXX');
          RETURN;
@@ -115,7 +115,7 @@ AS
       dbax_core.g$server ('REQUEST_METHOD') := 'GET';
       dbax_core.g$path := 'foo';
 
-      IF dbax_core.route ('post , get', 'foo') != TRUE
+      IF route.match ('foo','post , get') != TRUE
       THEN
          PRINT ('XXX El test ha fallado XXX');
          RETURN;
@@ -128,7 +128,7 @@ AS
       dbax_core.g$server ('REQUEST_METHOD') := 'GET';
       dbax_core.g$path := 'foo';
 
-      IF dbax_core.route ('dummy', 'foo') = TRUE
+      IF route.match ('foo','dummy') = TRUE
       THEN
          PRINT ('XXX El test ha fallado XXX');
          RETURN;
@@ -139,7 +139,7 @@ AS
 
 
       PRINT ('**********');
-      PRINT ('Probando el metodo DBAX_CORE.ROUTE_GET con Parametros de URL');
+      PRINT ('Probando el metodo route.GET con Parametros de URL');
       PRINT ('**********');
 
       PRINT('-- Enrutado con parametros, la url es /user/oscar el metodo GET, el parametro que se debe vevolver es el id de usuario oscar');
@@ -147,9 +147,9 @@ AS
       dbax_core.g$path := 'user/oscar';
 
       DECLARE
-         l_param   dbax_core.g_assoc_array;
+         l_param   dbx.g_assoc_array;
       BEGIN
-         IF dbax_core.route_get ('user/{id}', l_param) != TRUE
+         IF route.get ('user/{id}', l_param) != TRUE
          THEN
             PRINT ('XXX El test ha fallado XXX');
             RETURN;
@@ -172,9 +172,9 @@ AS
       dbax_core.g$path := 'user/22/name/Oscar';
 
       DECLARE
-         l_param   dbax_core.g_assoc_array;
+         l_param   dbx.g_assoc_array;
       BEGIN
-         IF dbax_core.route_post ('user/{id}/name/{usename}', l_param) != TRUE
+         IF route.post ('user/{id}/name/{usename}', l_param) != TRUE
          THEN
             fail ($$plsql_line);
             RETURN;
@@ -205,9 +205,9 @@ AS
       dbax_core.g$path := 'user/22/profile/upload/image';
 
       DECLARE
-         l_param   dbax_core.g_assoc_array;
+         l_param   dbx.g_assoc_array;
       BEGIN
-         IF dbax_core.route_get ('user/{id}/profile/upload/image', l_param) != TRUE
+         IF route.get ('user/{id}/profile/upload/image', l_param) != TRUE
          THEN
             fail ($$plsql_line);
             RETURN;
@@ -232,9 +232,9 @@ AS
       dbax_core.g$path := 'user-id/22/user_type/free';
 
       DECLARE
-         l_param   dbax_core.g_assoc_array;
+         l_param   dbx.g_assoc_array;
       BEGIN
-         IF dbax_core.route_get ('user-id/{user-id}/user_type/{user_type}', l_param) != TRUE
+         IF route.get ('user-id/{user-id}/user_type/{user_type}', l_param) != TRUE
          THEN
             fail ($$plsql_line);
             RETURN;
@@ -259,9 +259,9 @@ AS
       dbax_core.g$path := 'user//id/22/type/';
 
       DECLARE
-         l_param   dbax_core.g_assoc_array;
+         l_param   dbx.g_assoc_array;
       BEGIN
-         IF dbax_core.route_get ('user/{name}?/id/{id}/type/{type}?', l_param) != TRUE
+         IF route.get ('user/{name}?/id/{id}/type/{type}?', l_param) != TRUE
          THEN
             fail ($$plsql_line);
             RETURN;
@@ -286,9 +286,9 @@ AS
       dbax_core.g$path := 'user//ID/22/type/';
 
       DECLARE
-         l_param   dbax_core.g_assoc_array;
+         l_param   dbx.g_assoc_array;
       BEGIN
-         IF dbax_core.route_get ('user/{name}?/id/{id}/type/{type}?@1,1,i', l_param) != TRUE
+         IF route.get ('user/{name}?/id/{id}/type/{type}?@1,1,i', l_param) != TRUE
          THEN
             fail ($$plsql_line);
             RETURN;
@@ -311,7 +311,7 @@ AS
       PRINT ('-- Enrutado basico, la url está vacia lo que supone que es el index de la pagina');
       dbax_core.g$path := '';
 
-      IF dbax_core.route_get ('/') != TRUE
+      IF route.get ('/') != TRUE
       THEN
          PRINT ('XXX El test ha fallado XXX');
          RETURN;

@@ -225,7 +225,7 @@ AS
       l_view_rt   tapi_wdx_views.wdx_views_rt;
    BEGIN
       BEGIN
-         l_view_rt   := tapi_wdx_views.rt (NVL (p_appid, dbax_core.g$appid), p_template_name);
+         l_view_rt   := tapi_wdx_views.rt (NVL (p_appid, dbx.g$appid), p_template_name);
       EXCEPTION
          WHEN NO_DATA_FOUND
          THEN
@@ -236,7 +236,7 @@ AS
       IF l_view_rt.appid IS NULL
       THEN
          --INSERT
-         l_view_rt.appid := NVL (p_appid, dbax_core.g$appid);
+         l_view_rt.appid := NVL (p_appid, dbx.g$appid);
          l_view_rt.name := p_template_name;
          l_view_rt.source := p_template;
          l_view_rt.compiled_source := p_compiled_template;
@@ -266,7 +266,7 @@ AS
          SELECT   source
            INTO   l_template
            FROM   wdx_views
-          WHERE   name = p_template_name AND appid = NVL (p_appid, dbax_core.g$appid);
+          WHERE   name = p_template_name AND appid = NVL (p_appid, dbx.g$appid);
       EXCEPTION
          WHEN NO_DATA_FOUND
          THEN
@@ -290,7 +290,7 @@ AS
          SELECT   compiled_source
            INTO   l_template
            FROM   wdx_views
-          WHERE   name = p_template_name AND appid = NVL (p_appid, dbax_core.g$appid);
+          WHERE   name = p_template_name AND appid = NVL (p_appid, dbx.g$appid);
       EXCEPTION
          WHEN NO_DATA_FOUND
          THEN
@@ -311,7 +311,7 @@ AS
           SELECT   DBMS_LOB.compare (source, p_template)
             INTO   l_compare
             FROM   wdx_views
-           WHERE   name = p_template_name AND appid = NVL (p_appid, dbax_core.g$appid);
+           WHERE   name = p_template_name AND appid = NVL (p_appid, dbx.g$appid);
        EXCEPTION
           WHEN NO_DATA_FOUND
           THEN
@@ -349,7 +349,7 @@ AS
       END IF;
    END bind_vars;
 
-   PROCEDURE bind_vars (p_template IN OUT NOCOPY CLOB, p_vars IN dbax_core.g_assoc_array)
+   PROCEDURE bind_vars (p_template IN OUT NOCOPY CLOB, p_vars IN dbx.g_assoc_array)
    AS
       l_key   VARCHAR2 (256);
    BEGIN
@@ -998,11 +998,11 @@ AS
       l_error_template   CLOB;
       l_view_rt          tapi_wdx_views.wdx_views_rt;
 
-      l_actual_appid     VARCHAR2 (50) := dbax_core.g$appid;
+      l_actual_appid     VARCHAR2 (50) := dbx.g$appid;
    BEGIN
       FOR c1 IN (SELECT   * FROM table (tapi_wdx_views.tt (p_appid)))
       LOOP
-         dbax_core.g$appid := c1.appid;
+         dbx.g$appid := c1.appid;
 
          l_compiled_view := dbax_teplsql.compile (c1.name, p_appid, l_error_template);
 
@@ -1012,11 +1012,11 @@ AS
          tapi_wdx_views.upd (l_view_rt);
       END LOOP;
 
-      dbax_core.g$appid := l_actual_appid;
+      dbx.g$appid := l_actual_appid;
    EXCEPTION
       WHEN OTHERS
       THEN
-         dbax_core.g$appid := l_actual_appid;
+         dbx.g$appid := l_actual_appid;
          p_error_template := l_error_template;
          --dbax_log.error (p_error_template);
          RAISE;
@@ -1126,7 +1126,7 @@ AS
       --Bind the variables into template
       IF p_vars.COUNT () = 0
       THEN
-         bind_vars (l_template, dbax_core.g$view);
+         bind_vars (l_template, dbx.g$view);
       ELSE
          bind_vars (l_template, p_vars);
       END IF;

@@ -179,7 +179,7 @@ CREATE OR REPLACE PACKAGE BODY tapi_wdx_views IS
     PROCEDURE ins (p_wdx_views_rec IN OUT wdx_views_rt)
     IS
         l_rowtype     wdx_views%ROWTYPE;        
-        l_user_name   wdx_views.created_by%TYPE := NVL(dbax_core.g$username,USER);
+        l_user_name   wdx_views.created_by%TYPE := NVL(dbx.g$username,USER);
         l_date        wdx_views.created_date%TYPE := SYSDATE;
 
     BEGIN
