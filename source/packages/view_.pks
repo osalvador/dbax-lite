@@ -76,5 +76,15 @@ AS
    *  @param   p_appid             the appid of the view
    */
    PROCEDURE purge_compiled (p_appid IN VARCHAR2);
+   
+  
+   /**
+   * Run or execute the view
+   *
+   * @param     p_view      the view template
+   * @param     p_name      the name of the view. 
+   */
+   PROCEDURE run (p_view IN CLOB, p_name IN VARCHAR2);
+   
 END view_;
 /

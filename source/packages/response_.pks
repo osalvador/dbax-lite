@@ -136,13 +136,5 @@ AS
    */
    PROCEDURE forget_cookie (p_name IN VARCHAR2);
 
-
-   /**
-   * Run or execute the view
-   *
-   * @param     p_view      the view template
-   * @param     p_name      the name of the view. 
-   */
-   PROCEDURE run_view (p_view IN CLOB, p_name IN VARCHAR2);
 END response_;
 /

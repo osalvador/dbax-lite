@@ -108,11 +108,5 @@ AS
       cookie (p_name => p_name, p_value => NULL, p_expires => SYSDATE - 100);
    END forget_cookie;
 
-
-   PROCEDURE run_view (p_view IN CLOB, p_name IN VARCHAR2)
-   AS
-   BEGIN
-      view_.execute (p_template_name => p_name, p_template => p_view);
-   END run_view;
 END response_;
 /
