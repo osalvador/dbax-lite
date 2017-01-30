@@ -1,4 +1,3 @@
-/* Formatted on 27/01/2017 16:09:05 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE dbx
 AS
    --Global Variables
@@ -6,6 +5,10 @@ AS
    IS
       TABLE OF VARCHAR2 (32767)
          INDEX BY VARCHAR2 (255);
+
+
+   --Empty array for dynamic parameter
+   empty_vc_arr     OWA_UTIL.vc_arr;
 
    --G$VIEW An associative array of variables (constants) to be replaced in the views referenced by ${name}
    g$view           dbx.g_assoc_array;
@@ -53,6 +56,17 @@ AS
    g$path           VARCHAR2 (2000);
 
 
+   /**
+   * Central procedure that dispatches requests to controllers. AKA front controller.
+   *
+   * @param  p_appid        the application id of the request
+   * @param  name_array     vc_arr with the name of the arguments
+   * @param  value_array    vc_arr with the values of the arguments
+   */
+   PROCEDURE dispatcher (p_appid       IN VARCHAR2
+                       , name_array    IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr
+                       , value_array   IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr
+                       , router        IN VARCHAR2 DEFAULT NULL );
 
    /**
    * Retrieve the value from the associative array
@@ -64,7 +78,6 @@ AS
    */
    FUNCTION get (p_array g_assoc_array, p_key IN VARCHAR2)
       RETURN VARCHAR2;
-
 
    /**
    * Gets property value of the current application.
