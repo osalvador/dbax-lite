@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE dbax_teplsql
+CREATE OR REPLACE PACKAGE view_
 AS
    /**
    *  Template engine for dbax based on tePLSQL https://github.com/osalvador/teplsql
@@ -29,23 +29,6 @@ AS
    * @param  p_clob     the CLOB to print to the DBMS_OUTPUT
    */
    PROCEDURE output_clob (p_clob IN CLOB);
-
-   /**
-   * Prints received data into the buffer
-   *
-   * @param  p_data     the data to print into buffer
-   */
-   PROCEDURE PRINT (p_data IN CLOB);
-
-   PROCEDURE p (p_data IN CLOB);
-
-   PROCEDURE PRINT (p_data IN VARCHAR2);
-
-   PROCEDURE p (p_data IN VARCHAR2);
-
-   PROCEDURE PRINT (p_data IN NUMBER);
-
-   PROCEDURE p (p_data IN NUMBER);
 
    /**
    *  Return returns the source code view or template
@@ -87,12 +70,11 @@ AS
                     , p_vars            IN t_assoc_array DEFAULT null_assoc_array
                     , p_template        IN CLOB DEFAULT NULL );
 
-
    /**
    *  Purge all compiled source
    *   
    *  @param   p_appid             the appid of the view
    */
    PROCEDURE purge_compiled (p_appid IN VARCHAR2);
-END dbax_teplsql;
+END view_;
 /

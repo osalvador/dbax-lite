@@ -1,5 +1,4 @@
-/* Formatted on 30/01/2017 17:18:07 (QP5 v5.115.810.9015) */
-CREATE OR REPLACE PACKAGE BODY dbax_teplsql
+CREATE OR REPLACE PACKAGE BODY view_
 AS
    PROCEDURE output_clob (p_clob IN CLOB)
    IS
@@ -96,13 +95,13 @@ AS
             THEN
                l_clob      := l_buffer;
             ELSE
-               l_clob      := l_clob || '~'');DBAX_tePLSQL.p(q''~' || l_buffer;
+               l_clob      := l_clob || '~'');dbx.p(q''~' || l_buffer;
             END IF;
 
             l_pos       := l_pos + l_amount;
          END LOOP;
 
-         l_clob      := 'DBAX_tePLSQL.p(q''~' || l_clob || '~'');';
+         l_clob      := 'dbx.p(q''~' || l_clob || '~'');';
 
          RETURN l_clob;
          DBMS_LOB.freetemporary (l_clob);
@@ -112,7 +111,7 @@ AS
          i           := i + 1;
          l_tmp       :=
             REGEXP_SUBSTR (p_template
-                         , q'@DBAX_tePLSQL.p\(q\'\~(.*?|\s*)\~\'\)\;@'
+                         , q'@dbx.p\(q\'\~(.*?|\s*)\~\'\)\;@'
                          , 1
                          , i
                          , 'inm'
@@ -126,7 +125,7 @@ AS
             --Start and End of the expression
             l_start     :=
                REGEXP_INSTR (p_template
-                           , q'@DBAX_tePLSQL.p\(q\'\~(.*?|\s*)\~\'\)\;@'
+                           , q'@dbx.p\(q\'\~(.*?|\s*)\~\'\)\;@'
                            , 1
                            , i
                            , 0
@@ -134,7 +133,7 @@ AS
 
             l_end       :=
                REGEXP_INSTR (p_template
-                           , q'@DBAX_tePLSQL.p\(q\'\~(.*?|\s*)\~\'\)\;@'
+                           , q'@dbx.p\(q\'\~(.*?|\s*)\~\'\)\;@'
                            , 1
                            , i
                            , 1
@@ -484,7 +483,7 @@ AS
       p_template  :=
          REGEXP_REPLACE (p_template
                        , '\\\\([^n])'
-                       , '~'');DBAX_tePLSQL.p(q''[\1]'');DBAX_tePLSQL.p(q''~'
+                       , '~'');dbx.p(q''[\1]'');dbx.p(q''~'
                        , 1
                        , 0
                        , 'n');
@@ -494,7 +493,7 @@ AS
       p_template  :=
          REGEXP_REPLACE (p_template
                        , '(\\\\n)'
-                       , CHR (10) --|| '~'');DBAX_tePLSQL.p(q''~'
+                       , CHR (10) --|| '~'');dbx.p(q''~'
                        , 1
                        , 0
                        , 'n');
@@ -556,7 +555,7 @@ AS
       p_template  :=
          REGEXP_REPLACE (p_template
                        , '<%=([^%>].*?)%>'
-                       , '~'');DBAX_tePLSQL.p(\1);DBAX_tePLSQL.p(q''~'
+                       , '~'');dbx.p(\1);dbx.p(q''~'
                        , 1
                        , 0
                        , 'n');
@@ -566,13 +565,13 @@ AS
       /*p_template  :=
          REGEXP_REPLACE (p_template
                        , '\$\{(\S*)\}'
-                       , '~'');DBAX_tePLSQL.p(dbax_utils.get(dbax_core.g$view,''\1''));DBAX_tePLSQL.p(q''~'
+                       , '~'');dbx.p(dbax_utils.get(dbax_core.g$view,''\1''));dbx.p(q''~'
                        , 1
                        , 0
                        , 'n');*/
 
 
-      p_template  := 'DECLARE ' || l_declare || ' BEGIN DBAX_tePLSQL.p(q''~' || p_template || '~''); END;';
+      p_template  := 'DECLARE ' || l_declare || ' BEGIN dbx.p(q''~' || p_template || '~''); END;';
    END interpret;
 
    /**
@@ -895,7 +894,7 @@ AS
       l_template  :=
          REGEXP_REPLACE (l_template
                        , '<%([^%>].*?)%>'
-                       , '~''); \1 DBAX_tePLSQL.p(q''~'
+                       , '~''); \1 dbx.p(q''~'
                        , 1
                        , 0
                        , 'n');
@@ -903,7 +902,7 @@ AS
       l_template  :=
          REGEXP_REPLACE (l_template
                        , '<\?dbax([^\?>].*?)\?>'
-                       , '~''); \1 DBAX_tePLSQL.p(q''~'
+                       , '~''); \1 dbx.p(q''~'
                        , 1
                        , 0
                        , 'n');
@@ -911,7 +910,7 @@ AS
       --Delete all null code blocks
       l_template  :=
          REGEXP_REPLACE (l_template
-                       , q'@DBAX_tePLSQL.p\(q\'\~\~\'\)\;@'
+                       , q'@dbx.p\(q\'\~\~\'\)\;@'
                        , ''
                        , 1
                        , 0
@@ -970,7 +969,7 @@ AS
       l_template  :=
          REGEXP_REPLACE (l_template
                        , '<%([^%>].*?)%>'
-                       , '~''); \1 DBAX_tePLSQL.p(q''~'
+                       , '~''); \1 dbx.p(q''~'
                        , 1
                        , 0
                        , 'n');
@@ -978,7 +977,7 @@ AS
       l_template  :=
          REGEXP_REPLACE (l_template
                        , '<\?dbax([^\?>].*?)\?>'
-                       , '~''); \1 DBAX_tePLSQL.p(q''~'
+                       , '~''); \1 dbx.p(q''~'
                        , 1
                        , 0
                        , 'n');
@@ -986,7 +985,7 @@ AS
       --Delete all null code blocks
       l_template  :=
          REGEXP_REPLACE (l_template
-                       , q'@DBAX_tePLSQL.p\(q\'\~\~\'\)\;@'
+                       , q'@dbx.p\(q\'\~\~\'\)\;@'
                        , ''
                        , 1
                        , 0
@@ -1167,5 +1166,5 @@ AS
 
       EXECUTE IMMEDIATE l_template;
    END execute;
-END dbax_teplsql;
+END view_;
 /
