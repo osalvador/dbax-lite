@@ -1,4 +1,3 @@
-/* Formatted on 27/01/2017 15:09:38 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY session_
 AS
    --##Global Variables
@@ -114,13 +113,13 @@ AS
 
       IF get ('sessid') IS NULL
       THEN         
-         IF request.cookie (l_cookie_name) IS NULL
+         IF request_.cookie (l_cookie_name) IS NULL
          THEN
             --No cookie session
             g$session ('sessid') := NULL;
             RETURN NULL;
          ELSE
-            l_session_id := request.cookie (l_cookie_name);
+            l_session_id := request_.cookie (l_cookie_name);
 
             IF valid_session (l_session_id)
             THEN
@@ -153,7 +152,7 @@ AS
       --Generate unique dbax session id
       l_session_id := DBMS_SESSION.unique_session_id || ROUND (DBMS_RANDOM.VALUE (10000, 99999));
       --Creo cookie
-      response.cookie (p_name      => l_cookie_name
+      response_.cookie (p_name      => l_cookie_name
                      , p_value     => l_session_id
                      , p_expires   => p_session_expires
                      , p_path      => '/');
@@ -192,7 +191,7 @@ AS
       COMMIT;
 
       --Remove cookie Session
-      response.forget_cookie (l_cookie_name);
+      response_.forget_cookie (l_cookie_name);
 
       --Remove g$session
       g$session.delete;

@@ -1,5 +1,4 @@
-/* Formatted on 27/01/2017 15:56:11 (QP5 v5.115.810.9015) */
-CREATE OR REPLACE PACKAGE BODY dbax_thin.response
+CREATE OR REPLACE PACKAGE BODY response_
 AS
    /**
    * Response Record instance
@@ -115,5 +114,5 @@ AS
    BEGIN
       dbax_teplsql.execute (p_template_name => p_name, p_template => p_view);
    END run_view;
-END response;
+END response_;
 /

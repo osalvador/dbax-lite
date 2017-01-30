@@ -9,7 +9,7 @@ AS
       l_http_cookie := NVL (p_cookies, OWA_UTIL.get_cgi_env ('HTTP_COOKIE'));
 
       --Parse Cookie String to request cookie
-      request.cookies (dbx.query_string_to_array (l_http_cookie, '; ', '='));
+      request_.cookies (dbx.query_string_to_array (l_http_cookie, '; ', '='));
    END load_cookies;
 
    FUNCTION generate_cookie_header
@@ -21,7 +21,7 @@ AS
       l_cookies     g_cookie_array;
    BEGIN
       --Get cookies
-      l_cookies   := response.cookies;
+      l_cookies   := response_.cookies;
 
       l_name      := l_cookies.FIRST;
 

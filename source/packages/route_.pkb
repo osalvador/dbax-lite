@@ -1,5 +1,4 @@
-/* Formatted on 27/01/2017 16:43:10 (QP5 v5.115.810.9015) */
-CREATE OR REPLACE PACKAGE BODY dbax_thin.route
+CREATE OR REPLACE PACKAGE BODY route_
 AS
    /**
   * Gets the regex variables from the string
@@ -180,8 +179,8 @@ AS
             END IF;
 
             -- Populate Request object
-            request.segment_inputs (l_segment_inputs);
-            request.route (p_url_pattern);
+            request_.segment_inputs (l_segment_inputs);
+            request_.route (p_url_pattern);
 
             RETURN TRUE;
          ELSE
@@ -213,7 +212,7 @@ AS
       THEN
          FOR i IN 1 .. l_http_verbs.LAST
          LOOP            
-            IF request.method = UPPER (TRIM (l_http_verbs (i))) AND router (p_uri, p_parameters)
+            IF request_.method = UPPER (TRIM (l_http_verbs (i))) AND router (p_uri, p_parameters)
             THEN
                RETURN TRUE;
             END IF;
@@ -235,7 +234,7 @@ AS
       RETURN BOOLEAN
    AS
    BEGIN
-      IF request.method = 'GET' AND router (p_uri, p_parameters)
+      IF request_.method = 'GET' AND router (p_uri, p_parameters)
       THEN
          RETURN TRUE;
       ELSE
@@ -255,7 +254,7 @@ AS
       RETURN BOOLEAN
    AS
    BEGIN
-      IF request.method = 'POST' AND router (p_uri, p_parameters)
+      IF request_.method = 'POST' AND router (p_uri, p_parameters)
       THEN
          RETURN TRUE;
       ELSE
@@ -270,5 +269,5 @@ AS
    BEGIN
       RETURN POST (p_uri, l_dummy);
    END POST;
-END route;
+END route_;
 /

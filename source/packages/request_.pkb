@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY dbax_thin.request
+CREATE OR REPLACE PACKAGE BODY request_
 AS
    /**
    * Request Record instance
@@ -144,5 +144,5 @@ AS
    BEGIN
       r_request.route := p_uri;
    END;
-END request;
+END request_;
 /

@@ -1,4 +1,3 @@
-/* Formatted on 25/01/2017 16:04:54 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE dbax_core
 AS
    /**

@@ -1,5 +1,4 @@
-/* Formatted on 27/01/2017 15:54:04 (QP5 v5.115.810.9015) */
-CREATE OR REPLACE PACKAGE dbax_thin.response
+CREATE OR REPLACE PACKAGE response_
 AS
    /**
    * Response Record Type
@@ -122,5 +121,5 @@ AS
    * @param     p_name      the name of the view. 
    */
    PROCEDURE run_view (p_view IN CLOB, p_name IN VARCHAR2);
-END response;
+END response_;
 /

@@ -1,4 +1,3 @@
-/* Formatted on 27/01/2017 16:46:22 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY dbax_core
 AS
    PROCEDURE print_http_header;
@@ -113,11 +112,11 @@ AS
       ***************/
 
       --If is a queryString model, get de URL to route from reserved parameter 'p' in dbx.g$get or dbx.g$post array
-      IF request.input ('p') IS NOT NULL
+      IF request_.input ('p') IS NOT NULL
       THEN
-         l_path      := '/' || p_appid || request.input ('p');
+         l_path      := '/' || p_appid || request_.input ('p');
       ELSE
-         l_path      := request.header ('PATH_INFO');
+         l_path      := request_.header ('PATH_INFO');
       END IF;
 
       --Split the URL
@@ -165,8 +164,8 @@ AS
       IF NOT dbx.g_stop_process
       THEN
          HTP.init;
-         OWA_UTIL.mime_header (NVL(response.content, 'text/html'), FALSE, dbx.get_property ('ENCODING'));
-         OWA_UTIL.status_line (nstatus => NVL(response.status, 200), creason => NULL, bclose_header => FALSE);
+         OWA_UTIL.mime_header (NVL(response_.content, 'text/html'), FALSE, dbx.get_property ('ENCODING'));
+         OWA_UTIL.status_line (nstatus => NVL(response_.status, 200), creason => NULL, bclose_header => FALSE);
          HTP.prn (dbax_cookie.generate_cookie_header);
 
          print_http_header;
@@ -214,12 +213,12 @@ AS
       END LOOP;
 
       --Set request headers
-      request.headers (l_headers);
+      request_.headers (l_headers);
 
       --Get QueryString params
-      l_get       := dbx.query_string_to_array (request.header ('QUERY_STRING'));
+      l_get       := dbx.query_string_to_array (request_.header ('QUERY_STRING'));
 
-      IF request.header ('REQUEST_METHOD') = 'GET'
+      IF request_.header ('REQUEST_METHOD') = 'GET'
       THEN
          IF name_array.EXISTS (1) AND name_array (1) IS NOT NULL
          THEN
@@ -241,16 +240,16 @@ AS
                   END LOOP;
 
                   l_get (LOWER (l_name_array)) :=
-                     CONVERT (value_array (i), request.header ('REQUEST_CHARSET'), 'AL32UTF8');
+                     CONVERT (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (l_name_array) || ':' || dbx.g$get (LOWER (l_name_array)));
                ELSE
                   l_get (LOWER (name_array (i))) :=
-                     CONVERT (value_array (i), request.header ('REQUEST_CHARSET'), 'AL32UTF8');
+                     CONVERT (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (name_array (i)) || ':' || dbx.g$get (LOWER (name_array (i))));
                END IF;
             END LOOP;
          END IF;
-      ELSIF request.header ('REQUEST_METHOD') = 'POST'
+      ELSIF request_.header ('REQUEST_METHOD') = 'POST'
       THEN
          IF name_array.EXISTS (1) AND name_array (1) IS NOT NULL
          THEN
@@ -272,11 +271,11 @@ AS
                   END LOOP;
 
                   l_post (LOWER (l_name_array)) :=
-                     CONVERT (value_array (i), request.header ('REQUEST_CHARSET'), 'AL32UTF8');
+                     CONVERT (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (l_name_array) || ':' || dbx.g$post (LOWER (l_name_array)));
                ELSE
                   l_post (LOWER (name_array (i))) :=
-                     CONVERT (value_array (i), request.header ('REQUEST_CHARSET'), 'AL32UTF8');
+                     CONVERT (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (name_array (i)) || ':' || dbx.g$post (LOWER (name_array (i))));
                END IF;
             END LOOP;
@@ -284,13 +283,13 @@ AS
       END IF;
 
       --Set request
-      request.method (request.header ('REQUEST_METHOD'));
+      request_.method (request_.header ('REQUEST_METHOD'));
 
-      IF request.method = 'GET'
+      IF request_.method = 'GET'
       THEN
-         request.inputs (l_get);
+         request_.inputs (l_get);
       ELSE
-         request.inputs (l_post);
+         request_.inputs (l_post);
       END IF;
    END set_request;
 
@@ -300,7 +299,7 @@ AS
       l_key       VARCHAR2 (256);
       l_headers   dbx.g_assoc_array;
    BEGIN
-      l_headers   := response.headers;
+      l_headers   := response_.headers;
 
       IF l_headers.COUNT () <> 0
       THEN

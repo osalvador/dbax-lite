@@ -81,16 +81,16 @@ AS
    PROCEDURE redirect (p_path IN VARCHAR2, p_status IN PLS_INTEGER DEFAULT 302 )
    AS
    BEGIN
-      response.header ('Location', get_path (p_path));
-      response.status (302);
+      response_.header ('Location', get_path (p_path));
+      response_.status (302);
    END redirect;
 
 
    PROCEDURE redirectto (p_url IN VARCHAR2, p_status IN PLS_INTEGER DEFAULT 302 )
    AS
    BEGIN
-      response.header ('Location', p_url);
-      response.status (302);
+      response_.header ('Location', p_url);
+      response_.status (302);
    END redirectto;
 
 

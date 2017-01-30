@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE DBAX_THIN.route
+CREATE OR REPLACE PACKAGE route_
 AS
 
 
@@ -70,6 +70,5 @@ AS
                              , p_occurrence           OUT PLS_INTEGER
                              , p_match_parameter      OUT VARCHAR2);
 
-end route; 
+end route_; 
 /
-

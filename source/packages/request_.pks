@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE dbax_thin.request
+CREATE OR REPLACE PACKAGE request_
 AS
    /**
    * Request Record Type
@@ -149,5 +149,5 @@ AS
    * @param  p_uri     the route uri
    */
    PROCEDURE route (p_uri IN VARCHAR2);
-END request;
+END request_;
 /

@@ -1,4 +1,3 @@
-/* Formatted on 27/01/2017 12:26:20 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE session_
 AS
    /**
