@@ -6,7 +6,6 @@ AS
       TABLE OF VARCHAR2 (32767)
          INDEX BY VARCHAR2 (255);
 
-
    --Empty array for dynamic parameter
    empty_vc_arr     OWA_UTIL.vc_arr;
 

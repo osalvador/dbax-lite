@@ -1,16 +1,5 @@
 CREATE OR REPLACE PACKAGE response_
 AS
-   /**
-   * Response Record Type
-   */
-   TYPE response_type
-   IS
-      RECORD (
-         headers   dbx.g_assoc_array -- HTTP Headers
-       , status    PLS_INTEGER -- HTTP Status code
-       , content   VARCHAR2 (100) -- HTTP Content Type      
-       , cookies   dbax_cookie.g_cookie_array -- Cookies to be sent to the response
-      );
 
    /**
    * Response cookie type
@@ -31,6 +20,20 @@ AS
    IS
       TABLE OF cookie_type
          INDEX BY VARCHAR2 (255);
+
+
+   /**
+   * Response Record Type
+   */
+   TYPE response_type
+   IS
+      RECORD (
+         headers   dbx.g_assoc_array -- HTTP Headers
+       , status    PLS_INTEGER -- HTTP Status code
+       , content   VARCHAR2 (100) -- HTTP Content Type      
+       , cookies   g_cookie_array -- Cookies to be sent to the response
+      );
+
 
    /**
    * Set a header to the response.
@@ -97,7 +100,7 @@ AS
    * @return the cookie record if exists
    */
    FUNCTION cookie (p_name IN VARCHAR2)
-      RETURN dbax_cookie.cookie_type;
+      RETURN cookie_type;
 
    /**
    * Retrieve a cookie array from the response
@@ -105,7 +108,7 @@ AS
    * @return the cookie record if exists
    */
    FUNCTION cookies
-      RETURN dbax_cookie.g_cookie_array;
+      RETURN g_cookie_array;
 
    /**
    *  Add a cookie to the response.
