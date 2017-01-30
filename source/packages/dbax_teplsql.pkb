@@ -1,3 +1,4 @@
+/* Formatted on 30/01/2017 17:18:07 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY dbax_teplsql
 AS
    PROCEDURE output_clob (p_clob IN CLOB)
@@ -221,10 +222,9 @@ AS
                                    , p_template            IN CLOB
                                    , p_compiled_template   IN CLOB)
    AS
-      PRAGMA AUTONOMOUS_TRANSACTION;
-      l_view_rt   tapi_wdx_views.wdx_views_rt;
+      PRAGMA AUTONOMOUS_TRANSACTION;      
    BEGIN
-      BEGIN
+     /* BEGIN
          l_view_rt   := tapi_wdx_views.rt (NVL (p_appid, dbx.g$appid), p_template_name);
       EXCEPTION
          WHEN NO_DATA_FOUND
@@ -250,7 +250,35 @@ AS
          l_view_rt.modified_date := SYSDATE;
 
          tapi_wdx_views.upd (l_view_rt, TRUE);
-      END IF;
+      END IF;*/
+
+      -- TODO: Better a MERGE
+      BEGIN
+         INSERT INTO wdx_views (appid
+                              , name
+                              , source
+                              , compiled_source
+                              , visible
+                              , created_by
+                              , modified_by)
+           VALUES   (NVL (p_appid, dbx.g$appid)
+                   , p_template_name
+                   , p_template
+                   , p_compiled_template
+                   , 'Y'
+                   , NVL (dbx.g$username, USER)
+                   , NVL (dbx.g$username, USER));
+      EXCEPTION
+         WHEN DUP_VAL_ON_INDEX
+         THEN
+            UPDATE   wdx_views
+               SET   source       = p_template
+                   , compiled_source = p_compiled_template
+                   , modified_date = SYSDATE
+                   , modified_by  = NVL (dbx.g$username, USER)
+             WHERE   appid = NVL (p_appid, dbx.g$appid) AND name = p_template_name;
+      END;
+
 
       COMMIT;
    END save_compiled_template;
@@ -302,30 +330,30 @@ AS
 
 
 
-    FUNCTION template_has_changed (p_template_name IN VARCHAR2, p_appid IN VARCHAR2 DEFAULT NULL , p_template IN CLOB)
-       RETURN BOOLEAN
-    AS
-       l_compare   PLS_INTEGER;
-    BEGIN
-       BEGIN
-          SELECT   DBMS_LOB.compare (source, p_template)
-            INTO   l_compare
-            FROM   wdx_views
-           WHERE   name = p_template_name AND appid = NVL (p_appid, dbx.g$appid);
-       EXCEPTION
-          WHEN NO_DATA_FOUND
-          THEN
-             l_compare   := 1;
-       END;
-
-       -- 0 = templates are the same
-       IF l_compare != 0
-       THEN
-          RETURN TRUE;
-       ELSE
-          RETURN FALSE;
-       END IF;
-    END template_has_changed;
+   FUNCTION template_has_changed (p_template_name IN VARCHAR2, p_appid IN VARCHAR2 DEFAULT NULL , p_template IN CLOB)
+      RETURN BOOLEAN
+   AS
+      l_compare   PLS_INTEGER;
+   BEGIN
+      BEGIN
+         SELECT   DBMS_LOB.compare (source, p_template)
+           INTO   l_compare
+           FROM   wdx_views
+          WHERE   name = p_template_name AND appid = NVL (p_appid, dbx.g$appid);
+      EXCEPTION
+         WHEN NO_DATA_FOUND
+         THEN
+            l_compare   := 1;
+      END;
+   
+      -- 0 = templates are the same
+      IF l_compare != 0
+      THEN
+         RETURN TRUE;
+      ELSE
+         RETURN FALSE;
+      END IF;
+   END template_has_changed;
 
    /**
    * Bind associative array variables in the template
@@ -992,7 +1020,7 @@ AS
    END compile;
 
 
-   PROCEDURE compile_all (p_appid IN VARCHAR2, p_error_template OUT NOCOPY CLOB)
+  /* PROCEDURE compile_all (p_appid IN VARCHAR2, p_error_template OUT NOCOPY CLOB)
    AS
       l_compiled_view    CLOB;
       l_error_template   CLOB;
@@ -1020,9 +1048,9 @@ AS
          p_error_template := l_error_template;
          --dbax_log.error (p_error_template);
          RAISE;
-   END compile_all;
+   END compile_all;*/
 
-   PROCEDURE compile_dependencies (p_template_name IN VARCHAR2, p_appid IN VARCHAR2, p_error_template OUT NOCOPY CLOB)
+   /*PROCEDURE compile_dependencies (p_template_name IN VARCHAR2, p_appid IN VARCHAR2, p_error_template OUT NOCOPY CLOB)
    AS
       l_compiled_view   CLOB;
       l_view_rt         tapi_wdx_views.wdx_views_rt;
@@ -1053,7 +1081,7 @@ AS
          l_view_rt.modified_date := SYSDATE;
          tapi_wdx_views.upd (l_view_rt, TRUE);
       END LOOP;
-   END compile_dependencies;
+   END compile_dependencies;*/
 
 
    PROCEDURE purge_compiled (p_appid IN VARCHAR2)
@@ -1101,7 +1129,6 @@ AS
             -- si el template está compilado ejecutar ese
             l_template  := include_compiled (p_template_name, p_appid);
          END IF;
-
       ELSIF p_template IS NULL
       THEN
          l_template  := include_compiled (p_template_name, p_appid);

@@ -1,4 +1,3 @@
-/* Formatted on 18/01/2017 12:42:31 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE dbax_teplsql
 AS
    /**
