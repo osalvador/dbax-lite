@@ -13,6 +13,26 @@ AS
       );
 
    /**
+   * Response cookie type
+   */
+   TYPE cookie_type
+   IS
+      RECORD (
+         name       VARCHAR2 (4096)
+       , VALUE      VARCHAR2 (4096)
+       , expires    DATE
+       , PATH       VARCHAR2 (255)
+       , domain     VARCHAR2 (255)
+       , secure     BOOLEAN DEFAULT FALSE
+       , httponly   BOOLEAN DEFAULT FALSE
+      );
+
+   TYPE g_cookie_array
+   IS
+      TABLE OF cookie_type
+         INDEX BY VARCHAR2 (255);
+
+   /**
    * Set a header to the response.
    *
    * @param  p_key     the header filed name

@@ -44,6 +44,16 @@ AS
       RETURN r_request.headers;
    END headers;
 
+   PROCEDURE load_cookies (p_cookies IN VARCHAR2 DEFAULT NULL )
+   AS
+      l_http_cookie   VARCHAR2 (32767);
+   BEGIN
+      --Load HTTP Cookie string
+      l_http_cookie := NVL (p_cookies, OWA_UTIL.get_cgi_env ('HTTP_COOKIE'));
+
+      --Parse Cookie String to request cookies
+      r_request.cookies := dbx.query_string_to_array (l_http_cookie, '; ', '=');
+   END load_cookies;
 
 
    FUNCTION cookie (p_key IN VARCHAR2)

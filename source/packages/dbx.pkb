@@ -184,6 +184,75 @@ AS
       RETURN l_array;
    END tokenizer;
    
+   /**********************************************************************
+   *                    Code from dbax_cookie
+   ***********************************************************************/
+   
+  
+   /**
+   * Generates the HTTP header with the cookies sent to client
+   *
+   * @return    the http cookie header
+   */
+   FUNCTION generate_cookie_header
+      RETURN VARCHAR2
+   AS
+      l_name        VARCHAR2 (4000);
+      l_return      VARCHAR2 (32000);
+      expires_gmt   DATE;
+      l_cookies     response_.g_cookie_array;
+   BEGIN
+      --Get cookies
+      l_cookies   := response_.cookies;
+
+      l_name      := l_cookies.FIRST;
+
+      LOOP
+         EXIT WHEN l_name IS NULL;
+
+         l_return    := l_return || 'Set-Cookie: ' || l_name || '=' || l_cookies (l_name).VALUE;
+
+         IF l_cookies (l_name).domain IS NOT NULL
+         THEN
+            l_return    := l_return || '; Domain=' || l_cookies (l_name).domain;
+         END IF;
+
+         IF l_cookies (l_name).PATH IS NOT NULL
+         THEN
+            l_return    := l_return || '; Path=' || l_cookies (l_name).PATH;
+         END IF;
+
+         -- When setting the cookie expiration header
+         -- we need to set the nls date language to AMERICAN
+         expires_gmt := l_cookies (l_name).expires;
+
+         IF expires_gmt IS NOT NULL
+         THEN
+            l_return    :=
+                  l_return
+               || '; Expires='
+               || RTRIM (TO_CHAR (expires_gmt, 'Dy', 'NLS_DATE_LANGUAGE = American'))
+               || TO_CHAR (expires_gmt, ', DD-Mon-YYYY HH24:MI:SS', 'NLS_DATE_LANGUAGE = American')
+               || ' GMT';
+         END IF;
+
+         IF l_cookies (l_name).secure
+         THEN
+            l_return    := l_return || '; Secure';
+         END IF;
+
+         IF l_cookies (l_name).httponly
+         THEN
+            l_return    := l_return || '; HttpOnly';            
+         END IF;
+
+         l_return    := l_return || CHR (10);
+
+         l_name      := l_cookies.NEXT (l_name);
+      END LOOP;
+
+      RETURN l_return;
+   END generate_cookie_header;   
    
    /**********************************************************************
    *                    Code from dbax_core
@@ -419,7 +488,7 @@ AS
       /******************
       *   Load cookies
       ******************/
-      dbax_cookie.load_cookies;
+      request_.load_cookies;
 
       /******************
       *  Start Session
@@ -449,7 +518,7 @@ AS
          HTP.init;
          OWA_UTIL.mime_header (NVL(response_.content, 'text/html'), FALSE, dbx.get_property ('ENCODING'));
          OWA_UTIL.status_line (nstatus => NVL(response_.status, 200), creason => NULL, bclose_header => FALSE);
-         HTP.prn (dbax_cookie.generate_cookie_header);
+         HTP.prn (generate_cookie_header);
 
          print_http_header;
          OWA_UTIL.http_header_close;

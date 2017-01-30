@@ -61,7 +61,7 @@ AS
 
 
    FUNCTION cookie (p_name IN VARCHAR2)
-      RETURN dbax_cookie.cookie_type
+      RETURN cookie_type
    AS
    BEGIN
       IF r_response.cookies.EXISTS (p_name)
@@ -73,7 +73,7 @@ AS
    END cookie;
 
    FUNCTION cookies
-      RETURN dbax_cookie.g_cookie_array
+      RETURN g_cookie_array
    AS
    BEGIN
       RETURN r_response.cookies;

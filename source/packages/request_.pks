@@ -54,6 +54,13 @@ AS
    FUNCTION headers
       RETURN dbx.g_assoc_array;
 
+   /**
+   * Load client cookies in request_type
+   *
+   * @param  p_cookies       the cookies text, default null.
+   */
+   PROCEDURE load_cookies (p_cookies IN VARCHAR2 DEFAULT NULL );
+   
 
    /**
    * Retrieve a cookie from the request
@@ -73,7 +80,6 @@ AS
    * @return the value if exists
    */
    PROCEDURE cookies (p_cookies IN dbx.g_assoc_array);
-
 
    /**
    * Determine if a cookie is set on the request.

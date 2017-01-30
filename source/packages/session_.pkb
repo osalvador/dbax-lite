@@ -108,7 +108,7 @@ AS
 
       IF p_cookies IS NOT NULL
       THEN
-         dbax_cookie.load_cookies (p_cookies);
+         request_.load_cookies (p_cookies);
       END IF;
 
       IF get ('sessid') IS NULL
