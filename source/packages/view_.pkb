@@ -1,5 +1,42 @@
+/* Formatted on 31/01/2017 12:36:35 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY view_
 AS
+   /**************************
+   * Global Private Variables
+   ***************************/
+   TYPE t_assoc_number
+   IS
+      TABLE OF NUMBER
+         INDEX BY VARCHAR2 (255);
+
+   TYPE t_assoc_date
+   IS
+      TABLE OF DATE
+         INDEX BY VARCHAR2 (255);
+
+   TYPE t_assoc_assoc
+   IS
+      TABLE OF dbx.g_assoc_array
+         INDEX BY VARCHAR2 (255);
+
+   /*TYPE t_assoc_varray
+   IS
+      TABLE OF dbx.g_varchar_array
+         INDEX BY VARCHAR2 (255);*/
+
+   TYPE t_assoc_refcursor
+   IS
+      TABLE OF PLS_INTEGER
+         INDEX BY VARCHAR2 (255);
+
+   g_assoc_varchar     dbx.g_assoc_array;
+   g_assoc_number      t_assoc_number;
+   g_assoc_date        t_assoc_date;
+   g_assoc_assoc       t_assoc_assoc;
+   g_assoc_refcursor   t_assoc_refcursor;
+
+
+
    PROCEDURE output_clob (p_clob IN CLOB)
    IS
       v_offset       PLS_INTEGER := 1;
@@ -21,48 +58,6 @@ AS
          END IF;
       END LOOP;
    END output_clob;
-
-   /*This function fetch de OWA page to CLOB*/
-   FUNCTION dump_owa_page
-      RETURN CLOB
-   AS
-      l_thepage   HTP.htbuf_arr;
-      l_lines     NUMBER DEFAULT 99999999 ;
-      l_found     BOOLEAN := FALSE;
-
-      l_clob      CLOB;
-   --l_string    varchar2(256);
-   BEGIN
-      OWA.get_page (l_thepage, l_lines);
-      DBMS_LOB.createtemporary (l_clob, TRUE);
-
-      --The interpreter prints a comment thats indicates start of HTML content.
-      --Delete this comment from page and the rest text of buffer
-      FOR i IN 1 .. l_lines
-      LOOP
-         IF NOT l_found
-         THEN
-            l_found     := l_thepage (i) LIKE '%<!%';
-
-
-            IF l_found
-            THEN
-               l_thepage (i) := REPLACE (l_thepage (i), '<!-- DBAX interpreter -->');
-            END IF;
-         END IF;
-
-         IF l_found
-         THEN
-            IF LENGTH (l_thepage (i)) > 0
-            THEN
-               DBMS_LOB.writeappend (l_clob, LENGTH (l_thepage (i)), l_thepage (i));
-            END IF;
-         END IF;
-      END LOOP;
-
-
-      RETURN l_clob;
-   END dump_owa_page;
 
    PROCEDURE string_literal_too_long (p_template IN OUT NOCOPY CLOB)
    AS
@@ -182,76 +177,14 @@ AS
       END LOOP;
    END string_literal_too_long;
 
-
-   /**
-   * Receives the template directive key-value data separated by commas
-   * and assign this key-values to the associative array
-   *
-   * @param  p_directive      the key-value data template directive
-   * @param  p_vars           the associative array
-   */
-   /*  PROCEDURE set_template_directive (p_directive IN CLOB, p_vars IN OUT NOCOPY t_assoc_array)
-     AS
-        l_key         VARCHAR2 (256);
-        l_value       VARCHAR2 (256);
-        l_directive   VARCHAR2 (32767);
-     BEGIN
-        l_directive := REGEXP_REPLACE (p_directive, '\s', '');
-
-        FOR c1 IN (    SELECT   REGEXP_REPLACE (REGEXP_SUBSTR (l_directive
-                                                             , '[^,]+'
-                                                             , 1
-                                                             , LEVEL), '\s', '')
-                                   text
-                         FROM   DUAL
-                   CONNECT BY   REGEXP_SUBSTR (l_directive
-                                             , '[^,]+'
-                                             , 1
-                                             , LEVEL) IS NOT NULL)
-        LOOP
-           l_key       := SUBSTR (c1.text, 1, INSTR (c1.text, '=') - 1);
-           l_value     := SUBSTR (c1.text, INSTR (c1.text, '=') + 1);
-           p_vars ('template_' || l_key) := l_value;
-        END LOOP;
-     END set_template_directive;/*/
-
-
    PROCEDURE save_compiled_template (p_template_name       IN VARCHAR2
                                    , p_appid               IN VARCHAR2 DEFAULT NULL
                                    , p_template            IN CLOB
                                    , p_compiled_template   IN CLOB)
    AS
-      PRAGMA AUTONOMOUS_TRANSACTION;      
+      PRAGMA AUTONOMOUS_TRANSACTION;
    BEGIN
-     /* BEGIN
-         l_view_rt   := tapi_wdx_views.rt (NVL (p_appid, dbx.g$appid), p_template_name);
-      EXCEPTION
-         WHEN NO_DATA_FOUND
-         THEN
-            l_view_rt   := NULL;
-      END;
-
-      --insert or update
-      IF l_view_rt.appid IS NULL
-      THEN
-         --INSERT
-         l_view_rt.appid := NVL (p_appid, dbx.g$appid);
-         l_view_rt.name := p_template_name;
-         l_view_rt.source := p_template;
-         l_view_rt.compiled_source := p_compiled_template;
-         l_view_rt.visible := 'Y';
-
-         tapi_wdx_views.ins (l_view_rt);
-      ELSE
-         --UPDATE
-         l_view_rt.source := p_template;
-         l_view_rt.compiled_source := p_compiled_template;
-         l_view_rt.modified_date := SYSDATE;
-
-         tapi_wdx_views.upd (l_view_rt, TRUE);
-      END IF;*/
-
-      -- TODO: Better a MERGE
+      -- TODO: Do a MERGE
       BEGIN
          INSERT INTO wdx_views (appid
                               , name
@@ -278,11 +211,8 @@ AS
              WHERE   appid = NVL (p_appid, dbx.g$appid) AND name = p_template_name;
       END;
 
-
       COMMIT;
    END save_compiled_template;
-
-
 
    FUNCTION include (p_template_name IN VARCHAR2, p_appid IN VARCHAR2 DEFAULT NULL )
       RETURN CLOB
@@ -297,10 +227,7 @@ AS
       EXCEPTION
          WHEN NO_DATA_FOUND
          THEN
-            --dbax_log.trace ('INCLUDE Function, NO_DATA_FOUND');
-            l_template  := EMPTY_CLOB ();
-
-            --Si no se encuentra el template se ejecuta
+            -- An included view must return a VARCHAR or CLOB
             EXECUTE IMMEDIATE 'BEGIN :l_val := ' || p_template_name || '; END;' USING OUT l_template;
       END;
 
@@ -328,261 +255,14 @@ AS
    END include_compiled;
 
 
-
-   FUNCTION template_has_changed (p_template_name IN VARCHAR2, p_appid IN VARCHAR2 DEFAULT NULL , p_template IN CLOB)
-      RETURN BOOLEAN
-   AS
-      l_compare   PLS_INTEGER;
-   BEGIN
-      BEGIN
-         SELECT   DBMS_LOB.compare (source, p_template)
-           INTO   l_compare
-           FROM   wdx_views
-          WHERE   name = p_template_name AND appid = NVL (p_appid, dbx.g$appid);
-      EXCEPTION
-         WHEN NO_DATA_FOUND
-         THEN
-            l_compare   := 1;
-      END;
-   
-      -- 0 = templates are the same
-      IF l_compare != 0
-      THEN
-         RETURN TRUE;
-      ELSE
-         RETURN FALSE;
-      END IF;
-   END template_has_changed;
-
    /**
-   * Bind associative array variables in the template
-   *
-   * @param  p_template      the template
-   * @param  p_vars        the associative array
-   */
-   PROCEDURE bind_vars (p_template IN OUT NOCOPY CLOB, p_vars IN t_assoc_array)
-   AS
-      l_key   VARCHAR2 (256);
-   BEGIN
-      IF p_vars.COUNT () <> 0
-      THEN
-         l_key       := p_vars.FIRST;
-
-         LOOP
-            EXIT WHEN l_key IS NULL;
-            p_template  := REPLACE (p_template, '${' || l_key || '}', TO_CLOB (p_vars (l_key)));
-            l_key       := p_vars.NEXT (l_key);
-         END LOOP;
-      END IF;
-   END bind_vars;
-
-   PROCEDURE bind_vars (p_template IN OUT NOCOPY CLOB, p_vars IN dbx.g_assoc_array)
-   AS
-      l_key   VARCHAR2 (256);
-   BEGIN
-      IF p_vars.COUNT () <> 0
-      THEN
-         l_key       := p_vars.FIRST;
-
-         LOOP
-            EXIT WHEN l_key IS NULL;
-            p_template  := REPLACE (p_template, '${' || l_key || '}', TO_CLOB (p_vars (l_key)));
-            l_key       := p_vars.NEXT (l_key);
-         END LOOP;
-      END IF;
-   END bind_vars;
-
-   /**
-   * Parse template marks
-   *
-   * @param  p_template      the template
-   * @param  p_vars        the associative array
-   */
-   PROCEDURE parse (p_template IN CLOB, p_vars IN t_assoc_array DEFAULT null_assoc_array )
-   AS
-      l_open_count      PLS_INTEGER;
-      l_close_count     PLS_INTEGER;
-      l_template_name   VARCHAR2 (300);
-   BEGIN
-      l_open_count := regexp_count (p_template, '<\%');
-      l_close_count := regexp_count (p_template, '\%>');
-
-      IF l_open_count <> l_close_count
-      THEN
-         IF p_vars.EXISTS ('template_name')
-         THEN
-            l_template_name := ' ' || p_vars ('template_name');
-         END IF;
-
-         raise_application_error (-20001
-                                ,    '##Parser Exception processing the template'
-                                  || l_template_name
-                                  || '. One or more tags (<% %>) are not closed: '
-                                  || l_open_count
-                                  || ' <> '
-                                  || l_close_count
-                                  || CHR (10));
-      END IF;
-
-      l_open_count := regexp_count (p_template, '<\?dbax');
-      l_close_count := regexp_count (p_template, '\?>');
-
-      IF l_open_count <> l_close_count
-      THEN
-         IF p_vars.EXISTS ('template_name')
-         THEN
-            l_template_name := ' ' || p_vars ('template_name');
-         END IF;
-
-         raise_application_error (-20001
-                                ,    '##Parser Exception processing the template'
-                                  || l_template_name
-                                  || '. One or more tags (<?dbax ?>) are not closed: '
-                                  || l_open_count
-                                  || ' <> '
-                                  || l_close_count
-                                  || CHR (10));
-      END IF;
-   END parse;
-
-   /**
-   * Interprets the received template and convert it into executable plsql
-   *
-   * @param  p_template    the template
-   * @param  p_vars        the associative array
-   */
-   PROCEDURE interpret (p_template IN OUT NOCOPY CLOB, p_vars IN t_assoc_array DEFAULT null_assoc_array )
-   AS
-      l_vars      t_assoc_array := p_vars;
-      l_declare   CLOB;
-      l_tmp       CLOB;
-      i           PLS_INTEGER := 0;
-   BEGIN
-      --Parse <% %> tags
-      parse (p_template, l_vars);
-
-      --Dos to Unix
-      p_template  :=
-         REGEXP_REPLACE (p_template
-                       , CHR (13) || CHR (10)
-                       , CHR (10)
-                       , 1
-                       , 0
-                       , 'nm');
-
-      --Delete all template directives
-      p_template  :=
-         REGEXP_REPLACE (p_template
-                       , '<%@ template([^%>].*?)\s*%>[[:blank:]]*\s$?'
-                       , ''
-                       , 1
-                       , 0
-                       , 'n');
-
-      --Escaped chars except \\n
-      p_template  :=
-         REGEXP_REPLACE (p_template
-                       , '\\\\([^n])'
-                       , '~'');dbx.p(q''[\1]'');dbx.p(q''~'
-                       , 1
-                       , 0
-                       , 'n');
-
-
-      --New lines.
-      p_template  :=
-         REGEXP_REPLACE (p_template
-                       , '(\\\\n)'
-                       , CHR (10) --|| '~'');dbx.p(q''~'
-                       , 1
-                       , 0
-                       , 'n');
-
-
-      --Delete the line breaks for lines ending in %>[blanks]CHR(10)
-      p_template  :=
-         REGEXP_REPLACE (p_template
-                       , '(%>[[:blank:]]*?' || CHR (10) || ')'
-                       , '%>'
-                       , 1
-                       , 0
-                       , '');
-
-      --Delete new lines with !\n
-      p_template  :=
-         REGEXP_REPLACE (p_template
-                       , '([[:blank:]]*\!\\n[[:blank:]]*' || CHR (10) || '?[[:blank:]]*)'
-                       , ''
-                       , 1
-                       , 0
-                       , 'm');
-
-      -- Delete all blanks before <% in the beginning of each line
-      p_template  :=
-         REGEXP_REPLACE (p_template
-                       , '(^[[:blank:]]*<%)'
-                       , '<%'
-                       , 1
-                       , 0
-                       , 'm');
-
-      --Merge all declaration blocks into a single block
-      l_tmp       := NULL;
-
-      LOOP
-         i           := i + 1;
-         l_tmp       :=
-            REGEXP_SUBSTR (p_template
-                         , '<%!([^%>].*?)%>'
-                         , 1
-                         , i
-                         , 'n'
-                         , 1);
-         l_declare   := l_declare || l_tmp;
-         EXIT WHEN LENGTH (l_tmp) = 0;
-      END LOOP;
-
-      --Delete declaration blocks from template
-      p_template  :=
-         REGEXP_REPLACE (p_template
-                       , '<%!([^%>].*?)%>'
-                       , ''
-                       , 1
-                       , 0
-                       , 'n');
-
-      --Expresison directive
-      p_template  :=
-         REGEXP_REPLACE (p_template
-                       , '<%=([^%>].*?)%>'
-                       , '~'');dbx.p(\1);dbx.p(q''~'
-                       , 1
-                       , 0
-                       , 'n');
-
-
-      --Variables
-      /*p_template  :=
-         REGEXP_REPLACE (p_template
-                       , '\$\{(\S*)\}'
-                       , '~'');dbx.p(dbax_utils.get(dbax_core.g$view,''\1''));dbx.p(q''~'
-                       , 1
-                       , 0
-                       , 'n');*/
-
-
-      p_template  := 'DECLARE ' || l_declare || ' BEGIN dbx.p(q''~' || p_template || '~''); END;';
-   END interpret;
-
-   /**
-   * Search for include directives, includes and evaluates the specified templates.
-   * Nested include are allowed
-   *
-   * @param  p_template    the template
-   * @param  p_vars        the associative array
-   */
-   PROCEDURE get_includes (p_template   IN OUT NOCOPY CLOB
-                         , p_vars       IN            t_assoc_array DEFAULT null_assoc_array
+     * Search for include directives, includes and evaluates the specified templates.
+     * Nested include are allowed
+     *
+     * @param  p_template    the template
+     * @param  p_vars        the associative array
+     */
+   PROCEDURE get_includes (p_template   IN OUT NOCOPY CLOB                         
                          , p_appid      IN            VARCHAR2)
    AS
       l_tmp               CLOB;
@@ -700,175 +380,357 @@ AS
             raise_application_error (-20001, 'Too much include directive in the template, Recursive include?');
          END IF;
       END LOOP;
-
-
-      --Backward compatibility
-      WHILE REGEXP_INSTR (p_template, q'[<\?dbax\s*dbax_core\.include\s*\(\s*'(.*?)'\s*\)\s*;\s*\?>]') <> 0
-      LOOP
-         --Init
-         l_str_tmp   := NULL;
-         l_object_name := NULL;
-         l_template_name := NULL;
-         l_object_type := NULL;
-         l_schema    := NULL;
-         l_tmp       := NULL;
-         l_start     := 0;
-         l_end       := 0;
-
-         --get include directive
-         l_template_name :=
-            TRIM (REGEXP_SUBSTR (p_template
-                               , q'[<\?dbax\s*dbax_core\.include\s*\(\s*'(.*?)'\s*\)\s*;\s*\?>]'
-                               , 1
-                               , 1
-                               , 'n'
-                               , 1));
-
-         IF LENGTH (l_template_name) > 0
-         THEN
-            --get included template
-            l_tmp       := include (l_template_name, p_appid);
-
-            --Start and End of the expression
-            l_start     :=
-               REGEXP_INSTR (p_template
-                           , q'[<\?dbax\s*dbax_core\.include\s*\(\s*'(.*?)'\s*\)\s*;\s*\?>]'
-                           , 1
-                           , 1
-                           , 0
-                           , 'n');
-
-            l_end       :=
-               REGEXP_INSTR (p_template
-                           , q'[<\?dbax\s*dbax_core\.include\s*\(\s*'(.*?)'\s*\)\s*;\s*\?>]'
-                           , 1
-                           , 1
-                           , 1
-                           , 'n');
-
-            --concatenate result template into first template
-            IF (NVL (l_start, 0) > 0)
-            THEN
-               DBMS_LOB.createtemporary (l_result, FALSE, DBMS_LOB.call);
-
-               IF l_start > 1
-               THEN
-                  DBMS_LOB.COPY (l_result
-                               , p_template
-                               , l_start - 1
-                               , 1
-                               , 1);
-               END IF;
-
-               IF LENGTH (l_tmp) > 0
-               THEN
-                  DBMS_LOB.COPY (l_result
-                               , l_tmp
-                               , DBMS_LOB.getlength (l_tmp)
-                               , DBMS_LOB.getlength (l_result) + 1
-                               , 1);
-               END IF;
-
-               --Adding the rest of the source to the result variable
-               IF l_end <= DBMS_LOB.getlength (p_template)
-               THEN
-                  DBMS_LOB.COPY (l_result
-                               , p_template
-                               , DBMS_LOB.getlength (p_template)
-                               , DBMS_LOB.getlength (l_result) + 1
-                               , l_end);
-               END IF;
-            END IF;
-
-            p_template  := l_result;
-
-            DBMS_LOB.freetemporary (l_result);
-         END IF;
-
-         l_number_includes := l_number_includes + 1;
-
-         IF l_number_includes >= 50
-         THEN
-            raise_application_error (-20001, 'Too much include directive in the template, Recursive include?');
-         END IF;
-      END LOOP;
    END get_includes;
 
-   PROCEDURE PRINT (p_data IN CLOB)
+
+   /**
+   * Check if a view has changed from the cachedview
+   */
+   FUNCTION template_has_changed (p_template_name IN VARCHAR2, p_appid IN VARCHAR2 DEFAULT NULL , p_template IN CLOB)
+      RETURN BOOLEAN
    AS
-      v_pos   INTEGER;
-      v_amt   BINARY_INTEGER := 32000;
-      v_buf   VARCHAR2 (32767);
+      l_compare   PLS_INTEGER;
    BEGIN
-      IF p_data IS NOT NULL
+      BEGIN
+         SELECT   DBMS_LOB.compare (source, p_template)
+           INTO   l_compare
+           FROM   wdx_views
+          WHERE   name = p_template_name AND appid = NVL (p_appid, dbx.g$appid);
+      EXCEPTION
+         WHEN NO_DATA_FOUND
+         THEN
+            l_compare   := 1;
+      END;
+
+      -- 0 = templates are the same
+      IF l_compare != 0
       THEN
-         v_pos       := 1;
+         RETURN TRUE;
+      ELSE
+         RETURN FALSE;
+      END IF;
+   END template_has_changed;
+
+   /**
+   * Bind associative array variables in the template
+   *
+   * @param  p_template      the template
+   * @param  p_vars        the associative array
+   */
+   PROCEDURE bind_vars (p_template IN OUT NOCOPY CLOB, p_vars IN dbx.g_assoc_array)
+   AS
+      l_key   VARCHAR2 (256);
+   BEGIN
+      IF p_vars.COUNT () <> 0
+      THEN
+         l_key       := p_vars.FIRST;
 
          LOOP
-            DBMS_LOB.read (p_data
-                         , v_amt
-                         , v_pos
-                         , v_buf);
-            v_pos       := v_pos + v_amt;
-
-            HTP.prn (v_buf);
+            EXIT WHEN l_key IS NULL;
+            p_template  := REPLACE (p_template, '${' || l_key || '}', TO_CLOB (p_vars (l_key)));
+            l_key       := p_vars.NEXT (l_key);
          END LOOP;
       END IF;
-   EXCEPTION
-      WHEN NO_DATA_FOUND
+   END bind_vars;
+
+   /**
+   * Parse template marks
+   *
+   * @param  p_template      the template
+   * @param  p_vars        the associative array
+   */
+   PROCEDURE parse (p_template IN CLOB )
+   AS
+      l_open_count      PLS_INTEGER;
+      l_close_count     PLS_INTEGER;
+      l_template_name   VARCHAR2 (300);
+   BEGIN
+      l_open_count := regexp_count (p_template, '<\%');
+      l_close_count := regexp_count (p_template, '\%>');
+
+      IF l_open_count <> l_close_count
       THEN
-         NULL;
-   END PRINT;
+         raise_application_error (-20001
+                                ,    '##Parser Exception processing the template'
+                                  || l_template_name
+                                  || '. One or more tags (<% %>) are not closed: '
+                                  || l_open_count
+                                  || ' <> '
+                                  || l_close_count
+                                  || CHR (10));
+      END IF;
+   END parse;
 
-   PROCEDURE PRINT (p_data IN VARCHAR2)
+   /**
+   * Interprets the received template and convert it into executable plsql
+   *
+   * @param  p_template    the template
+   * @param  p_vars        the associative array
+   */
+   PROCEDURE interpret (p_template IN OUT NOCOPY CLOB)
    AS
+      l_declare   CLOB;
+      l_tmp       CLOB;
+      i           PLS_INTEGER := 0;
    BEGIN
-      HTP.prn (p_data);
-   END PRINT;
+      --Parse <% %> tags
+      parse (p_template);
 
-   PROCEDURE PRINT (p_data IN NUMBER)
-   AS
-   BEGIN
-      HTP.prn (TO_CHAR (p_data));
-   END PRINT;
+      --Dos to Unix
+      p_template  :=
+         REGEXP_REPLACE (p_template
+                       , CHR (13) || CHR (10)
+                       , CHR (10)
+                       , 1
+                       , 0
+                       , 'nm');
 
-   PROCEDURE p (p_data IN CLOB)
+      --Delete all template directives
+      p_template  :=
+         REGEXP_REPLACE (p_template
+                       , '<%@ template([^%>].*?)\s*%>[[:blank:]]*\s$?'
+                       , ''
+                       , 1
+                       , 0
+                       , 'n');
+
+      --Escaped chars except \\n
+      p_template  :=
+         REGEXP_REPLACE (p_template
+                       , '\\\\([^n])'
+                       , '~'');dbx.p(q''[\1]'');dbx.p(q''~'
+                       , 1
+                       , 0
+                       , 'n');
+
+
+      --New lines.
+      p_template  :=
+         REGEXP_REPLACE (p_template
+                       , '(\\\\n)'
+                       , CHR (10) --|| '~'');dbx.p(q''~'
+                       , 1
+                       , 0
+                       , 'n');
+
+
+      --Delete the line breaks for lines ending in %>[blanks]CHR(10)
+      p_template  :=
+         REGEXP_REPLACE (p_template
+                       , '(%>[[:blank:]]*?' || CHR (10) || ')'
+                       , '%>'
+                       , 1
+                       , 0
+                       , '');
+
+      --Delete new lines with !\n
+      p_template  :=
+         REGEXP_REPLACE (p_template
+                       , '([[:blank:]]*\!\\n[[:blank:]]*' || CHR (10) || '?[[:blank:]]*)'
+                       , ''
+                       , 1
+                       , 0
+                       , 'm');
+
+      -- Delete all blanks before <% in the beginning of each line
+      p_template  :=
+         REGEXP_REPLACE (p_template
+                       , '(^[[:blank:]]*<%)'
+                       , '<%'
+                       , 1
+                       , 0
+                       , 'm');
+
+      --Merge all declaration blocks into a single block
+      l_tmp       := NULL;
+
+      LOOP
+         i           := i + 1;
+         l_tmp       :=
+            REGEXP_SUBSTR (p_template
+                         , '<%!([^%>].*?)%>'
+                         , 1
+                         , i
+                         , 'n'
+                         , 1);
+         l_declare   := l_declare || l_tmp;
+         EXIT WHEN LENGTH (l_tmp) = 0;
+      END LOOP;
+
+      --Delete declaration blocks from template
+      p_template  :=
+         REGEXP_REPLACE (p_template
+                       , '<%!([^%>].*?)%>'
+                       , ''
+                       , 1
+                       , 0
+                       , 'n');
+
+      --Expresison directive
+      p_template  :=
+         REGEXP_REPLACE (p_template
+                       , '<%=([^%>].*?)%>'
+                       , '~'');dbx.p(\1);dbx.p(q''~'
+                       , 1
+                       , 0
+                       , 'n');
+
+
+      --Variables
+      /*p_template  :=
+         REGEXP_REPLACE (p_template
+                       , '\$\{(\S*)\}'
+                       , '~'');dbx.p(dbax_utils.get(dbax_core.g$view,''\1''));dbx.p(q''~'
+                       , 1
+                       , 0
+                       , 'n');*/
+
+
+      p_template  := 'DECLARE ' || l_declare || ' BEGIN dbx.p(q''~' || p_template || '~''); END;';
+   END interpret;
+
+
+   PROCEDURE set_template_data (p_template IN OUT NOCOPY CLOB)
    AS
-      v_pos   INTEGER;
-      v_amt   BINARY_INTEGER := 32000;
-      v_buf   VARCHAR2 (32767);
+      l_key        VARCHAR2 (256);
+      l_tmp_clob   CLOB;
    BEGIN
-      IF p_data IS NOT NULL
+      -------------------
+      -- VARCHAR Array --
+      -------------------
+      l_key       := g_assoc_varchar.FIRST;
+
+      IF l_key IS NOT NULL
       THEN
-         v_pos       := 1;
+         --Open declaration blok
+         l_tmp_clob  := '<%!';
 
          LOOP
-            DBMS_LOB.read (p_data
-                         , v_amt
-                         , v_pos
-                         , v_buf);
-            v_pos       := v_pos + v_amt;
+            EXIT WHEN l_key IS NULL;
 
-            HTP.prn (v_buf);
+
+            l_tmp_clob  :=
+               l_tmp_clob || l_key || ' VARCHAR2(32767) :=  view_.get_data_varchar(''' || l_key || ''');' || CHR (10);
+
+            l_key       := g_assoc_varchar.NEXT (l_key);
          END LOOP;
+
+         --Close declaration blok
+         l_tmp_clob  := l_tmp_clob || '%>';
+
+         p_template  := p_template || l_tmp_clob;
+
+         l_tmp_clob  := '';
       END IF;
-   EXCEPTION
-      WHEN NO_DATA_FOUND
+
+      -------------------
+      -- NNUMBER Array --
+      -------------------
+      l_key       := g_assoc_number.FIRST;
+
+      IF l_key IS NOT NULL
       THEN
-         NULL;
-   END p;
+         --Open declaration blok
+         l_tmp_clob  := '<%!';
 
-   PROCEDURE p (p_data IN VARCHAR2)
-   AS
-   BEGIN
-      HTP.prn (p_data);
-   END p;
+         LOOP
+            EXIT WHEN l_key IS NULL;
 
-   PROCEDURE p (p_data IN NUMBER)
-   AS
-   BEGIN
-      HTP.prn (TO_CHAR (p_data));
-   END p;
+            l_tmp_clob  := l_tmp_clob || l_key || ' NUMBER :=  view_.get_data_num(''' || l_key || ''');' || CHR (10);
+
+            l_key       := g_assoc_number.NEXT (l_key);
+         END LOOP;
+
+         --Close declaration blok
+         l_tmp_clob  := l_tmp_clob || '%>';
+
+         p_template  := p_template || l_tmp_clob;
+
+         l_tmp_clob  := '';
+      END IF;
+
+      -------------------
+      -- DATE Array --
+      -------------------
+      l_key       := g_assoc_date.FIRST;
+
+      IF l_key IS NOT NULL
+      THEN
+         --Open declaration blok
+         l_tmp_clob  := '<%!';
+
+         LOOP
+            EXIT WHEN l_key IS NULL;
+
+            l_tmp_clob  := l_tmp_clob || l_key || ' DATE :=  view_.get_data_date(''' || l_key || ''');' || CHR (10);
+
+            l_key       := g_assoc_date.NEXT (l_key);
+         END LOOP;
+
+         --Close declaration blok
+         l_tmp_clob  := l_tmp_clob || '%>';
+
+         p_template  := p_template || l_tmp_clob;
+
+         l_tmp_clob  := '';
+      END IF;
+
+      -------------------
+      -- Assoc Array --
+      -------------------
+      l_key       := g_assoc_assoc.FIRST;
+
+      IF l_key IS NOT NULL
+      THEN
+         --Open declaration blok
+         l_tmp_clob  := '<%!';
+
+         LOOP
+            EXIT WHEN l_key IS NULL;
+
+            l_tmp_clob  :=
+               l_tmp_clob || l_key || ' dbx.g_assoc_array :=  view_.get_data_assoc(''' || l_key || ''');' || CHR (10);
+
+            l_key       := g_assoc_assoc.NEXT (l_key);
+         END LOOP;
+
+         --Close declaration blok
+         l_tmp_clob  := l_tmp_clob || '%>';
+
+         p_template  := p_template || l_tmp_clob;
+
+         l_tmp_clob  := '';
+      END IF;
+      
+      -------------------
+      -- Cursor Array --
+      -------------------
+      l_key       := g_assoc_refcursor.FIRST;
+
+      IF l_key IS NOT NULL
+      THEN
+         --Open declaration blok
+         l_tmp_clob  := '<%!';
+
+         LOOP
+            EXIT WHEN l_key IS NULL;
+
+            l_tmp_clob  :=
+               l_tmp_clob || l_key || ' sys_refcursor :=  view_.get_data_refcursor(''' || l_key || ''');' || CHR (10);
+
+            l_key       := g_assoc_refcursor.NEXT (l_key);
+         END LOOP;
+
+         --Close declaration blok
+         l_tmp_clob  := l_tmp_clob || '%>';
+
+         p_template  := p_template || l_tmp_clob;
+
+         l_tmp_clob  := '';
+      END IF;      
+      
+   END set_template_data;
+
 
    FUNCTION compile (p_template_name IN VARCHAR2, p_appid IN VARCHAR2, p_error_template OUT NOCOPY CLOB)
       RETURN CLOB
@@ -879,8 +741,6 @@ AS
       --Get template
       l_template  := include (p_template_name, p_appid);
 
-      --dbax_log.trace ('Compile Function. p_template_name:' || p_template_name);
-      --dbax_log.trace ('Compile Function. l_template:' || l_template);
       --Parse <% %> tags
       parse (l_template);
 
@@ -894,14 +754,6 @@ AS
       l_template  :=
          REGEXP_REPLACE (l_template
                        , '<%([^%>].*?)%>'
-                       , '~''); \1 dbx.p(q''~'
-                       , 1
-                       , 0
-                       , 'n');
-
-      l_template  :=
-         REGEXP_REPLACE (l_template
-                       , '<\?dbax([^\?>].*?)\?>'
                        , '~''); \1 dbx.p(q''~'
                        , 1
                        , 0
@@ -954,6 +806,9 @@ AS
       --Get template
       l_template  := p_template;
 
+      -- Set template data variables
+      set_template_data (l_template);
+
       --dbax_log.trace ('Compile Function. l_template:' || l_template);
 
       --Parse <% %> tags
@@ -969,14 +824,6 @@ AS
       l_template  :=
          REGEXP_REPLACE (l_template
                        , '<%([^%>].*?)%>'
-                       , '~''); \1 dbx.p(q''~'
-                       , 1
-                       , 0
-                       , 'n');
-
-      l_template  :=
-         REGEXP_REPLACE (l_template
-                       , '<\?dbax([^\?>].*?)\?>'
                        , '~''); \1 dbx.p(q''~'
                        , 1
                        , 0
@@ -1018,71 +865,6 @@ AS
          RAISE;
    END compile;
 
-
-  /* PROCEDURE compile_all (p_appid IN VARCHAR2, p_error_template OUT NOCOPY CLOB)
-   AS
-      l_compiled_view    CLOB;
-      l_error_template   CLOB;
-      l_view_rt          tapi_wdx_views.wdx_views_rt;
-
-      l_actual_appid     VARCHAR2 (50) := dbx.g$appid;
-   BEGIN
-      FOR c1 IN (SELECT   * FROM table (tapi_wdx_views.tt (p_appid)))
-      LOOP
-         dbx.g$appid := c1.appid;
-
-         l_compiled_view := dbax_teplsql.compile (c1.name, p_appid, l_error_template);
-
-         l_view_rt   := c1;
-         l_view_rt.compiled_source := l_compiled_view;
-         l_view_rt.modified_date := SYSDATE;
-         tapi_wdx_views.upd (l_view_rt);
-      END LOOP;
-
-      dbx.g$appid := l_actual_appid;
-   EXCEPTION
-      WHEN OTHERS
-      THEN
-         dbx.g$appid := l_actual_appid;
-         p_error_template := l_error_template;
-         --dbax_log.error (p_error_template);
-         RAISE;
-   END compile_all;*/
-
-   /*PROCEDURE compile_dependencies (p_template_name IN VARCHAR2, p_appid IN VARCHAR2, p_error_template OUT NOCOPY CLOB)
-   AS
-      l_compiled_view   CLOB;
-      l_view_rt         tapi_wdx_views.wdx_views_rt;
-   BEGIN
-      FOR c1 IN (SELECT   *
-                   FROM   wdx_views
-                  WHERE   (REGEXP_INSTR (source
-                                       , '<%@\s*include\(\s*' || p_template_name || '\s*\)\s*%>'
-                                       , 1
-                                       , 1
-                                       , 0
-                                       , 'i') <> 0
-                           OR REGEXP_INSTR (source
-                                          ,    '<\?dbax\s*dbax_core\.include\s*\(\s*'''
-                                            || p_template_name
-                                            || '''\s*\)\s*;\s*\?>'
-                                          , 1
-                                          , 1
-                                          , 0
-                                          , 'i') <> 0)
-                          AND appid = p_appid)
-      LOOP
-         l_compiled_view := dbax_teplsql.compile (c1.name, p_appid, p_error_template);
-
-         l_view_rt.appid := c1.appid;
-         l_view_rt.name := c1.name;
-         l_view_rt.compiled_source := l_compiled_view;
-         l_view_rt.modified_date := SYSDATE;
-         tapi_wdx_views.upd (l_view_rt, TRUE);
-      END LOOP;
-   END compile_dependencies;*/
-
-
    PROCEDURE purge_compiled (p_appid IN VARCHAR2)
    AS
       PRAGMA AUTONOMOUS_TRANSACTION;
@@ -1096,8 +878,7 @@ AS
 
 
    PROCEDURE execute (p_template_name   IN VARCHAR2 DEFAULT NULL
-                    , p_appid           IN VARCHAR2 DEFAULT NULL
-                    , p_vars            IN t_assoc_array DEFAULT null_assoc_array
+                    , p_appid           IN VARCHAR2 DEFAULT NULL                    
                     , p_template        IN CLOB DEFAULT NULL )
    AS
       l_template         CLOB;
@@ -1150,29 +931,125 @@ AS
       END IF;
 
       --Bind the variables into template
-      IF p_vars.COUNT () = 0
-      THEN
-         bind_vars (l_template, dbx.g$view);
-      ELSE
-         bind_vars (l_template, p_vars);
-      END IF;
+      bind_vars (l_template, g_assoc_varchar);
 
       --Null all variables not binded
       l_template  := REGEXP_REPLACE (l_template, '\$\{\S*\}', '');
-
-      --DBMS_OUTPUT.put_line ('l_template = ' || l_template);
+      
 
       --dbax_log.trace ('Executing this template:' || l_template);
 
       EXECUTE IMMEDIATE l_template;
+   EXCEPTION
+      WHEN OTHERS
+      THEN
+         dbx.p (l_error_template);
    END execute;
-   
-   
-   PROCEDURE run (p_view IN CLOB, p_name IN VARCHAR2)
-   AS
-   BEGIN
-      execute (p_template_name => p_name, p_template => p_view);
-   END run;
-   
+
+
+    PROCEDURE run (p_view IN CLOB, p_name IN VARCHAR2)
+    AS
+    BEGIN
+       execute (p_template_name => p_name, p_template => p_view);
+    END run;
+
+    PROCEDURE data (p_name IN VARCHAR2, p_value IN VARCHAR2)
+    AS
+    BEGIN
+       g_assoc_varchar (p_name) := p_value;
+    END;
+
+    FUNCTION get_data_varchar (p_name IN VARCHAR2)
+       RETURN VARCHAR2
+    AS
+    BEGIN
+       IF g_assoc_varchar.EXISTS (p_name)
+       THEN
+          RETURN g_assoc_varchar (p_name);
+       ELSE
+          RETURN NULL;
+       END IF;
+    END;
+
+    PROCEDURE data (p_name IN VARCHAR2, p_value IN NUMBER)
+    AS
+    BEGIN
+       g_assoc_number (p_name) := p_value;
+    END;
+
+    FUNCTION get_data_num (p_name IN VARCHAR2)
+       RETURN NUMBER
+    AS
+    BEGIN
+       IF g_assoc_number.EXISTS (p_name)
+       THEN
+          RETURN g_assoc_number (p_name);
+       ELSE
+          RETURN NULL;
+       END IF;
+    END;
+
+    PROCEDURE data (p_name IN VARCHAR2, p_value IN DATE)
+    AS
+    BEGIN
+       g_assoc_date (p_name) := p_value;
+    END;
+
+    FUNCTION get_data_date (p_name IN VARCHAR2)
+       RETURN DATE
+    AS
+    BEGIN
+       IF g_assoc_date.EXISTS (p_name)
+       THEN
+          RETURN g_assoc_date (p_name);
+       ELSE
+          RETURN NULL;
+       END IF;
+    END;
+
+    PROCEDURE data (p_name IN VARCHAR2, p_value IN dbx.g_assoc_array)
+    AS
+    BEGIN
+       g_assoc_assoc (p_name) := p_value;
+    END;
+
+    FUNCTION get_data_assoc (p_name IN VARCHAR2)
+       RETURN dbx.g_assoc_array
+    AS
+       l_null_assoc   dbx.g_assoc_array;
+    BEGIN
+       IF g_assoc_assoc.EXISTS (p_name)
+       THEN
+          RETURN g_assoc_assoc (p_name);
+       ELSE
+          RETURN l_null_assoc;
+       END IF;
+    END;
+
+    PROCEDURE data (p_name IN VARCHAR2, p_cursor IN sys_refcursor)
+    AS
+       l_cursor_id    PLS_INTEGER;
+       l_ref_cursor   sys_refcursor;
+    BEGIN
+       l_ref_cursor := p_cursor;
+       l_cursor_id := DBMS_SQL.to_cursor_number (l_ref_cursor);
+
+       g_assoc_refcursor (p_name) := l_cursor_id;
+    END;
+
+    FUNCTION get_data_refcursor (p_name IN VARCHAR2)
+       RETURN sys_refcursor
+    AS
+       l_ref_cursor   sys_refcursor;
+    BEGIN
+       IF g_assoc_refcursor.EXISTS (p_name)
+       THEN
+          l_ref_cursor := DBMS_SQL.to_refcursor (g_assoc_refcursor (p_name));
+          RETURN l_ref_cursor;
+       ELSE
+          RETURN NULL;
+       END IF;
+    END;
+
 END view_;
 /

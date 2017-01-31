@@ -1,3 +1,4 @@
+/* Formatted on 31/01/2017 12:32:21 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE view_
 AS
    /**
@@ -15,14 +16,6 @@ AS
    * END;
    */
 
-   --Define Associative Array
-   TYPE t_assoc_array
-   IS
-      TABLE OF VARCHAR2 (32767)
-         INDEX BY VARCHAR2 (255);
-
-   null_assoc_array   t_assoc_array;
-
    /**
    * Output CLOB data to the DBMS_OUTPUT.PUT_LINE
    *
@@ -37,8 +30,8 @@ AS
    *  @param   p_appid             the appid of the view, optional default is dbax_core.g$appid
    *  @return  view source code
    */
-   FUNCTION include (p_template_name IN VARCHAR2, p_appid IN VARCHAR2 DEFAULT NULL )
-      RETURN CLOB;
+   /*FUNCTION include (p_template_name IN VARCHAR2, p_appid IN VARCHAR2 DEFAULT NULL )
+      RETURN CLOB;*/
 
    /**
    *  Returns the compiled source code of the view
@@ -66,25 +59,53 @@ AS
    *  @param   p_template          the template to be executed
    */
    PROCEDURE execute (p_template_name   IN VARCHAR2 DEFAULT NULL
-                    , p_appid           IN VARCHAR2 DEFAULT NULL
-                    , p_vars            IN t_assoc_array DEFAULT null_assoc_array
+                    , p_appid           IN VARCHAR2 DEFAULT NULL                   
                     , p_template        IN CLOB DEFAULT NULL );
 
    /**
    *  Purge all compiled source
-   *   
+   *
    *  @param   p_appid             the appid of the view
    */
    PROCEDURE purge_compiled (p_appid IN VARCHAR2);
-   
-  
+
+
    /**
    * Run or execute the view
    *
    * @param     p_view      the view template
-   * @param     p_name      the name of the view. 
+   * @param     p_name      the name of the view.
    */
    PROCEDURE run (p_view IN CLOB, p_name IN VARCHAR2);
-   
+
+   /**
+   * Set data to view
+   */
+   PROCEDURE data (p_name IN VARCHAR2, p_value IN VARCHAR2);
+
+   PROCEDURE data (p_name IN VARCHAR2, p_value IN NUMBER);
+
+   PROCEDURE data (p_name IN VARCHAR2, p_value IN DATE);
+
+   PROCEDURE data (p_name IN VARCHAR2, p_value IN dbx.g_assoc_array);
+
+   --PROCEDURE data (p_name IN VARCHAR2, p_value IN dbx.g_varchar_array);
+
+   PROCEDURE data (p_name IN VARCHAR2, p_cursor IN sys_refcursor);
+
+   FUNCTION get_data_varchar (p_name IN VARCHAR2)
+      RETURN VARCHAR2;
+
+   FUNCTION get_data_num (p_name IN VARCHAR2)
+      RETURN NUMBER;
+
+   FUNCTION get_data_date (p_name IN VARCHAR2)
+      RETURN DATE;
+
+   FUNCTION get_data_assoc (p_name IN VARCHAR2)
+      RETURN dbx.g_assoc_array;
+
+   FUNCTION get_data_refcursor (p_name IN VARCHAR2)
+      RETURN sys_refcursor;
 END view_;
 /
