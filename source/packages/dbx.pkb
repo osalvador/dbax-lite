@@ -183,12 +183,12 @@ AS
 
       RETURN l_array;
    END tokenizer;
-   
+
    /**********************************************************************
    *                    Code from dbax_cookie
    ***********************************************************************/
-   
-  
+
+
    /**
    * Generates the HTTP header with the cookies sent to client
    *
@@ -243,7 +243,7 @@ AS
 
          IF l_cookies (l_name).httponly
          THEN
-            l_return    := l_return || '; HttpOnly';            
+            l_return    := l_return || '; HttpOnly';
          END IF;
 
          l_return    := l_return || CHR (10);
@@ -252,12 +252,12 @@ AS
       END LOOP;
 
       RETURN l_return;
-   END generate_cookie_header;   
-   
+   END generate_cookie_header;
+
    /**********************************************************************
    *                    Code from dbax_core
    ***********************************************************************/
-   
+
    PROCEDURE print_http_header
    AS
       l_key       VARCHAR2 (256);
@@ -276,8 +276,8 @@ AS
          END LOOP;
       END IF;
    END print_http_header;
-   
-   
+
+
    PROCEDURE print_owa_page (p_thepage IN HTP.htbuf_arr, p_lines IN NUMBER)
    AS
       l_found     BOOLEAN := FALSE;
@@ -302,8 +302,8 @@ AS
          END IF;
       END LOOP;
    END print_owa_page;
-   
-  PROCEDURE set_request (name_array    IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr
+
+   PROCEDURE set_request (name_array    IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr
                         , value_array   IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr )
    AS
       l_headers      dbx.g_assoc_array;
@@ -398,10 +398,250 @@ AS
       ELSE
          request_.inputs (l_post);
       END IF;
-   END set_request;   
-   
-   
-    PROCEDURE execute_app_router (p_router IN VARCHAR2)
+   END set_request;
+
+   FUNCTION get_error_source_code (p_errorbacktrace IN VARCHAR2, p_errorstack IN VARCHAR2)
+      RETURN VARCHAR2
+   AS
+      l_code_line   PLS_INTEGER;
+      l_owner       VARCHAR2 (31);
+      l_name        VARCHAR2 (31);
+      l_code        VARCHAR2 (32767);
+      l_new_type    VARCHAR2 (31);
+      l_old_type    VARCHAR2 (31);
+   BEGIN
+      -- Get Line of code
+      l_code_line :=
+         REGEXP_SUBSTR (p_errorbacktrace
+                      , ', line (.*?)' || CHR (10)
+                      , 1
+                      , 1
+                      , 'n'
+                      , 1);
+      l_owner     :=
+         REGEXP_SUBSTR (p_errorbacktrace
+                      , ' at "(.*?)\.'
+                      , 1
+                      , 1
+                      , 'n'
+                      , 1);
+      l_name      :=
+         REGEXP_SUBSTR (p_errorbacktrace
+                      , ' at "' || l_owner || '\.(.*?)"'
+                      , 1
+                      , 1
+                      , 'n'
+                      , 1);
+
+      --If the name is VIEW_ get view's compiled source
+      IF l_name = 'VIEW_'
+      THEN
+         l_code_line :=
+            REGEXP_SUBSTR (p_errorstack
+                         , 'line (\d*),'
+                         , 1
+                         , 1
+                         , 'n'
+                         , 1);
+
+         l_code      := '<h3>View ' || view_.name () || '<small> compiled source code</small></h3>';
+         l_code      :=
+               l_code
+            || '<pre class="prettyprint linenums:'
+            || (l_code_line - 9)
+            || '"><code class="language-sql">...'
+            || CHR (10);
+
+         FOR c1
+         IN (SELECT   x.rn, x.compiled_source
+               FROM   wdx_views t
+                    , XMLTABLE ('/x/y' PASSING xmltype(REPLACE (   '<x><y>'
+                                || DBMS_XMLGEN.CONVERT (t.compiled_source, 0)
+                                || '</y></x>'
+                                                              ,CHR (10)
+                                                              ,'</y><y>')) COLUMNS rn FOR ORDINALITY, compiled_source
+                                VARCHAR2 (4000) PATH '/y') x
+              WHERE   t.name = view_.name () AND rn BETWEEN l_code_line - 8 AND l_code_line + 8)
+         LOOP
+            IF c1.rn = l_code_line
+            THEN
+               l_code      :=
+                     l_code
+                  || '<span class="operative">'
+                  || DBMS_XMLGEN.CONVERT (c1.compiled_source, 0)
+                  || ' </span>'
+                  || CHR (10);
+            ELSE
+               l_code      := l_code || DBMS_XMLGEN.CONVERT (c1.compiled_source, 0) || CHR (10);
+            END IF;
+         END LOOP;
+
+         l_code      := l_code || '...</code></pre>';
+      ELSE
+         FOR c1
+         IN (  SELECT   *
+                 FROM   all_source
+                WHERE       name = l_name
+                        AND owner = l_owner
+                        AND line BETWEEN l_code_line - 8 AND l_code_line + 8
+                        AND name <> 'DBAX_CORE'
+             ORDER BY   TYPE, line)
+         LOOP
+            l_new_type  := c1.TYPE;
+
+            IF l_new_type <> l_old_type OR l_old_type IS NULL
+            THEN
+               IF l_code IS NOT NULL
+               THEN
+                  l_code      := l_code || '...</code></pre>';
+               END IF;
+
+               l_code      := l_code || '<h3>' || c1.TYPE || ' <small> ' || l_owner || '.' || l_name || '</small></h3>';
+               l_code      :=
+                     l_code
+                  || '<pre class="prettyprint linenums:'
+                  || (l_code_line - 9)
+                  || '"><code class="language-sql">...'
+                  || CHR (10);
+            END IF;
+
+            IF c1.line = l_code_line
+            THEN
+               l_code      :=
+                  l_code || '<span class="operative">' || REPLACE (c1.text, CHR (10)) || ' </span>' || CHR (10);
+            ELSE
+               l_code      := l_code || c1.text;
+            END IF;
+
+            l_old_type  := l_new_type;
+         END LOOP;
+
+         IF l_code IS NOT NULL
+         THEN
+            l_code      := l_code || '...</code></pre>';
+         END IF;
+      END IF;
+
+      RETURN l_code;
+   END get_error_source_code;
+
+   PROCEDURE raise_exception (p_error_code IN NUMBER, p_error_msg IN VARCHAR2)
+   AS
+      l_html_error    VARCHAR2 (32767);
+      --
+      l_log_id        PLS_INTEGER;
+      --
+      l_http_output   HTP.htbuf_arr;
+      l_lines         NUMBER DEFAULT 99999999 ;
+   BEGIN      
+      --dbax_log.open_log ('debug');
+      g_stop_process := TRUE;
+
+      -- Get error_style from application properties
+      view_.data ('error_style', dbx.get_property('error_style'));
+
+      view_.data ('errorCode', TO_CHAR (p_error_code));
+      view_.data ('errorMsg', p_error_msg);
+
+      view_.data ('errorStack', '----- PL/SQL Error Stack -----' || CHR (10) || DBMS_UTILITY.format_error_stack ());
+      view_.data ('errorBacktrace'
+                , '----- PL/SQL Error Backtrace -----' || CHR (10) || DBMS_UTILITY.format_error_backtrace ());
+
+      view_.data ('callStack', DBMS_UTILITY.format_call_stack ());
+
+
+      --dbax_log.error ('p_cod_error:' || p_error_code || ' p_msg_error:' || p_error_msg);
+      --dbax_log.error (dbax_core.g$view ('errorStack'));
+      --dbax_log.error (dbax_core.g$view ('errorBacktrace'));
+      --dbax_log.error (dbax_core.g$view ('callStack'));
+
+      --l_log_id    := dbax_log.close_log;
+
+      view_.data ('logId', TO_CHAR (l_log_id));
+      view_.data ('code'
+                , get_error_source_code (view_.get_data_varchar ('errorBacktrace')
+                                       , view_.get_data_varchar ('errorStack')));
+
+      l_html_error :=
+         q'[<!DOCTYPE html>
+<html>
+   <head>
+      <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+      <meta charset="utf-8">
+      <title>dbax Exception</title>
+      <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+      <!-- Latest compiled and minified CSS -->
+      <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
+      <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+      <![endif]-->    
+       <style>.operative { font-weight: bold; border:1px solid red }</style>
+   </head>
+   <body>
+      <header class="navbar navbar-default navbar-static-top" role="banner">
+         <div class="container">
+            <div class="navbar-header">
+               <a href="https://github.com/osalvador/dbax-lite" class="navbar-brand">dbax exception: 500 Internal Server Error</a>
+            </div>
+         </div>
+      </header>
+      <!-- Begin Body -->
+      <div class="container">
+         <div class="row">
+            <div class="col-md-12">
+               <h1 class="text-danger text-center"><b>Error 500. Internal Server Error (${logId})</b></h1>
+                <br>
+               <h4 class="text-center">There is a problem with the resource you are looking for, and it cannot be displayed. <code id="http_referer"></code></h4>
+               <h4 class="text-center">Contact your administrator with details of the action you performed before error occured with this log id: ${logId}</h4>
+               <% if error_style = 'DebugStyle' then %> 
+               <hr>
+               <h2 id="userError">User Error</h2>
+               <pre class="prettyprint"><code class="language-sql">Error Code: ${errorCode}</code></pre>
+               <pre class="prettyprint"><code class="language-sql">${errorMsg}</code></pre>
+               <hr>
+               <h2 id="errorStack">Error Stack</h2>               
+               <pre class="prettyprint"><code class="language-sql">${errorStack}</code></pre>
+               <hr>
+               <h2 id="errorBacktrace">Error Backtrace</h2>
+               <pre class="prettyprint"><code class="language-sql">${errorBacktrace}</code></pre>              
+               <hr>
+               <h2 id="callStack">Call Stack</h2>
+               <pre class="prettyprint"><code class="language-sql">${callStack}</code></pre>
+               <hr>              
+               <h2 id="code">Code</h2>               
+               ${code}
+              <hr>
+              <% end if; %>
+            </div>
+         </div>
+      </div>
+      <!-- script references -->
+      <script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+      <!-- Latest compiled and minified JavaScript -->
+      <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+      <script type="text/javascript">
+          document.getElementById("http_referer").innerHTML = window.location.pathname;       
+       </script>      
+      <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=sql&amp;skin=sons-of-obsidian"></script>
+   </body>
+</html>]';
+
+      --Run view
+      view_.run (l_html_error, '500');
+
+      -- Get page from owa buffer
+      OWA.get_page (l_http_output, l_lines);
+
+      HTP.init;
+      OWA_UTIL.mime_header ('text/html', FALSE, dbx.get_property ('ENCODING'));
+      OWA_UTIL.status_line (500);
+      OWA_UTIL.http_header_close;
+
+      print_owa_page (l_http_output, l_lines);
+   END raise_exception;
+
+
+   PROCEDURE execute_app_router (p_router IN VARCHAR2)
    AS
       l_procedure   VARCHAR2 (100);
    BEGIN
@@ -415,36 +655,26 @@ AS
          THEN
             IF SQLCODE = -06550
             THEN
-               --dbax_exception.raise (100, 'Error trying to execute the controller: ' || upper(p_controller) );
-               HTP.p ('<br> ' || SQLERRM || 'Error trying to execute the router: ' || UPPER (l_procedure));
-               --TODO
-               RAISE;
+               raise_exception (100, 'Error trying to execute the controller: ' || UPPER (p_router));
             ELSIF SQLCODE = -06503
             THEN
                --Function returned without value
                NULL;
             ELSE
-               --dbax_exception.raise (SQLCODE, SQLERRM || CHR(10) || 'Executing controller: ' || upper(p_controller));
-               HTP.p ( DBMS_UTILITY.FORMAT_ERROR_backtrace|| '<br>Executing router: ' || UPPER (l_procedure));
-               --TODO
-               --RAISE;
+               raise_exception (SQLCODE, SQLERRM || CHR(10) || 'Executing router: ' || upper(p_router));
             END IF;
       END;
    END execute_app_router;
-   
-   
-    PROCEDURE dispatcher (p_appid       IN VARCHAR2
+
+   PROCEDURE dispatcher (p_appid       IN VARCHAR2
                        , name_array    IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr
                        , value_array   IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr
                        , router        IN VARCHAR2 DEFAULT NULL )
    AS
-      l_path          VARCHAR2 (4000);            
+      l_path          VARCHAR2 (4000);
       --
       l_http_output   HTP.htbuf_arr;
       l_lines         NUMBER DEFAULT 99999999 ;
-      --
-      e_stop_process exception;
-      e_inactive_app exception;
    BEGIN
       /***************
       * Defining the application
@@ -504,20 +734,19 @@ AS
       execute_app_router (router);
 
 
-      /***************
-      *  Print Page
-      ***************/
-
-      -- Get page from owa buffer
-      OWA.get_page (l_http_output, l_lines);
-
       IF NOT dbx.g_stop_process
       THEN
-         HTP.init;
-         OWA_UTIL.mime_header (NVL(response_.content, 'text/html'), FALSE, dbx.get_property ('ENCODING'));
-         OWA_UTIL.status_line (nstatus => NVL(response_.status, 200), creason => NULL, bclose_header => FALSE);
-         HTP.prn (generate_cookie_header);
+         /***************
+         *  Print Page
+         ***************/
 
+         -- Get page from owa buffer
+         OWA.get_page (l_http_output, l_lines);
+
+         HTP.init;
+         OWA_UTIL.mime_header (NVL (response_.content, 'text/html'), FALSE, dbx.get_property ('ENCODING'));
+         OWA_UTIL.status_line (nstatus => NVL (response_.status, 200), creason => NULL, bclose_header => FALSE);
+         HTP.prn (generate_cookie_header);
          print_http_header;
          OWA_UTIL.http_header_close;
 
@@ -529,20 +758,13 @@ AS
       session_.save;
    --TODO
    --dbax_log.close_log;
-   --   EXCEPTION
-   --      WHEN e_stop_process
-   --      THEN
-   --         --dbax_session.save_sesison_variable;
-   --         --dbax_log.close_log;
-   --         --TODO
-   --         NULL;
-   --      WHEN OTHERS
-   --      THEN
-   --         --dbax_session.save_sesison_variable;
-   --         --dbax_exception.raise (SQLCODE, SQLERRM);
-   --         --dbax_log.close_log;
-   --         --TODO
-   --         raise;
+
+   EXCEPTION
+      WHEN OTHERS
+      THEN
+         session_.save;
+         raise_exception (SQLCODE, SQLERRM);
+         --TODO
+         --dbax_log.close_log;
    END dispatcher;
-   
 END dbx;

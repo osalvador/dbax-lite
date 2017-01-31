@@ -1,4 +1,3 @@
-/* Formatted on 31/01/2017 12:36:35 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY view_
 AS
    /**************************
@@ -35,6 +34,7 @@ AS
    g_assoc_assoc       t_assoc_assoc;
    g_assoc_refcursor   t_assoc_refcursor;
 
+   g_view_name         VARCHAR2(300);
 
 
    PROCEDURE output_clob (p_clob IN CLOB)
@@ -183,7 +183,7 @@ AS
                                    , p_compiled_template   IN CLOB)
    AS
       PRAGMA AUTONOMOUS_TRANSACTION;
-   BEGIN
+   BEGIN      
       -- TODO: Do a MERGE
       BEGIN
          INSERT INTO wdx_views (appid
@@ -194,7 +194,7 @@ AS
                               , created_by
                               , modified_by)
            VALUES   (NVL (p_appid, dbx.g$appid)
-                   , p_template_name
+                   , NVL(p_template_name, 'NONAME')
                    , p_template
                    , p_compiled_template
                    , 'Y'
@@ -208,7 +208,7 @@ AS
                    , compiled_source = p_compiled_template
                    , modified_date = SYSDATE
                    , modified_by  = NVL (dbx.g$username, USER)
-             WHERE   appid = NVL (p_appid, dbx.g$appid) AND name = p_template_name;
+             WHERE   appid = NVL (p_appid, dbx.g$appid) AND name = NVL(p_template_name, 'NONAME');
       END;
 
       COMMIT;
@@ -729,6 +729,13 @@ AS
          l_tmp_clob  := '';
       END IF;      
       
+      g_assoc_varchar.delete;
+      g_assoc_number.delete;
+      g_assoc_date.delete;
+      g_assoc_assoc.delete;
+      g_assoc_refcursor.delete;
+      
+      
    END set_template_data;
 
 
@@ -797,7 +804,7 @@ AS
          RAISE;
    END compile;
 
-   FUNCTION compile (p_template IN CLOB, p_appid IN VARCHAR2, p_error_template OUT NOCOPY CLOB)
+   FUNCTION local_compile (p_template IN CLOB, p_appid IN VARCHAR2)
       RETURN CLOB
    AS
       l_template   CLOB;
@@ -841,6 +848,62 @@ AS
       --Avoid PLS-00172: string literal too long
       string_literal_too_long (l_template);
 
+     /** 
+     * I do not parse the template because it is going to be executed
+     */
+      /*v_cur_hdl   := DBMS_SQL.open_cursor;
+      DBMS_SQL.parse (v_cur_hdl, l_template, DBMS_SQL.native);
+      DBMS_SQL.close_cursor (v_cur_hdl);*/
+
+
+      RETURN l_template;
+   END local_compile;
+
+ FUNCTION compile (p_template IN CLOB, p_appid IN VARCHAR2, p_error_template OUT NOCOPY CLOB)
+      RETURN CLOB
+   AS
+      l_template   CLOB;
+      v_cur_hdl    INTEGER;
+   BEGIN
+      --Get template
+      l_template  := p_template;
+
+      -- Set template data variables
+      set_template_data (l_template);
+
+      --dbax_log.trace ('Compile Function. l_template:' || l_template);
+
+      --Parse <% %> tags
+      parse (l_template);
+
+      --Get Includes
+      get_includes (p_template => l_template, p_appid => p_appid);
+
+      --Interpret the template
+      interpret (l_template);
+
+      --Code blocks directive
+      l_template  :=
+         REGEXP_REPLACE (l_template
+                       , '<%([^%>].*?)%>'
+                       , '~''); \1 dbx.p(q''~'
+                       , 1
+                       , 0
+                       , 'n');
+
+      --Delete all null code blocks
+      l_template  :=
+         REGEXP_REPLACE (l_template
+                       , q'@dbx.p\(q\'\~\~\'\)\;@'
+                       , ''
+                       , 1
+                       , 0
+                       , 'n');
+
+      --Avoid PLS-00172: string literal too long
+      string_literal_too_long (l_template);
+
+
       v_cur_hdl   := DBMS_SQL.open_cursor;
       DBMS_SQL.parse (v_cur_hdl, l_template, DBMS_SQL.native);
       DBMS_SQL.close_cursor (v_cur_hdl);
@@ -861,9 +924,10 @@ AS
          p_error_template := p_error_template || ('### Processing template ');
          p_error_template := p_error_template || (CHR (10));
          p_error_template := p_error_template || (l_template);
-         --dbax_log.error (p_error_template);
-         RAISE;
+         --dbax_log.error (p_error_template);         
+         RAISE;         
    END compile;
+
 
    PROCEDURE purge_compiled (p_appid IN VARCHAR2)
    AS
@@ -894,17 +958,12 @@ AS
       THEN
          --Si ambos parametros no son nulos se trata del model de dbax lite
          --Comprobar si el template ha cambiado para ejecutar solo el compilado
-
+          
          IF template_has_changed (p_template_name => p_template_name, p_appid => p_appid, p_template => p_template)
          THEN
             -- sino compilarlo y ejecutarlo y guardarlo
-            l_template  := compile (p_template, p_appid, l_error_template);
+            l_template  := local_compile (p_template, p_appid);
 
-            -- Save compiled Template
-            save_compiled_template (p_template_name => p_template_name
-                                  , p_appid     => p_appid
-                                  , p_template  => p_template
-                                  , p_compiled_template => l_template);
          ELSE
             -- si el template está compilado ejecutar ese
             l_template  := include_compiled (p_template_name, p_appid);
@@ -919,16 +978,18 @@ AS
             -- sino compilarlo y ejecutarlo y guardarlo
             l_template  := compile (p_template_name, p_appid, l_error_template);
 
-            -- Save compiled Template
-            save_compiled_template (p_template_name => p_template_name
-                                  , p_appid     => p_appid
-                                  , p_template  => p_template
-                                  , p_compiled_template => l_template);
          END IF;
       ELSE
          --compile the template
-         l_template  := compile (p_template, p_appid, l_error_template);
-      END IF;
+         l_template  := local_compile (p_template, p_appid);
+      END IF;      
+      
+      -- Save compiled Template
+      save_compiled_template (p_template_name => p_template_name
+                            , p_appid     => p_appid
+                            , p_template  => p_template
+                            , p_compiled_template => l_template);
+
 
       --Bind the variables into template
       bind_vars (l_template, g_assoc_varchar);
@@ -941,15 +1002,30 @@ AS
 
       EXECUTE IMMEDIATE l_template;
    EXCEPTION
-      WHEN OTHERS
-      THEN
-         dbx.p (l_error_template);
+       WHEN OTHERS
+       THEN
+           dbx.raise_exception (SQLCODE, 'Executing view: ' || p_template_name || CHR(10) || SQLERRM);
    END execute;
 
+    PROCEDURE name (p_name IN VARCHAR2)
+    AS
+    BEGIN
+       g_view_name := p_name;
+    END;
+
+    FUNCTION name
+       RETURN VARCHAR2
+    AS
+    BEGIN
+       RETURN g_view_name;
+    END;
 
     PROCEDURE run (p_view IN CLOB, p_name IN VARCHAR2)
     AS
-    BEGIN
+    BEGIN       
+       --Set view name
+       name(p_name);
+       --Execute view
        execute (p_template_name => p_name, p_template => p_view);
     END run;
 
@@ -1052,4 +1128,5 @@ AS
     END;
 
 END view_;
+
 /

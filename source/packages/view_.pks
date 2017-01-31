@@ -1,4 +1,3 @@
-/* Formatted on 31/01/2017 12:32:21 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE view_
 AS
    /**
@@ -16,22 +15,13 @@ AS
    * END;
    */
 
+
    /**
    * Output CLOB data to the DBMS_OUTPUT.PUT_LINE
    *
    * @param  p_clob     the CLOB to print to the DBMS_OUTPUT
    */
    PROCEDURE output_clob (p_clob IN CLOB);
-
-   /**
-   *  Return returns the source code view or template
-   *
-   *  @param   p_temaplte_name     the name of the view
-   *  @param   p_appid             the appid of the view, optional default is dbax_core.g$appid
-   *  @return  view source code
-   */
-   /*FUNCTION include (p_template_name IN VARCHAR2, p_appid IN VARCHAR2 DEFAULT NULL )
-      RETURN CLOB;*/
 
    /**
    *  Returns the compiled source code of the view
@@ -59,7 +49,7 @@ AS
    *  @param   p_template          the template to be executed
    */
    PROCEDURE execute (p_template_name   IN VARCHAR2 DEFAULT NULL
-                    , p_appid           IN VARCHAR2 DEFAULT NULL                   
+                    , p_appid           IN VARCHAR2 DEFAULT NULL
                     , p_template        IN CLOB DEFAULT NULL );
 
    /**
@@ -69,7 +59,6 @@ AS
    */
    PROCEDURE purge_compiled (p_appid IN VARCHAR2);
 
-
    /**
    * Run or execute the view
    *
@@ -77,6 +66,21 @@ AS
    * @param     p_name      the name of the view.
    */
    PROCEDURE run (p_view IN CLOB, p_name IN VARCHAR2);
+
+   /**
+   * Set the name of the view
+   *
+   * @param     p_name      the view name
+   */
+   PROCEDURE name (p_name IN VARCHAR2);
+
+   /**
+   * Get the name of the view
+   *
+   * @return the view name
+   */
+   FUNCTION name
+      RETURN VARCHAR2;
 
    /**
    * Set data to view
