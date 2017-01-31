@@ -5,17 +5,16 @@
 The most basic dbax routes simply accept a http verb and URI, providing a very simple and expressive method of defining routes:
 
 ```sql      
-if dbax_core.route_get ('foo')
+if route_.get ('foo')
 then
- htp.p('Hello World');
- return;
+ return 'hello world from dbax';
 end if;
 ```
 
 
 **The Route Procedure**
 
-All dbax routes are defined in your route procedure, passed as argument in your procedure front controller. 
+All dbax routes are defined in your route function, passed as argument in your procedure front controller. 
 
 
 **Available Router Methods**
@@ -23,15 +22,15 @@ All dbax routes are defined in your route procedure, passed as argument in your 
 The router allows you to register routes that respond to GET and POST HTTP verbs:
 
 ```sql
-l_bool := dbax_core.route_get ('foo');
-l_bool := dbax_core.route_post ('foo');
+l_bool := route_.get ('foo');
+l_bool := route_.post ('foo');
 ```
 
 
 Sometimes you may need to register a route that responds to multiple HTTP verbs. You may do so using the route method: 
 
 ```sql
-l_bool := dbax_core.route ('get , post','foo');
+l_bool := route_.match ('foo', 'get , post');
 ```
 
 
@@ -43,10 +42,9 @@ Of course, sometimes you will need to capture segments of the URI within your ro
 
 
 ```sql
-if dbax_core.route_get ('user/{id}', l_params )
-then
- htp.p('User ' || l_params('id'));
- return;
+if route_.get ('user/{id}', l_params )
+then 
+ return 'User ' || l_params('id');
 end if;
 
 ```
@@ -54,11 +52,11 @@ end if;
 You may define as many route parameters as required by your route:
 
 ```sql
-if dbax_core.route_get ('posts/{post}/comments/{comment}', l_params )
+if route_.get ('posts/{post}/comments/{comment}', l_params )
 then
- htp.p('Post ' || l_params('post'));
- htp.p('Comment ' || l_params('comment'));
- return;
+ dbx.p('Post ' || l_params('post'));
+ dbx.p('Comment ' || l_params('comment'));
+ return null;
 end if;
 
 ```
@@ -70,11 +68,11 @@ Route parameters are always encased within {} braces and should consist of alpha
 Occasionally you may need to specify a route parameter, but make the presence of that route parameter optional. You may do so by placing a ? mark after the parameter braces:
 
 ```sql
-if dbax_core.route_get ('user/{id}?/{name}?', l_param)
+if route_.route_get ('user/{id}?/{name}?', l_param)
 then
- htp.p('The id=' ||l_param('id') );
- htp.p('The name=' ||l_param('name') );
- return;
+ dbx.p('The id=' ||l_param('id') );
+ dbx.p('The name=' ||l_param('name') );
+ return null;
 end if;
 ```
 
@@ -84,7 +82,7 @@ end if;
 If you want to define a route to root path, sometimes to the index page, the url pattern will be: 
 
 ```sql
-l_bool := dbax_core.route_get ('/');
+l_bool := route_.get ('/');
 ```
 
 ## Case insensitive routes
@@ -92,9 +90,8 @@ l_bool := dbax_core.route_get ('/');
 Occasionally you may need to specify a case insensitive routes. You may do so by using [Oracle advanced regex parameters (position, occurrence and match_parameter)](https://docs.oracle.com/cd/B28359_01/server.111/b28286/functions137.htm#SQLRF06302) with `@` as delimiter: 
 
 ```sql
-if dbax_core.route_get ('USER/{id}@1,1,i', l_param)
+if route_.get ('USER/{id}@1,1,i', l_param)
 then
- htp.p('The id=' ||l_param('id') ); 
- return;
+ return 'The id=' ||l_param('id') ;
 end if;
 ```
