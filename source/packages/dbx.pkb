@@ -686,7 +686,6 @@ AS
       --Set Request parameters
       set_request (name_array, value_array);
 
-
       /***************
       * Obtener la URL para enrutar
       ***************/
@@ -712,7 +711,6 @@ AS
          l_path      := '/';
       END IF;
 
-
       /******************
       *   Load cookies
       ******************/
@@ -732,7 +730,6 @@ AS
       ***************/
       dbx.g$path  := l_path;
       execute_app_router (router);
-
 
       IF NOT dbx.g_stop_process
       THEN

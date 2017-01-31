@@ -728,14 +728,6 @@ AS
 
          l_tmp_clob  := '';
       END IF;      
-      
-      g_assoc_varchar.delete;
-      g_assoc_number.delete;
-      g_assoc_date.delete;
-      g_assoc_assoc.delete;
-      g_assoc_refcursor.delete;
-      
-      
    END set_template_data;
 
 
@@ -1027,6 +1019,13 @@ AS
        name(p_name);
        --Execute view
        execute (p_template_name => p_name, p_template => p_view);
+       
+      -- Delete view data 
+      g_assoc_varchar.delete;
+      g_assoc_number.delete;
+      g_assoc_date.delete;
+      g_assoc_assoc.delete;
+      g_assoc_refcursor.delete;
     END run;
 
     PROCEDURE data (p_name IN VARCHAR2, p_value IN VARCHAR2)

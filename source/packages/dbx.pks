@@ -144,4 +144,14 @@ AS
    */
    FUNCTION tokenizer (p_string IN VARCHAR2, p_delimiter IN VARCHAR2 DEFAULT ',' )
       RETURN g_varchar_array;
+      
+      
+   /**
+   * Raise an HTTP 500 error to the user with their description. 
+   * If enabled, shows to the user all the error trace, as well as the line of code that caused the exception.
+   *
+   * @param     p_error_code        the user error code number
+   * @param     p_error_msg         the user error message text 
+   */
+   PROCEDURE raise_exception (p_error_code IN NUMBER, p_error_msg IN VARCHAR2);   
 END dbx;
