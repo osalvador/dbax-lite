@@ -1,49 +1,32 @@
 CREATE OR REPLACE PACKAGE dbx
 AS
+   /*****************
+   *  PL/SQL TABLES
+   *****************/
+
    --Global Variables
    TYPE g_assoc_array
    IS
       TABLE OF VARCHAR2 (32767)
          INDEX BY VARCHAR2 (255);
 
+   TYPE g_varchar_array
+   IS
+      TABLE OF VARCHAR2 (32767)
+         INDEX BY BINARY_INTEGER;
+
+
    --Empty array for dynamic parameter
    empty_vc_arr     OWA_UTIL.vc_arr;
 
    --G$VIEW An associative array of variables (constants) to be replaced in the views referenced by ${name}
-   g$view           dbx.g_assoc_array;
+   --g$view           dbx.g_assoc_array;
 
    --G$PROPERTIES An associative array of application properties
    g$properties     dbx.g_assoc_array;
 
-   /**
-   * G$SERVER An associative array of variables passed via OWA CGI Environment and
-   * containing information such as headers, paths, and script locations created by the web server
-   */
-   --g$server         dbx.g_assoc_array;
-
-   --G$HEADERS HTTP response headers
-   --g$http_header    dbx.g_assoc_array;
-
-   --G$STATUS_LINE  HTTP response status code.
-   --g$status_line    PLS_INTEGER := 200;
-
-   --Mime Type for response
-   --g$content_type   VARCHAR2 (100) := 'text/html';
-
    --G_STOP_PROCESS Boolean that indicates stop dbax engine
    g_stop_process   BOOLEAN := FALSE;
-
-   --MVC
-   --G$CONTROLLER MVC controller to be executed
-   --g$controller     VARCHAR2 (100);
-
-   --G$VIEW_NAME MVC view to be exeqcuted
-   --g$view_name      VARCHAR2 (300);
-
-   --G$PARAMETER MVC URL parameters ../<pramamter1>/<pramamter2>/<pramamterN>
-   --g$parameter      DBMS_UTILITY.lname_array;
-
-   --Application Variables
 
    --G$APPID Current Application ID
    g$appid          VARCHAR2 (50);
@@ -160,5 +143,5 @@ AS
    * @return string array index by integer
    */
    FUNCTION tokenizer (p_string IN VARCHAR2, p_delimiter IN VARCHAR2 DEFAULT ',' )
-      RETURN DBMS_UTILITY.maxname_array;
+      RETURN g_varchar_array;
 END dbx;

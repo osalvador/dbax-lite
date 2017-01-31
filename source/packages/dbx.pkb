@@ -165,9 +165,9 @@ AS
 
 
    FUNCTION tokenizer (p_string IN VARCHAR2, p_delimiter IN VARCHAR2 DEFAULT ',' )
-      RETURN DBMS_UTILITY.maxname_array
+      RETURN g_varchar_array
    AS
-      l_array   DBMS_UTILITY.maxname_array;
+      l_array   g_varchar_array;
    BEGIN
           SELECT   REGEXP_SUBSTR (p_string
                                 , '[^' || p_delimiter || ']+'
@@ -425,9 +425,9 @@ AS
                NULL;
             ELSE
                --dbax_exception.raise (SQLCODE, SQLERRM || CHR(10) || 'Executing controller: ' || upper(p_controller));
-               HTP.p (SQLERRM || '<br>Executing router: ' || UPPER (l_procedure));
+               HTP.p ( DBMS_UTILITY.FORMAT_ERROR_backtrace|| '<br>Executing router: ' || UPPER (l_procedure));
                --TODO
-               RAISE;
+               --RAISE;
             END IF;
       END;
    END execute_app_router;
@@ -438,9 +438,7 @@ AS
                        , value_array   IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr
                        , router        IN VARCHAR2 DEFAULT NULL )
    AS
-      l_path          VARCHAR2 (4000);
-      l_check_auth    VARCHAR2 (4);
-      l_ret_arr       DBMS_UTILITY.maxname_array;
+      l_path          VARCHAR2 (4000);            
       --
       l_http_output   HTP.htbuf_arr;
       l_lines         NUMBER DEFAULT 99999999 ;

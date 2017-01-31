@@ -129,13 +129,13 @@ AS
 
 
    FUNCTION segment_inputs
-      RETURN DBMS_UTILITY.lname_array
+      RETURN dbx.g_varchar_array
    AS
    BEGIN
       RETURN r_request.segment_inputs;
    END;
 
-   PROCEDURE segment_inputs (p_segment_inputs IN DBMS_UTILITY.lname_array)
+   PROCEDURE segment_inputs (p_segment_inputs IN dbx.g_varchar_array)
    AS
    BEGIN
       r_request.segment_inputs := p_segment_inputs;

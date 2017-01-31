@@ -10,7 +10,7 @@ AS
        , headers          dbx.g_assoc_array --
        , cookies          dbx.g_assoc_array --
        , inputs           dbx.g_assoc_array -- G$GET or G$POST input parameters
-       , segment_inputs   DBMS_UTILITY.lname_array -- URL input segment parameters
+       , segment_inputs   dbx.g_varchar_array-- URL input segment parameters
        , route            VARCHAR2 (32767) -- Matched route
       );
 
@@ -132,14 +132,14 @@ AS
    * @return the inputs segment array
    */
    FUNCTION segment_inputs
-      RETURN DBMS_UTILITY.lname_array;
+      RETURN dbx.g_varchar_array;
 
    /**
    * Set an input segment array to the request.
    *
    * @return the inputs segment array
    */
-   PROCEDURE segment_inputs (p_segment_inputs IN DBMS_UTILITY.lname_array);
+   PROCEDURE segment_inputs (p_segment_inputs IN dbx.g_varchar_array);
 
    /**
    * Get the route handling the request.

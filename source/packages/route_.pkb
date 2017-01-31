@@ -10,7 +10,7 @@ AS
                              , p_match_parameter      OUT VARCHAR2)
    AS
       l_regex_pos   PLS_INTEGER;
-      l_param_tab   DBMS_UTILITY.maxname_array;
+      l_param_tab   dbx.g_varchar_array;
    BEGIN
       l_regex_pos := INSTR (p_string, '@', -1);
 
@@ -103,8 +103,8 @@ AS
       l_position          PLS_INTEGER;
       l_occurrence        PLS_INTEGER;
       l_match_parameter   VARCHAR2 (100);
-      l_ret_arr           DBMS_UTILITY.maxname_array;
-      l_segment_inputs    DBMS_UTILITY.lname_array;
+      l_ret_arr           dbx.g_varchar_array;
+      l_segment_inputs    dbx.g_varchar_array;
       --
       l_retval            PLS_INTEGER := 0;
       l_return            VARCHAR2 (1000);
@@ -204,7 +204,7 @@ AS
    FUNCTION match (p_uri IN VARCHAR2, p_http_verbs IN VARCHAR2 DEFAULT NULL , p_parameters OUT dbx.g_assoc_array)
       RETURN BOOLEAN
    AS
-      l_http_verbs   DBMS_UTILITY.maxname_array;
+      l_http_verbs   dbx.g_varchar_array;
    BEGIN
       l_http_verbs := dbx.tokenizer (p_http_verbs, ',');
 
