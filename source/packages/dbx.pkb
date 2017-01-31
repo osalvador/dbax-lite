@@ -642,14 +642,16 @@ AS
 
 
    PROCEDURE execute_app_router (p_router IN VARCHAR2)
-   AS
-      l_procedure   VARCHAR2 (100);
+   AS      
+      l_response CLOB;
    BEGIN
-      l_procedure := 'BEGIN ' || p_router || '; END;';
-
       -- Execute Routing
       BEGIN
-         EXECUTE IMMEDIATE l_procedure;
+         
+         EXECUTE IMMEDIATE 'BEGIN :l_val := ' || p_router || '; END;' USING OUT l_response;
+         
+         --Print response to the buffer
+         dbx.p (l_response);
       EXCEPTION
          WHEN OTHERS
          THEN
