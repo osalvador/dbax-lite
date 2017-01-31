@@ -1,3 +1,4 @@
+/* Formatted on 31/01/2017 17:27:04 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY request_
 AS
    /**
@@ -15,10 +16,13 @@ AS
    PROCEDURE method (p_method IN VARCHAR2)
    AS
    BEGIN
-      r_request.method := p_method;
+      IF UPPER (p_method) IN ('GET', 'POST') OR p_method IS NULL
+      THEN
+         r_request.method := UPPER (p_method);
+      END IF;
    END;
 
-   PROCEDURE headers (p_headers in dbx.g_assoc_array)
+   PROCEDURE headers (p_headers IN dbx.g_assoc_array)
    AS
    BEGIN
       r_request.headers := p_headers;

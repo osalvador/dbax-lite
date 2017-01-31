@@ -61,7 +61,6 @@ AS
    */
    PROCEDURE load_cookies (p_cookies IN VARCHAR2 DEFAULT NULL );
    
-
    /**
    * Retrieve a cookie from the request
    *
