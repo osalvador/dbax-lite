@@ -1,3 +1,4 @@
+/* Formatted on 01/02/2017 16:51:35 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE session_
 AS
    /**
@@ -30,6 +31,14 @@ AS
       RETURN VARCHAR2;
 
    /**
+   * Retrieve all session data from the request
+   *
+   * @return the session data associative array
+   */
+   FUNCTION get_all
+      RETURN dbx.g_assoc_array;
+
+   /**
    * Get the current session ID.
    *
    * @return    the user user sessid
@@ -38,12 +47,33 @@ AS
       RETURN VARCHAR2;
 
    /**
+   * Checks if an a key is present and not null.
+   *
+   * @param    p_key   the session key value
+   * @return   boolean
+   */
+   FUNCTION has (p_key IN VARCHAR2)
+      RETURN BOOLEAN;
+
+   /**
    * Set a key/value pair in the session.
    *
    * @param  p_key     the key or variable name
    * @param  p_value   the value
    */
    PROCEDURE set (p_key IN VARCHAR2, p_value IN VARCHAR2);
+
+   --TOOD Set array
+
+   /**
+   * Retrieve and delete an item from the session in a single statement:
+   *
+   * @param    p_key   the session key value
+   * @return   the value if exists
+   */
+   FUNCTION pull (p_key IN VARCHAR2)
+      RETURN VARCHAR2;
+
 
    /**
    * Delete an item from the session

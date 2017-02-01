@@ -1,3 +1,4 @@
+/* Formatted on 01/02/2017 17:02:31 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY session_
 AS
    --g$session User Session Asocciative Array
@@ -235,6 +236,17 @@ AS
       g$session.delete;
    END flush;
 
+   FUNCTION has (p_key IN VARCHAR2)
+      RETURN BOOLEAN
+   AS
+   BEGIN
+      IF g$session.exists (p_key) AND g$session.exists (p_key) IS NOT NULL
+      THEN
+         RETURN TRUE;
+      ELSE
+         RETURN FALSE;
+      END IF;
+   END;
 
    FUNCTION get (p_key IN VARCHAR2)
       RETURN VARCHAR2
@@ -248,6 +260,12 @@ AS
       END IF;
    END get;
 
+   FUNCTION get_all
+      RETURN dbx.g_assoc_array
+   AS
+   BEGIN
+      RETURN g$session;
+   END;
 
    FUNCTION getid
       RETURN VARCHAR2
@@ -275,5 +293,22 @@ AS
    BEGIN
       session_end;
    END finish;
+
+
+   FUNCTION pull (p_key IN VARCHAR2)
+      RETURN VARCHAR2
+   AS
+      l_value   VARCHAR2 (4000);
+   BEGIN
+      l_value     := get (p_key);
+
+      IF l_value IS NOT NULL
+      THEN
+         session_.delete (p_key);
+         RETURN l_value;
+      ELSE
+         RETURN NULL;
+      END IF;
+   END;
 END session_;
 /
