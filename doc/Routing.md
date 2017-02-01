@@ -52,11 +52,10 @@ end if;
 You may define as many route parameters as required by your route:
 
 ```sql
-if route_.get ('posts/{post}/comments/{comment}', l_params )
+if route_.get ('posts/{post}/comments/{comment}', l_params)
 then
- dbx.p('Post ' || l_params('post'));
- dbx.p('Comment ' || l_params('comment'));
- return null;
+  return 'Post: ' || l_params ('post') 
+  || ' Comment: ' || l_params ('comment');
 end if;
 
 ```
@@ -70,9 +69,8 @@ Occasionally you may need to specify a route parameter, but make the presence of
 ```sql
 if route_.route_get ('user/{id}?/{name}?', l_param)
 then
- dbx.p('The id=' ||l_param('id') );
- dbx.p('The name=' ||l_param('name') );
- return null;
+  return 'The id: ' || l_param ('id') 
+      || 'The name: ' || l_param ('name');
 end if;
 ```
 
@@ -92,6 +90,6 @@ Occasionally you may need to specify a case insensitive routes. You may do so by
 ```sql
 if route_.get ('USER/{id}@1,1,i', l_param)
 then
- return 'The id=' ||l_param('id') ;
+ return 'The id: ' || l_param('id') ;
 end if;
 ```
