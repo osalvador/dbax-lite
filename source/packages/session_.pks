@@ -43,7 +43,7 @@ AS
    * @param  p_key     the key or variable name
    * @param  p_value   the value
    */
-   PROCEDURE SET (p_key IN VARCHAR2, p_value IN VARCHAR2);
+   PROCEDURE set (p_key IN VARCHAR2, p_value IN VARCHAR2);
 
    /**
    * Delete an item from the session

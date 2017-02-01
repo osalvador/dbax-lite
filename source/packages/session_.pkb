@@ -1,7 +1,6 @@
 CREATE OR REPLACE PACKAGE BODY session_
 AS
-   --##Global Variables
-   --G$session User Session Asocciative Array
+   --g$session User Session Asocciative Array
    g$session   dbx.g_assoc_array;
 
 
@@ -13,12 +12,12 @@ AS
       l_assoc_array := dbx.query_string_to_array (p_session_variable);
 
       --Concatenate with g$session array
-      l_key       := l_assoc_array.FIRST;
+      l_key       := l_assoc_array.first;
 
       LOOP
          EXIT WHEN l_key IS NULL;
          g$session (l_key) := l_assoc_array (l_key);
-         l_key       := l_assoc_array.NEXT (l_key);
+         l_key       := l_assoc_array.next (l_key);
       END LOOP;
    END load_session_variable;
 
@@ -40,18 +39,18 @@ AS
    AS
       PRAGMA AUTONOMOUS_TRANSACTION;
       v_cgi_env          VARCHAR2 (32000);
-      v_username         VARCHAR2 (256) := NVL (p_username, 'ANONYMOUS');
+      v_username         VARCHAR2 (256) := nvl (p_username, 'ANONYMOUS');
       l_session_exists   BOOLEAN := FALSE;
    BEGIN
       --Guardo el entorno del usuario
-      FOR i IN 1 .. OWA.num_cgi_vars
+      FOR i IN 1 .. owa.num_cgi_vars
       LOOP
-         v_cgi_env   := v_cgi_env || OWA.cgi_var_name (i) || ' = ' || OWA.cgi_var_val (i) || CHR (10);
+         v_cgi_env   := v_cgi_env || owa.cgi_var_name (i) || ' = ' || owa.cgi_var_val (i) || chr (10);
       END LOOP;
 
-      v_cgi_env   := SUBSTR (v_cgi_env, 1, 4000);
+      v_cgi_env   := substr (v_cgi_env, 1, 4000);
 
-      IF g$session.EXISTS ('sessid')
+      IF g$session.exists ('sessid')
       THEN
          FOR c1 IN (SELECT   appid, session_id, session_variable
                       FROM   wdx_sessions
@@ -63,7 +62,7 @@ AS
 
             UPDATE   wdx_sessions
                SET /*expired = 0,*/
-                  last_access = SYSTIMESTAMP, cgi_env = v_cgi_env
+                  last_access = systimestamp, cgi_env = v_cgi_env
              WHERE   appid = c1.appid AND session_id = c1.session_id;
          END LOOP;
       END IF;
@@ -78,11 +77,11 @@ AS
                                  , created_date
                                  , last_access
                                  , cgi_env)
-           VALUES   (NVL (dbx.g$appid, 'DEFAULT')
+           VALUES   (nvl (dbx.g$appid, 'DEFAULT')
                    , g$session ('sessid')
-                   , UPPER (v_username)
+                   , upper (v_username)
                    , 0
-                   , SYSTIMESTAMP
+                   , systimestamp
                    , NULL
                    , v_cgi_env);
       END IF;
@@ -104,7 +103,7 @@ AS
       v_caller_t       VARCHAR2 (32767);
       v_whois          VARCHAR2 (32767);
    BEGIN
-      l_cookie_name := NVL (dbx.get_property ('session_cookie_name'), 'DBAXSESSID');
+      l_cookie_name := nvl (dbx.get_property ('session_cookie_name'), 'DBAXSESSID');
 
       IF p_cookies IS NOT NULL
       THEN
@@ -112,7 +111,7 @@ AS
       END IF;
 
       IF get ('sessid') IS NULL
-      THEN         
+      THEN
          IF request_.cookie (l_cookie_name) IS NULL
          THEN
             --No cookie session
@@ -147,15 +146,15 @@ AS
       l_session_id    VARCHAR2 (50);
       l_cookie_name   VARCHAR2 (255);
    BEGIN
-      l_cookie_name := NVL (dbx.get_property ('session_cookie_name'), 'DBAXSESSID');
+      l_cookie_name := nvl (dbx.get_property ('session_cookie_name'), 'DBAXSESSID');
 
       --Generate unique dbax session id
-      l_session_id := DBMS_SESSION.unique_session_id || ROUND (DBMS_RANDOM.VALUE (10000, 99999));
+      l_session_id := dbms_session.unique_session_id || round (dbms_random.value (10000, 99999));
       --Creo cookie
       response_.cookie (p_name      => l_cookie_name
-                     , p_value     => l_session_id
-                     , p_expires   => p_session_expires
-                     , p_path      => '/');
+                      , p_value     => l_session_id
+                      , p_expires   => p_session_expires
+                      , p_path      => '/');
 
       --Global user session variable
       g$session ('sessid') := l_session_id;
@@ -180,12 +179,12 @@ AS
    AS
       PRAGMA AUTONOMOUS_TRANSACTION;
       l_session_id    VARCHAR2 (50);
-      l_cookie_name   VARCHAR2 (255) := NVL (dbx.get_property ('session_cookie_name'), 'DBAXSESSID');
+      l_cookie_name   VARCHAR2 (255) := nvl (dbx.get_property ('session_cookie_name'), 'DBAXSESSID');
    BEGIN
       l_session_id := get_session ();
 
       UPDATE   wdx_sessions
-         SET   expired = '1', last_access = SYSTIMESTAMP
+         SET   expired = '1', last_access = systimestamp
        WHERE   session_id = l_session_id AND appid = dbx.g$appid;
 
       COMMIT;
@@ -202,7 +201,7 @@ AS
       PRAGMA AUTONOMOUS_TRANSACTION;
       l_session_variable   VARCHAR2 (4000);
    BEGIN
-      IF g$session.EXISTS ('sessid')
+      IF g$session.exists ('sessid')
       THEN
          l_session_variable := dbx.array_to_query_string (g$session);
 
@@ -241,7 +240,7 @@ AS
       RETURN VARCHAR2
    AS
    BEGIN
-      IF g$session.EXISTS (p_key)
+      IF g$session.exists (p_key)
       THEN
          RETURN g$session (p_key);
       ELSE
@@ -258,11 +257,11 @@ AS
    END getid;
 
 
-   PROCEDURE SET (p_key IN VARCHAR2, p_value IN VARCHAR2)
+   PROCEDURE set (p_key IN VARCHAR2, p_value IN VARCHAR2)
    AS
    BEGIN
       g$session (p_key) := p_value;
-   END SET;
+   END set;
 
    PROCEDURE delete (p_key IN VARCHAR2)
    AS

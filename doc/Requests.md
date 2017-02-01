@@ -13,13 +13,11 @@ as
     *
     * @return Response
     */
-   function store
-      return clob
+   function store return clob
    as
       l_name varchar2(4000);
    begin
       l_name := request_.input('name');
-
       ...
    end;
 end pk_user_controller;
@@ -68,11 +66,7 @@ end if;
 You may also retrieve all of the input data as an associative array (`dbx.g_assoc_array`) using the `inputs` method:
 
 ```sql
-declare
-	l_inputs dbx.g_assoc_array;
-begin
-	l_inputs := request_.inputs();
-end;
+l_inputs := request_.inputs();
 ```
 
 

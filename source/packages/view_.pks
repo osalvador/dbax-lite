@@ -1,4 +1,3 @@
-/* Formatted on 01/02/2017 11:02:18 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE view_
 AS
    /**
@@ -15,7 +14,6 @@ AS
    *    ...
    * END;
    */
-
 
    /**
    * Output CLOB data to the DBMS_OUTPUT.PUT_LINE

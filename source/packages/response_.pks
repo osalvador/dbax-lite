@@ -1,6 +1,5 @@
 CREATE OR REPLACE PACKAGE response_
 AS
-
    /**
    * Response cookie type
    */
@@ -8,9 +7,9 @@ AS
    IS
       RECORD (
          name       VARCHAR2 (4096)
-       , VALUE      VARCHAR2 (4096)
+       , value      VARCHAR2 (4096)
        , expires    DATE
-       , PATH       VARCHAR2 (255)
+       , path       VARCHAR2 (255)
        , domain     VARCHAR2 (255)
        , secure     BOOLEAN DEFAULT FALSE
        , httponly   BOOLEAN DEFAULT FALSE
@@ -30,7 +29,7 @@ AS
       RECORD (
          headers   dbx.g_assoc_array -- HTTP Headers
        , status    PLS_INTEGER -- HTTP Status code
-       , content   VARCHAR2 (100) -- HTTP Content Type      
+       , content   VARCHAR2 (100) -- HTTP Content Type
        , cookies   g_cookie_array -- Cookies to be sent to the response
       );
 
@@ -135,6 +134,5 @@ AS
    * @param    p_name      the cookie name
    */
    PROCEDURE forget_cookie (p_name IN VARCHAR2);
-
 END response_;
 /

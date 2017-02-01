@@ -4,7 +4,7 @@ AS
       RETURN VARCHAR2
    AS
    BEGIN
-      IF p_array.EXISTS (p_key)
+      IF p_array.exists (p_key)
       THEN
          RETURN p_array (p_key);
       ELSE
@@ -12,16 +12,17 @@ AS
       END IF;
    END get;
 
+   -- TODO: Refactor this function
    FUNCTION get_property (p_key IN VARCHAR2)
       RETURN VARCHAR2
    AS
       l_value   VARCHAR2 (3000) := NULL;
    BEGIN
-      l_value     := g$properties (LOWER (p_key));
+      l_value     := g$properties (lower (p_key));
 
       IF l_value IS NULL
       THEN
-         l_value     := g$properties (UPPER (p_key));
+         l_value     := g$properties (upper (p_key));
       END IF;
 
       RETURN l_value;
@@ -42,17 +43,17 @@ AS
          v_pos       := 1;
 
          LOOP
-            DBMS_LOB.read (p_data
+            dbms_lob.read (p_data
                          , v_amt
                          , v_pos
                          , v_buf);
             v_pos       := v_pos + v_amt;
 
-            HTP.prn (v_buf);
+            htp.prn (v_buf);
          END LOOP;
       END IF;
    EXCEPTION
-      WHEN NO_DATA_FOUND
+      WHEN no_data_found
       THEN
          NULL;
    END p;
@@ -60,13 +61,13 @@ AS
    PROCEDURE p (p_data IN VARCHAR2)
    AS
    BEGIN
-      HTP.prn (p_data);
+      htp.prn (p_data);
    END p;
 
    PROCEDURE p (p_data IN NUMBER)
    AS
    BEGIN
-      HTP.prn (TO_CHAR (p_data));
+      htp.prn (to_char (p_data));
    END p;
 
 
@@ -100,9 +101,9 @@ AS
       RETURN g_assoc_array
    AS
       l_string             VARCHAR2 (4000) := p_string;
-      l_delimiter          VARCHAR2 (5) := NVL (p_delimiter, '&');
-      l_keydelimiter       VARCHAR2 (5) := NVL (p_key_delimiter, '=');
-      l_delimiter_length   NUMBER (5) := LENGTH (l_delimiter);
+      l_delimiter          VARCHAR2 (5) := nvl (p_delimiter, '&');
+      l_keydelimiter       VARCHAR2 (5) := nvl (p_key_delimiter, '=');
+      l_delimiter_length   NUMBER (5) := length (l_delimiter);
       l_start              NUMBER (5) := 1;
       l_end                NUMBER (5) := 0;
       --
@@ -113,7 +114,7 @@ AS
       --
       l_assoc_array        dbx.g_assoc_array;
    BEGIN
-      IF SUBSTR (l_string, -1, 1) <> l_delimiter
+      IF substr (l_string, -1, 1) <> l_delimiter
       THEN
          l_string    := l_string || l_delimiter;
       END IF;
@@ -121,10 +122,10 @@ AS
       l_new       := l_string;
 
       LOOP
-         l_end       := INSTR (l_new, l_delimiter, 1);
-         l_keyvalue  := SUBSTR (l_new, 1, l_end - 1);
-         l_key       := SUBSTR (l_keyvalue, 1, INSTR (l_keyvalue, l_keydelimiter) - 1);
-         l_value     := SUBSTR (l_keyvalue, INSTR (l_keyvalue, l_keydelimiter) + 1);
+         l_end       := instr (l_new, l_delimiter, 1);
+         l_keyvalue  := substr (l_new, 1, l_end - 1);
+         l_key       := substr (l_keyvalue, 1, instr (l_keyvalue, l_keydelimiter) - 1);
+         l_value     := substr (l_keyvalue, instr (l_keyvalue, l_keydelimiter) + 1);
          EXIT WHEN l_keyvalue IS NULL;
 
          IF l_key IS NOT NULL
@@ -135,7 +136,7 @@ AS
          END IF;
 
          l_start     := l_start + (l_end + (l_delimiter_length - 1));
-         l_new       := SUBSTR (l_string, l_start);
+         l_new       := substr (l_string, l_start);
       END LOOP;
 
       RETURN l_assoc_array;
@@ -148,16 +149,16 @@ AS
    AS
       l_key            VARCHAR2 (4000);
       l_string         VARCHAR2 (4000);
-      l_delimiter      VARCHAR2 (5) := NVL (p_delimiter, '&');
-      l_keydelimiter   VARCHAR2 (5) := NVL (p_key_delimiter, '=');
+      l_delimiter      VARCHAR2 (5) := nvl (p_delimiter, '&');
+      l_keydelimiter   VARCHAR2 (5) := nvl (p_key_delimiter, '=');
    BEGIN
-      l_key       := p_array.FIRST;
+      l_key       := p_array.first;
 
       LOOP
          EXIT WHEN l_key IS NULL;
 
          l_string    := l_string || l_key || l_keydelimiter || utl_url.escape (p_array (l_key), TRUE) || l_delimiter;
-         l_key       := p_array.NEXT (l_key);
+         l_key       := p_array.next (l_key);
       END LOOP;
 
       RETURN l_string;
@@ -169,17 +170,17 @@ AS
    AS
       l_array   g_varchar_array;
    BEGIN
-          SELECT   REGEXP_SUBSTR (p_string
+          SELECT   regexp_substr (p_string
                                 , '[^' || p_delimiter || ']+'
                                 , 1
-                                , LEVEL)
+                                , level)
             BULK   COLLECT
             INTO   l_array
-            FROM   DUAL
-      CONNECT BY   REGEXP_SUBSTR (p_string
+            FROM   dual
+      CONNECT BY   regexp_substr (p_string
                                 , '[^' || p_delimiter || ']+'
                                 , 1
-                                , LEVEL) IS NOT NULL;
+                                , level) IS NOT NULL;
 
       RETURN l_array;
    END tokenizer;
@@ -205,21 +206,21 @@ AS
       --Get cookies
       l_cookies   := response_.cookies;
 
-      l_name      := l_cookies.FIRST;
+      l_name      := l_cookies.first;
 
       LOOP
          EXIT WHEN l_name IS NULL;
 
-         l_return    := l_return || 'Set-Cookie: ' || l_name || '=' || l_cookies (l_name).VALUE;
+         l_return    := l_return || 'Set-Cookie: ' || l_name || '=' || l_cookies (l_name).value;
 
          IF l_cookies (l_name).domain IS NOT NULL
          THEN
             l_return    := l_return || '; Domain=' || l_cookies (l_name).domain;
          END IF;
 
-         IF l_cookies (l_name).PATH IS NOT NULL
+         IF l_cookies (l_name).path IS NOT NULL
          THEN
-            l_return    := l_return || '; Path=' || l_cookies (l_name).PATH;
+            l_return    := l_return || '; Path=' || l_cookies (l_name).path;
          END IF;
 
          -- When setting the cookie expiration header
@@ -231,8 +232,8 @@ AS
             l_return    :=
                   l_return
                || '; Expires='
-               || RTRIM (TO_CHAR (expires_gmt, 'Dy', 'NLS_DATE_LANGUAGE = American'))
-               || TO_CHAR (expires_gmt, ', DD-Mon-YYYY HH24:MI:SS', 'NLS_DATE_LANGUAGE = American')
+               || rtrim (to_char (expires_gmt, 'Dy', 'NLS_DATE_LANGUAGE = American'))
+               || to_char (expires_gmt, ', DD-Mon-YYYY HH24:MI:SS', 'NLS_DATE_LANGUAGE = American')
                || ' GMT';
          END IF;
 
@@ -246,9 +247,9 @@ AS
             l_return    := l_return || '; HttpOnly';
          END IF;
 
-         l_return    := l_return || CHR (10);
+         l_return    := l_return || chr (10);
 
-         l_name      := l_cookies.NEXT (l_name);
+         l_name      := l_cookies.next (l_name);
       END LOOP;
 
       RETURN l_return;
@@ -265,27 +266,27 @@ AS
    BEGIN
       l_headers   := response_.headers;
 
-      IF l_headers.COUNT () <> 0
+      IF l_headers.count () <> 0
       THEN
-         l_key       := l_headers.FIRST;
+         l_key       := l_headers.first;
 
          LOOP
             EXIT WHEN l_key IS NULL;
-            HTP.p (l_key || ':' || l_headers (l_key));
-            l_key       := l_headers.NEXT (l_key);
+            htp.p (l_key || ':' || l_headers (l_key));
+            l_key       := l_headers.next (l_key);
          END LOOP;
       END IF;
    END print_http_header;
 
 
-   PROCEDURE print_owa_page (p_thepage IN HTP.htbuf_arr, p_lines IN NUMBER)
+   PROCEDURE print_owa_page (p_thepage IN htp.htbuf_arr, p_lines IN NUMBER)
    AS
-      l_found     BOOLEAN := FALSE;
-      l_thepage   HTP.htbuf_arr := p_thepage;
-      l_start_line pls_integer := 1;
+      l_found        BOOLEAN := FALSE;
+      l_thepage      htp.htbuf_arr := p_thepage;
+      l_start_line   PLS_INTEGER := 1;
    BEGIN
       --Response content start with <!--DBAX-->
-      --Buscar la linea en la que sale el comentario, quitarlo e imprimir esa linea.      
+      --Buscar la linea en la que sale el comentario, quitarlo e imprimir esa linea.
       FOR i IN 1 .. p_lines
       LOOP
          IF NOT l_found
@@ -294,23 +295,22 @@ AS
 
             IF l_found
             THEN
-               l_thepage (i) := REPLACE (l_thepage (i), '<!--DBAX-->');
-               HTP.prn (l_thepage (i));
-               l_start_line := i+1;
+               l_thepage (i) := replace (l_thepage (i), '<!--DBAX-->');
+               htp.prn (l_thepage (i));
+               l_start_line := i + 1;
             END IF;
          END IF;
       END LOOP;
-      
+
       -- imprimir el resto de lineas
       FOR i IN l_start_line .. p_lines
       LOOP
-         HTP.prn (l_thepage (i));         
-      END LOOP;       
-      
+         htp.prn (l_thepage (i));
+      END LOOP;
    END print_owa_page;
 
-   PROCEDURE set_request (name_array    IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr
-                        , value_array   IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr )
+   PROCEDURE set_request (name_array    IN owa_util.vc_arr DEFAULT empty_vc_arr
+                        , value_array   IN owa_util.vc_arr DEFAULT empty_vc_arr )
    AS
       l_headers      dbx.g_assoc_array;
       l_get          dbx.g_assoc_array;
@@ -320,9 +320,9 @@ AS
       l_name_array   VARCHAR2 (255);
    BEGIN
       --Get headers get from CGI ENV
-      FOR i IN 1 .. OWA.num_cgi_vars
+      FOR i IN 1 .. owa.num_cgi_vars
       LOOP
-         l_headers (OWA.cgi_var_name (i)) := OWA.cgi_var_val (i);
+         l_headers (owa.cgi_var_name (i)) := owa.cgi_var_val (i);
       END LOOP;
 
       --Set request headers
@@ -333,9 +333,9 @@ AS
 
       IF request_.header ('REQUEST_METHOD') = 'GET'
       THEN
-         IF name_array.EXISTS (1) AND name_array (1) IS NOT NULL
+         IF name_array.exists (1) AND name_array (1) IS NOT NULL
          THEN
-            FOR i IN name_array.FIRST .. name_array.LAST
+            FOR i IN name_array.first .. name_array.last
             LOOP
                --if the parameter ends with [ ] it is an array
                IF name_array (i) LIKE '%[]'
@@ -343,30 +343,30 @@ AS
                   j           := 1;
 
                   --Set Name of the parameter[n]
-                  l_name_array := SUBSTR (name_array (i), 1, INSTR (name_array (i), '[]') - 1) || '[' || j || ']';
+                  l_name_array := substr (name_array (i), 1, instr (name_array (i), '[]') - 1) || '[' || j || ']';
 
                   --Generate Array index
-                  WHILE l_get.EXISTS (l_name_array)
+                  WHILE l_get.exists (l_name_array)
                   LOOP
                      j           := j + 1;
-                     l_name_array := SUBSTR (name_array (i), 1, INSTR (name_array (i), '[]') - 1) || '[' || j || ']';
+                     l_name_array := substr (name_array (i), 1, instr (name_array (i), '[]') - 1) || '[' || j || ']';
                   END LOOP;
 
-                  l_get (LOWER (l_name_array)) :=
-                     CONVERT (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
+                  l_get (lower (l_name_array)) :=
+                     convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (l_name_array) || ':' || dbx.g$get (LOWER (l_name_array)));
                ELSE
-                  l_get (LOWER (name_array (i))) :=
-                     CONVERT (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
+                  l_get (lower (name_array (i))) :=
+                     convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (name_array (i)) || ':' || dbx.g$get (LOWER (name_array (i))));
                END IF;
             END LOOP;
          END IF;
       ELSIF request_.header ('REQUEST_METHOD') = 'POST'
       THEN
-         IF name_array.EXISTS (1) AND name_array (1) IS NOT NULL
+         IF name_array.exists (1) AND name_array (1) IS NOT NULL
          THEN
-            FOR i IN name_array.FIRST .. name_array.LAST
+            FOR i IN name_array.first .. name_array.last
             LOOP
                --if the parameter ends with [ ] it is an array
                IF name_array (i) LIKE '%[]'
@@ -374,21 +374,21 @@ AS
                   j           := 1;
 
                   --Set Name of the parameter[n]
-                  l_name_array := SUBSTR (name_array (i), 1, INSTR (name_array (i), '[]') - 1) || '[' || j || ']';
+                  l_name_array := substr (name_array (i), 1, instr (name_array (i), '[]') - 1) || '[' || j || ']';
 
                   --Generate Array index
-                  WHILE l_post.EXISTS (l_name_array)
+                  WHILE l_post.exists (l_name_array)
                   LOOP
                      j           := j + 1;
-                     l_name_array := SUBSTR (name_array (i), 1, INSTR (name_array (i), '[]') - 1) || '[' || j || ']';
+                     l_name_array := substr (name_array (i), 1, instr (name_array (i), '[]') - 1) || '[' || j || ']';
                   END LOOP;
 
-                  l_post (LOWER (l_name_array)) :=
-                     CONVERT (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
+                  l_post (lower (l_name_array)) :=
+                     convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (l_name_array) || ':' || dbx.g$post (LOWER (l_name_array)));
                ELSE
-                  l_post (LOWER (name_array (i))) :=
-                     CONVERT (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
+                  l_post (lower (name_array (i))) :=
+                     convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (name_array (i)) || ':' || dbx.g$post (LOWER (name_array (i))));
                END IF;
             END LOOP;
@@ -418,21 +418,21 @@ AS
    BEGIN
       -- Get Line of code
       l_code_line :=
-         REGEXP_SUBSTR (p_errorbacktrace
-                      , ', line (.*?)' || CHR (10)
+         regexp_substr (p_errorbacktrace
+                      , ', line (.*?)' || chr (10)
                       , 1
                       , 1
                       , 'n'
                       , 1);
       l_owner     :=
-         REGEXP_SUBSTR (p_errorbacktrace
+         regexp_substr (p_errorbacktrace
                       , ' at "(.*?)\.'
                       , 1
                       , 1
                       , 'n'
                       , 1);
       l_name      :=
-         REGEXP_SUBSTR (p_errorbacktrace
+         regexp_substr (p_errorbacktrace
                       , ' at "' || l_owner || '\.(.*?)"'
                       , 1
                       , 1
@@ -443,7 +443,7 @@ AS
       IF l_name = 'VIEW_'
       THEN
          l_code_line :=
-            REGEXP_SUBSTR (p_errorstack
+            regexp_substr (p_errorstack
                          , 'line (\d*),'
                          , 1
                          , 1
@@ -456,15 +456,15 @@ AS
             || '<pre class="prettyprint linenums:'
             || (l_code_line - 9)
             || '"><code class="language-sql">...'
-            || CHR (10);
+            || chr (10);
 
          FOR c1
          IN (SELECT   x.rn, x.compiled_source
                FROM   wdx_views t
-                    , XMLTABLE ('/x/y' PASSING xmltype(REPLACE (   '<x><y>'
-                                || DBMS_XMLGEN.CONVERT (t.compiled_source, 0)
+                    , xmltable ('/x/y' PASSING xmltype(replace (   '<x><y>'
+                                || dbms_xmlgen.convert (t.compiled_source, 0)
                                 || '</y></x>'
-                                                              ,CHR (10)
+                                                              ,chr (10)
                                                               ,'</y><y>')) COLUMNS rn FOR ORDINALITY, compiled_source
                                 VARCHAR2 (4000) PATH '/y') x
               WHERE   t.name = view_.name () AND rn BETWEEN l_code_line - 8 AND l_code_line + 8)
@@ -474,11 +474,11 @@ AS
                l_code      :=
                      l_code
                   || '<span class="operative">'
-                  || DBMS_XMLGEN.CONVERT (c1.compiled_source, 0)
+                  || dbms_xmlgen.convert (c1.compiled_source, 0)
                   || ' </span>'
-                  || CHR (10);
+                  || chr (10);
             ELSE
-               l_code      := l_code || DBMS_XMLGEN.CONVERT (c1.compiled_source, 0) || CHR (10);
+               l_code      := l_code || dbms_xmlgen.convert (c1.compiled_source, 0) || chr (10);
             END IF;
          END LOOP;
 
@@ -491,9 +491,9 @@ AS
                         AND owner = l_owner
                         AND line BETWEEN l_code_line - 8 AND l_code_line + 8
                         AND name <> 'DBAX_CORE'
-             ORDER BY   TYPE, line)
+             ORDER BY   type, line)
          LOOP
-            l_new_type  := c1.TYPE;
+            l_new_type  := c1.type;
 
             IF l_new_type <> l_old_type OR l_old_type IS NULL
             THEN
@@ -502,19 +502,19 @@ AS
                   l_code      := l_code || '...</code></pre>';
                END IF;
 
-               l_code      := l_code || '<h3>' || c1.TYPE || ' <small> ' || l_owner || '.' || l_name || '</small></h3>';
+               l_code      := l_code || '<h3>' || c1.type || ' <small> ' || l_owner || '.' || l_name || '</small></h3>';
                l_code      :=
                      l_code
                   || '<pre class="prettyprint linenums:'
                   || (l_code_line - 9)
                   || '"><code class="language-sql">...'
-                  || CHR (10);
+                  || chr (10);
             END IF;
 
             IF c1.line = l_code_line
             THEN
                l_code      :=
-                  l_code || '<span class="operative">' || REPLACE (c1.text, CHR (10)) || ' </span>' || CHR (10);
+                  l_code || '<span class="operative">' || replace (c1.text, chr (10)) || ' </span>' || chr (10);
             ELSE
                l_code      := l_code || c1.text;
             END IF;
@@ -537,23 +537,23 @@ AS
       --
       l_log_id        PLS_INTEGER;
       --
-      l_http_output   HTP.htbuf_arr;
+      l_http_output   htp.htbuf_arr;
       l_lines         NUMBER DEFAULT 99999999 ;
-   BEGIN      
+   BEGIN
       --dbax_log.open_log ('debug');
       g_stop_process := TRUE;
 
       -- Get error_style from application properties
-      view_.data ('error_style', dbx.get_property('error_style'));
+      view_.data ('error_style', dbx.get_property ('error_style'));
 
-      view_.data ('errorCode', TO_CHAR (p_error_code));
+      view_.data ('errorCode', to_char (p_error_code));
       view_.data ('errorMsg', p_error_msg);
 
-      view_.data ('errorStack', '----- PL/SQL Error Stack -----' || CHR (10) || DBMS_UTILITY.format_error_stack ());
+      view_.data ('errorStack', '----- PL/SQL Error Stack -----' || chr (10) || dbms_utility.format_error_stack ());
       view_.data ('errorBacktrace'
-                , '----- PL/SQL Error Backtrace -----' || CHR (10) || DBMS_UTILITY.format_error_backtrace ());
+                , '----- PL/SQL Error Backtrace -----' || chr (10) || dbms_utility.format_error_backtrace ());
 
-      view_.data ('callStack', DBMS_UTILITY.format_call_stack ());
+      view_.data ('callStack', dbms_utility.format_call_stack ());
 
 
       --dbax_log.error ('p_cod_error:' || p_error_code || ' p_msg_error:' || p_error_msg);
@@ -563,7 +563,7 @@ AS
 
       --l_log_id    := dbax_log.close_log;
 
-      view_.data ('logId', TO_CHAR (l_log_id));
+      view_.data ('logId', to_char (l_log_id));
       view_.data ('code'
                 , get_error_source_code (view_.get_data_varchar ('errorBacktrace')
                                        , view_.get_data_varchar ('errorStack')));
@@ -636,58 +636,57 @@ AS
       view_.run (l_html_error, '500');
 
       -- Get page from owa buffer
-      OWA.get_page (l_http_output, l_lines);
+      owa.get_page (l_http_output, l_lines);
 
-      HTP.init;
-      OWA_UTIL.mime_header ('text/html', FALSE, dbx.get_property ('ENCODING'));
-      OWA_UTIL.status_line (500);
-      OWA_UTIL.http_header_close;
+      htp.init;
+      owa_util.mime_header ('text/html', FALSE, dbx.get_property ('ENCODING'));
+      owa_util.status_line (500);
+      owa_util.http_header_close;
 
       print_owa_page (l_http_output, l_lines);
    END raise_exception;
 
 
    PROCEDURE execute_app_router (p_router IN VARCHAR2)
-   AS      
-      l_response CLOB;
+   AS
+      l_response   CLOB;
    BEGIN
       -- Execute Routing
       BEGIN
-         
          EXECUTE IMMEDIATE 'BEGIN :l_val := ' || p_router || '; END;' USING OUT l_response;
-         
+
          --Print response to the buffer
          dbx.p (l_response);
       EXCEPTION
          WHEN OTHERS
          THEN
-            IF SQLCODE = -06550
+            IF sqlcode = -06550
             THEN
-               raise_exception (100, 'Error trying to execute the controller: ' || UPPER (p_router));
-            ELSIF SQLCODE = -06503
+               raise_exception (100, 'Error trying to execute the controller: ' || upper (p_router));
+            ELSIF sqlcode = -06503
             THEN
                --Function returned without value
                NULL;
             ELSE
-               raise_exception (SQLCODE, SQLERRM || CHR(10) || 'Executing router: ' || upper(p_router));
+               raise_exception (sqlcode, sqlerrm || chr (10) || 'Executing router: ' || upper (p_router));
             END IF;
       END;
    END execute_app_router;
 
    PROCEDURE dispatcher (p_appid       IN VARCHAR2
-                       , name_array    IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr
-                       , value_array   IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr
+                       , name_array    IN owa_util.vc_arr DEFAULT empty_vc_arr
+                       , value_array   IN owa_util.vc_arr DEFAULT empty_vc_arr
                        , router        IN VARCHAR2 DEFAULT NULL )
    AS
       l_path          VARCHAR2 (4000);
       --
-      l_http_output   HTP.htbuf_arr;
+      l_http_output   htp.htbuf_arr;
       l_lines         NUMBER DEFAULT 99999999 ;
    BEGIN
       /***************
       * Defining the application
       ***************/
-      HTP.prn ('<!--DBAX-->');
+      htp.prn ('<!--DBAX-->');
       dbx.g$appid := p_appid;
       dbx.g$properties ('appid') := p_appid;
 
@@ -707,9 +706,9 @@ AS
       END IF;
 
       --Split the URL
-      IF INSTR (l_path, '/', 2) > 0
+      IF instr (l_path, '/', 2) > 0
       THEN
-         l_path      := SUBSTR (l_path, INSTR (l_path, '/', 2) + 1);
+         l_path      := substr (l_path, instr (l_path, '/', 2) + 1);
       ELSE
          l_path      := '/';
       END IF;
@@ -746,14 +745,14 @@ AS
          ***************/
 
          -- Get page from owa buffer
-         OWA.get_page (l_http_output, l_lines);
+         owa.get_page (l_http_output, l_lines);
 
-         HTP.init;
-         OWA_UTIL.mime_header (NVL (response_.content, 'text/html'), FALSE, dbx.get_property ('ENCODING'));
-         OWA_UTIL.status_line (nstatus => NVL (response_.status, 200), creason => NULL, bclose_header => FALSE);
-         HTP.prn (generate_cookie_header);
+         htp.init;
+         owa_util.mime_header (nvl (response_.content, 'text/html'), FALSE, dbx.get_property ('ENCODING'));
+         owa_util.status_line (nstatus => nvl (response_.status, 200), creason => NULL, bclose_header => FALSE);
+         htp.prn (generate_cookie_header);
          print_http_header;
-         OWA_UTIL.http_header_close;
+         owa_util.http_header_close;
 
          print_owa_page (l_http_output, l_lines);
       ELSE
@@ -768,8 +767,8 @@ AS
       WHEN OTHERS
       THEN
          session_.save;
-         raise_exception (SQLCODE, SQLERRM);
-         --TODO
-         --dbax_log.close_log;
+         raise_exception (sqlcode, sqlerrm);
+   --TODO
+   --dbax_log.close_log;
    END dispatcher;
 END dbx;

@@ -1,7 +1,5 @@
 CREATE OR REPLACE PACKAGE route_
 AS
-
-
    /************************************************************************
    *                            ROUTING
    *        Procedures and functions to manage Application Routing
@@ -13,10 +11,10 @@ AS
    * @param     p_url_pattern      the url pattern
    * @return    boolean
    */
-   FUNCTION match (p_uri IN VARCHAR2, p_http_verbs IN VARCHAR2 DEFAULT NULL)
+   FUNCTION match (p_uri IN VARCHAR2, p_http_verbs IN VARCHAR2 DEFAULT NULL )
       RETURN BOOLEAN;
 
-   FUNCTION match (p_uri IN VARCHAR2, p_http_verbs IN VARCHAR2 DEFAULT NULL, p_parameters OUT dbx.g_assoc_array)
+   FUNCTION match (p_uri IN VARCHAR2, p_http_verbs IN VARCHAR2 DEFAULT NULL , p_parameters OUT dbx.g_assoc_array)
       RETURN BOOLEAN;
 
    /**
@@ -42,17 +40,18 @@ AS
 
    FUNCTION post (p_uri IN VARCHAR2, p_parameters OUT dbx.g_assoc_array)
       RETURN BOOLEAN;
-/**
-* Not implemented because pl/sql gateways only accept get and post verbs
-*/
---FUNCTION route_post (p_url_pattern IN VARCHAR2)
---  RETURN BOOLEAN;
---FUNCTION route_post (p_url_pattern IN VARCHAR2)
---  RETURN BOOLEAN;
---FUNCTION route_post (p_url_pattern IN VARCHAR2)
---  RETURN BOOLEAN;
---FUNCTION route_post (p_url_pattern IN VARCHAR2)
---  RETURN BOOLEAN;
+
+   /**
+   * Not implemented because pl/sql gateways only accept get and post verbs
+   */
+   --FUNCTION route_post (p_url_pattern IN VARCHAR2)
+   --  RETURN BOOLEAN;
+   --FUNCTION route_post (p_url_pattern IN VARCHAR2)
+   --  RETURN BOOLEAN;
+   --FUNCTION route_post (p_url_pattern IN VARCHAR2)
+   --  RETURN BOOLEAN;
+   --FUNCTION route_post (p_url_pattern IN VARCHAR2)
+   --  RETURN BOOLEAN;
 
 
    /**
@@ -69,6 +68,5 @@ AS
                              , p_postion              OUT PLS_INTEGER
                              , p_occurrence           OUT PLS_INTEGER
                              , p_match_parameter      OUT VARCHAR2);
-
-end route_; 
+END route_;
 /

@@ -17,10 +17,7 @@ AS
 
 
    --Empty array for dynamic parameter
-   empty_vc_arr     OWA_UTIL.vc_arr;
-
-   --G$VIEW An associative array of variables (constants) to be replaced in the views referenced by ${name}
-   --g$view           dbx.g_assoc_array;
+   empty_vc_arr     owa_util.vc_arr;
 
    --G$PROPERTIES An associative array of application properties
    g$properties     dbx.g_assoc_array;
@@ -46,8 +43,8 @@ AS
    * @param  value_array    vc_arr with the values of the arguments
    */
    PROCEDURE dispatcher (p_appid       IN VARCHAR2
-                       , name_array    IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr
-                       , value_array   IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr
+                       , name_array    IN owa_util.vc_arr DEFAULT empty_vc_arr
+                       , value_array   IN owa_util.vc_arr DEFAULT empty_vc_arr
                        , router        IN VARCHAR2 DEFAULT NULL );
 
    /**
@@ -144,14 +141,13 @@ AS
    */
    FUNCTION tokenizer (p_string IN VARCHAR2, p_delimiter IN VARCHAR2 DEFAULT ',' )
       RETURN g_varchar_array;
-      
-      
+
    /**
-   * Raise an HTTP 500 error to the user with their description. 
+   * Raise an HTTP 500 error to the user with their description.
    * If enabled, shows to the user all the error trace, as well as the line of code that caused the exception.
    *
    * @param     p_error_code        the user error code number
-   * @param     p_error_msg         the user error message text 
+   * @param     p_error_msg         the user error message text
    */
-   PROCEDURE raise_exception (p_error_code IN NUMBER, p_error_msg IN VARCHAR2);   
+   PROCEDURE raise_exception (p_error_code IN NUMBER, p_error_msg IN VARCHAR2);
 END dbx;

@@ -1,3 +1,4 @@
+/* Formatted on 01/02/2017 15:07:58 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY response_
 AS
    /**
@@ -16,7 +17,7 @@ AS
       RETURN VARCHAR2
    AS
    BEGIN
-      IF r_response.headers.EXISTS (p_key)
+      IF r_response.headers.exists (p_key)
       THEN
          RETURN r_response.headers (p_key);
       ELSE
@@ -64,7 +65,7 @@ AS
       RETURN cookie_type
    AS
    BEGIN
-      IF r_response.cookies.EXISTS (p_name)
+      IF r_response.cookies.exists (p_name)
       THEN
          RETURN r_response.cookies (p_name);
       ELSE
@@ -92,9 +93,9 @@ AS
       IF p_name IS NOT NULL
       THEN
          r_response.cookies (p_name).name := p_name;
-         r_response.cookies (p_name).VALUE := p_value;
+         r_response.cookies (p_name).value := p_value;
          r_response.cookies (p_name).expires := p_expires;
-         r_response.cookies (p_name).PATH := p_path;
+         r_response.cookies (p_name).path := p_path;
          r_response.cookies (p_name).domain := p_domain;
          r_response.cookies (p_name).secure := p_secure;
          r_response.cookies (p_name).httponly := p_httponly;
@@ -105,8 +106,7 @@ AS
    PROCEDURE forget_cookie (p_name IN VARCHAR2)
    AS
    BEGIN
-      cookie (p_name => p_name, p_value => NULL, p_expires => SYSDATE - 100);
+      cookie (p_name => p_name, p_value => NULL, p_expires => sysdate - 100);
    END forget_cookie;
-
 END response_;
 /

@@ -10,7 +10,7 @@ AS
        , headers          dbx.g_assoc_array --
        , cookies          dbx.g_assoc_array --
        , inputs           dbx.g_assoc_array -- G$GET or G$POST input parameters
-       , segment_inputs   dbx.g_varchar_array-- URL input segment parameters
+       , segment_inputs   dbx.g_varchar_array -- URL input segment parameters
        , route            VARCHAR2 (32767) -- Matched route
       );
 
@@ -34,7 +34,7 @@ AS
    *
    * @param  p_headers     the header array
    */
-   PROCEDURE headers (p_headers in dbx.g_assoc_array);
+   PROCEDURE headers (p_headers IN dbx.g_assoc_array);
 
    /**
    * Retrieve a header from the request
@@ -60,7 +60,7 @@ AS
    * @param  p_cookies       the cookies text, default null.
    */
    PROCEDURE load_cookies (p_cookies IN VARCHAR2 DEFAULT NULL );
-   
+
    /**
    * Retrieve a cookie from the request
    *

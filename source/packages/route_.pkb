@@ -12,29 +12,29 @@ AS
       l_regex_pos   PLS_INTEGER;
       l_param_tab   dbx.g_varchar_array;
    BEGIN
-      l_regex_pos := INSTR (p_string, '@', -1);
+      l_regex_pos := instr (p_string, '@', -1);
 
       IF l_regex_pos <> 0
       THEN
-         p_pattern   := SUBSTR (p_string, 1, l_regex_pos - 1);
+         p_pattern   := substr (p_string, 1, l_regex_pos - 1);
 
-         l_param_tab := dbx.tokenizer (SUBSTR (p_string, l_regex_pos + 1));
+         l_param_tab := dbx.tokenizer (substr (p_string, l_regex_pos + 1));
 
-         IF l_param_tab.EXISTS (1) AND l_param_tab (1) IS NOT NULL
+         IF l_param_tab.exists (1) AND l_param_tab (1) IS NOT NULL
          THEN
             p_postion   := l_param_tab (1);
          ELSE
             p_postion   := 1;
          END IF;
 
-         IF l_param_tab.EXISTS (2)
+         IF l_param_tab.exists (2)
          THEN
             p_occurrence := l_param_tab (2);
          ELSE
             p_occurrence := 0;
          END IF;
 
-         IF l_param_tab.EXISTS (3)
+         IF l_param_tab.exists (3)
          THEN
             p_match_parameter := l_param_tab (3);
          END IF;
@@ -66,28 +66,28 @@ AS
                       , l_match_parameter);
 
 
-      FOR v_reg IN (    SELECT   REGEXP_SUBSTR (l_user_url_pattern
+      FOR v_reg IN (    SELECT   regexp_substr (l_user_url_pattern
                                               , '{(.*?)}'
                                               , 1
-                                              , LEVEL
+                                              , level
                                               , 'n'
                                               , 1)
-                                    var_name, LEVEL
-                          FROM   DUAL
-                    CONNECT BY   REGEXP_SUBSTR (l_user_url_pattern
+                                    var_name, level
+                          FROM   dual
+                    CONNECT BY   regexp_substr (l_user_url_pattern
                                               , '{(.*?)}'
                                               , 1
-                                              , LEVEL
+                                              , level
                                               , 'n'
                                               , 1) IS NOT NULL)
       LOOP
          l_parameter_value :=
-            REGEXP_SUBSTR (dbx.g$path
+            regexp_substr (dbx.g$path
                          , p_url_pattern
                          , l_position
-                         , NVL (l_occurrence, 1)
+                         , nvl (l_occurrence, 1)
                          , l_match_parameter
-                         , v_reg.LEVEL);
+                         , v_reg.level);
          l_url_parameters (v_reg.var_name) := l_parameter_value;
       END LOOP;
 
@@ -115,10 +115,10 @@ AS
       l_url_pattern := p_url_pattern;
 
       --Si el url_pattern contiene una {} sustituirlo por ([[:print:]].*+)
-      IF INSTR (l_url_pattern, '{') > 0 AND INSTR (l_url_pattern, '}') > 0
+      IF instr (l_url_pattern, '{') > 0 AND instr (l_url_pattern, '}') > 0
       THEN
          l_url_pattern :=
-            REGEXP_REPLACE (l_url_pattern
+            regexp_replace (l_url_pattern
                           , '{(.*?)}'
                           , '([[:print:]].*?)'
                           , 1
@@ -138,10 +138,10 @@ AS
 
       BEGIN
          l_retval    :=
-            REGEXP_INSTR (NVL (dbx.g$path, '/')
+            regexp_instr (nvl (dbx.g$path, '/')
                         , l_url_pattern
                         , l_position
-                        , NVL (l_occurrence, 1)
+                        , nvl (l_occurrence, 1)
                         , '0'
                         , l_match_parameter);
 
@@ -155,11 +155,11 @@ AS
             END IF;
 
             l_path      :=
-               REGEXP_REPLACE (dbx.g$path
+               regexp_replace (dbx.g$path
                              , l_url_pattern
                              , l_replace_string || '/'
                              , l_position
-                             , NVL (l_occurrence, 0)
+                             , nvl (l_occurrence, 0)
                              , l_match_parameter);
 
 
@@ -168,9 +168,9 @@ AS
             l_ret_arr   := dbx.tokenizer (l_path, '/');
 
             --Parameters are the rest of the url
-            IF l_ret_arr.EXISTS (1)
+            IF l_ret_arr.exists (1)
             THEN
-               FOR i IN 1 .. l_ret_arr.LAST
+               FOR i IN 1 .. l_ret_arr.last
                LOOP
                   l_segment_inputs (i) := l_ret_arr (i);
                --dbax_log.info ('Paramter g$parameter(' || i || ') = ' || g$parameter (i));
@@ -208,11 +208,11 @@ AS
    BEGIN
       l_http_verbs := dbx.tokenizer (p_http_verbs, ',');
 
-      IF l_http_verbs.EXISTS (1)
+      IF l_http_verbs.exists (1)
       THEN
-         FOR i IN 1 .. l_http_verbs.LAST
-         LOOP            
-            IF request_.method = UPPER (TRIM (l_http_verbs (i))) AND router (p_uri, p_parameters)
+         FOR i IN 1 .. l_http_verbs.last
+         LOOP
+            IF request_.method = upper (trim (l_http_verbs (i))) AND router (p_uri, p_parameters)
             THEN
                RETURN TRUE;
             END IF;
@@ -250,7 +250,7 @@ AS
       RETURN get (p_uri, l_dummy);
    END get;
 
-   FUNCTION POST (p_uri IN VARCHAR2, p_parameters OUT dbx.g_assoc_array)
+   FUNCTION post (p_uri IN VARCHAR2, p_parameters OUT dbx.g_assoc_array)
       RETURN BOOLEAN
    AS
    BEGIN
@@ -260,14 +260,14 @@ AS
       ELSE
          RETURN FALSE;
       END IF;
-   END POST;
+   END post;
 
-   FUNCTION POST (p_uri IN VARCHAR2)
+   FUNCTION post (p_uri IN VARCHAR2)
       RETURN BOOLEAN
    AS
       l_dummy   dbx.g_assoc_array;
    BEGIN
-      RETURN POST (p_uri, l_dummy);
-   END POST;
+      RETURN post (p_uri, l_dummy);
+   END post;
 END route_;
 /

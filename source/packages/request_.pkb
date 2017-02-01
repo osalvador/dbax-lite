@@ -1,4 +1,3 @@
-/* Formatted on 31/01/2017 17:27:04 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY request_
 AS
    /**
@@ -16,9 +15,9 @@ AS
    PROCEDURE method (p_method IN VARCHAR2)
    AS
    BEGIN
-      IF UPPER (p_method) IN ('GET', 'POST') OR p_method IS NULL
+      IF upper (p_method) IN ('GET', 'POST') OR p_method IS NULL
       THEN
-         r_request.method := UPPER (p_method);
+         r_request.method := upper (p_method);
       END IF;
    END;
 
@@ -33,7 +32,7 @@ AS
       RETURN VARCHAR2
    AS
    BEGIN
-      IF r_request.headers.EXISTS (p_key)
+      IF r_request.headers.exists (p_key)
       THEN
          RETURN r_request.headers (p_key);
       ELSE
@@ -53,7 +52,7 @@ AS
       l_http_cookie   VARCHAR2 (32767);
    BEGIN
       --Load HTTP Cookie string
-      l_http_cookie := NVL (p_cookies, OWA_UTIL.get_cgi_env ('HTTP_COOKIE'));
+      l_http_cookie := nvl (p_cookies, owa_util.get_cgi_env ('HTTP_COOKIE'));
 
       --Parse Cookie String to request cookies
       r_request.cookies := dbx.query_string_to_array (l_http_cookie, '; ', '=');
@@ -64,7 +63,7 @@ AS
       RETURN VARCHAR2
    AS
    BEGIN
-      IF r_request.cookies.EXISTS (p_key)
+      IF r_request.cookies.exists (p_key)
       THEN
          RETURN r_request.cookies (p_key);
       ELSE
@@ -83,7 +82,7 @@ AS
       RETURN BOOLEAN
    AS
    BEGIN
-      IF r_request.cookies.EXISTS (p_key)
+      IF r_request.cookies.exists (p_key)
       THEN
          RETURN TRUE;
       ELSE
@@ -96,7 +95,7 @@ AS
       RETURN VARCHAR2
    AS
    BEGIN
-      IF r_request.inputs.EXISTS (p_key)
+      IF r_request.inputs.exists (p_key)
       THEN
          RETURN r_request.inputs (p_key);
       ELSE
@@ -123,7 +122,7 @@ AS
       RETURN VARCHAR2
    AS
    BEGIN
-      IF r_request.segment_inputs.EXISTS (p_key)
+      IF r_request.segment_inputs.exists (p_key)
       THEN
          RETURN r_request.segment_inputs (p_key);
       ELSE
