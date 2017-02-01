@@ -67,7 +67,7 @@ Route parameters are always encased within {} braces and should consist of alpha
 Occasionally you may need to specify a route parameter, but make the presence of that route parameter optional. You may do so by placing a ? mark after the parameter braces:
 
 ```sql
-if route_.route_get ('user/{id}?/{name}?', l_param)
+if route_.get ('user/{id}?/{name}?', l_param)
 then
   return 'The id: ' || l_param ('id') 
       || 'The name: ' || l_param ('name');
