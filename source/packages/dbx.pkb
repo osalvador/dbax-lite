@@ -282,25 +282,31 @@ AS
    AS
       l_found     BOOLEAN := FALSE;
       l_thepage   HTP.htbuf_arr := p_thepage;
+      l_start_line pls_integer := 1;
    BEGIN
       --Response content start with <!--DBAX-->
+      --Buscar la linea en la que sale el comentario, quitarlo e imprimir esa linea.      
       FOR i IN 1 .. p_lines
       LOOP
          IF NOT l_found
          THEN
-            l_found     := l_thepage (i) LIKE '%<!%';
+            l_found     := l_thepage (i) LIKE '<!--DBAX-->%';
 
             IF l_found
             THEN
                l_thepage (i) := REPLACE (l_thepage (i), '<!--DBAX-->');
+               HTP.prn (l_thepage (i));
+               l_start_line := i+1;
             END IF;
          END IF;
-
-         IF l_found
-         THEN
-            HTP.prn (l_thepage (i));
-         END IF;
       END LOOP;
+      
+      -- imprimir el resto de lineas
+      FOR i IN l_start_line .. p_lines
+      LOOP
+         HTP.prn (l_thepage (i));         
+      END LOOP;       
+      
    END print_owa_page;
 
    PROCEDURE set_request (name_array    IN OWA_UTIL.vc_arr DEFAULT empty_vc_arr
