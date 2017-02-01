@@ -1,16 +1,16 @@
-# dbax lite Documentation
+# dbax lite documentation
 
-## Getting Started
+### Getting Started
 
 - Installation
 - Configuration
 - Request Lifecycle
 
-## Dev Environments
+### Dev Environments
 - docker
 - OXAR
 
-## The HTTP Layer
+### The HTTP Layer
 - [Routing](Routing.md)
 - ~~Middleware~~
 - ~~CSRF Protection~~
