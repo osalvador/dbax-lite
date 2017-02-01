@@ -5,7 +5,7 @@
 
 To access to the current HTTP request, simply use `request_` package anywere in your code:
 
-```sql
+```plsql
 create or replace package body pk_user_controller
 as
    /**
@@ -33,7 +33,7 @@ The `request_` package provides a variety of methods for examining the HTTP requ
 
 The `path` method returns the request's path information. So, if the incoming request is targeted at `http://domain.com/foo/bar`, the `path` method will return `foo/bar`:
 
-```
+```plsql
 l_uri := request_.path();
 ```
 
@@ -41,7 +41,7 @@ l_uri := request_.path();
 
 To retrieve the full URL for the incoming request you may use the `url` or `fullUrl` methods. The  `url` method will return the URL without the query string, while the `fullUrl` method includes the query string:
 
-```sql
+```plsql
 --Without Query String...
 l_url := request_.url();
 
@@ -52,7 +52,7 @@ l_url := request_.fullUrl();
 #### Retrieving The Request Method
 The `method` method will return the HTTP verb for the request. 
 
-```sql
+```plsql
 l_method := request_.method();
 
 if request_.method() = 'POST'
@@ -67,7 +67,7 @@ end if;
 #### Retrieving All Input Data
 You may also retrieve all of the input data as an associative array (`dbx.g_assoc_array`) using the `inputs` method:
 
-```sql
+```plsql
 declare
 	l_inputs dbx.g_assoc_array;
 begin
@@ -79,7 +79,7 @@ end;
 #### Retrieving An Input Value
 Using a few simple methods, you may access all of the user input from your `request_` package without worrying about which HTTP verb was used for the request. Regardless of the HTTP verb, the input method may be used to retrieve user input:
 
-```
+```plsql
 l_name = request_.input('name');
 ```
 
@@ -90,7 +90,7 @@ l_name = request_.input('name');
 
 To retrieve a cookie value from the request, use the cookie method on a `request_` package:
 
-```
+```plsql
 l_value := request_.cookie('name');
 ```
 
@@ -98,12 +98,12 @@ l_value := request_.cookie('name');
 
 You may attach a cookie to an outgoing `response_` package using the cookie method. You should pass the name, value, and  expiration date:
 
-```sql
+```plsql
 response_.cookie('name', 'value', sysdate + interval '20' minutes );
 ```
 
 The cookie method also accepts a few more arguments which are used less frequently:
 
-```sql
+```plsql
 response_.cookie('name', 'value', l_20_minutes, l_path, l_domain, l_secure, l_httpOnly );
 ```
