@@ -1,3 +1,4 @@
+/* Formatted on 01/02/2017 11:02:18 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE view_
 AS
    /**
@@ -66,6 +67,9 @@ AS
    * @param     p_name      the name of the view.
    */
    PROCEDURE run (p_view IN CLOB, p_name IN VARCHAR2);
+
+   FUNCTION run (p_view IN CLOB, p_name IN VARCHAR2)
+      RETURN VARCHAR2;
 
    /**
    * Set the name of the view

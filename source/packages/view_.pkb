@@ -955,7 +955,12 @@ AS
          THEN
             -- sino compilarlo y ejecutarlo y guardarlo
             l_template  := local_compile (p_template, p_appid);
-
+            
+            -- Save compiled Template
+            save_compiled_template (p_template_name => p_template_name
+                                  , p_appid     => p_appid
+                                  , p_template  => p_template
+                                  , p_compiled_template => l_template);
          ELSE
             -- si el template está compilado ejecutar ese
             l_template  := include_compiled (p_template_name, p_appid);
@@ -969,18 +974,23 @@ AS
          THEN
             -- sino compilarlo y ejecutarlo y guardarlo
             l_template  := compile (p_template_name, p_appid, l_error_template);
-
+            
+            -- Save compiled Template
+            save_compiled_template (p_template_name => p_template_name
+                                  , p_appid     => p_appid
+                                  , p_template  => p_template
+                                  , p_compiled_template => l_template);
          END IF;
       ELSE
          --compile the template
          l_template  := local_compile (p_template, p_appid);
-      END IF;      
-      
-      -- Save compiled Template
-      save_compiled_template (p_template_name => p_template_name
-                            , p_appid     => p_appid
-                            , p_template  => p_template
-                            , p_compiled_template => l_template);
+         
+         -- Save compiled Template
+         save_compiled_template (p_template_name => p_template_name
+                                , p_appid     => p_appid
+                                , p_template  => p_template
+                                , p_compiled_template => l_template);
+      END IF;
 
 
       --Bind the variables into template
@@ -1014,19 +1024,27 @@ AS
 
     PROCEDURE run (p_view IN CLOB, p_name IN VARCHAR2)
     AS
-    BEGIN       
+    BEGIN
        --Set view name
-       name(p_name);
+       name (p_name);
        --Execute view
        execute (p_template_name => p_name, p_template => p_view);
-       
-      -- Delete view data 
-      g_assoc_varchar.delete;
-      g_assoc_number.delete;
-      g_assoc_date.delete;
-      g_assoc_assoc.delete;
-      g_assoc_refcursor.delete;
+
+       -- Delete view data
+       g_assoc_varchar.delete;
+       g_assoc_number.delete;
+       g_assoc_date.delete;
+       g_assoc_assoc.delete;
+       g_assoc_refcursor.delete;
     END run;
+
+    FUNCTION run (p_view IN CLOB, p_name IN VARCHAR2)
+       RETURN VARCHAR2
+    AS
+    BEGIN
+       run (p_view, p_name);
+       RETURN NULL;
+    END;
 
     PROCEDURE data (p_name IN VARCHAR2, p_value IN VARCHAR2)
     AS
@@ -1120,12 +1138,11 @@ AS
        IF g_assoc_refcursor.EXISTS (p_name)
        THEN
           l_ref_cursor := DBMS_SQL.to_refcursor (g_assoc_refcursor (p_name));
-          RETURN l_ref_cursor;
-       ELSE
-          RETURN NULL;
-       END IF;
-    END;
+      RETURN l_ref_cursor;
+   ELSE
+      RETURN NULL;
+   END IF;
+END;
 
 END view_;
-
 /
