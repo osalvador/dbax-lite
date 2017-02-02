@@ -5,7 +5,7 @@ AS
    *        Procedures and functions to manage Application Routing
    *************************************************************************/
    /**
-   * Basic route function
+   * Register a new route with the given verbs.
    *
    * @param     p_methods          the comma separated http verbs or REQUEST_METHOD
    * @param     p_url_pattern      the url pattern
@@ -18,7 +18,19 @@ AS
       RETURN BOOLEAN;
 
    /**
-   * Route function for GET requests
+   * Register a new route responding to all verbs
+   *
+   * @param     p_url_pattern      the url pattern
+   * @return    boolean
+   */
+   FUNCTION any_ (p_uri IN VARCHAR2)
+      RETURN BOOLEAN;
+
+   FUNCTION any_ (p_uri IN VARCHAR2, p_parameters OUT dbx.g_assoc_array)
+      RETURN BOOLEAN;
+
+   /**
+   * Register a new GET route with the router
    *
    * @param     p_url_pattern      the url pattern
    * @return    boolean
@@ -30,7 +42,7 @@ AS
       RETURN BOOLEAN;
 
    /**
-   * Route function for POST requests
+   * Register a new POST route with the router
    *
    * @param     p_url_pattern      the url pattern
    * @return    boolean
@@ -42,16 +54,40 @@ AS
       RETURN BOOLEAN;
 
    /**
-   * Not implemented because pl/sql gateways only accept get and post verbs
+   * Register a new PUT route with the router
+   *
+   * @param     p_url_pattern      the url pattern
+   * @return    boolean
    */
-   --FUNCTION route_post (p_url_pattern IN VARCHAR2)
-   --  RETURN BOOLEAN;
-   --FUNCTION route_post (p_url_pattern IN VARCHAR2)
-   --  RETURN BOOLEAN;
-   --FUNCTION route_post (p_url_pattern IN VARCHAR2)
-   --  RETURN BOOLEAN;
-   --FUNCTION route_post (p_url_pattern IN VARCHAR2)
-   --  RETURN BOOLEAN;
+   FUNCTION put (p_uri IN VARCHAR2)
+      RETURN BOOLEAN;
+
+   FUNCTION put (p_uri IN VARCHAR2, p_parameters OUT dbx.g_assoc_array)
+      RETURN BOOLEAN;
+
+   /**
+   * Register a new DLETE route with the router
+   *
+   * @param     p_url_pattern      the url pattern
+   * @return    boolean
+   */
+   FUNCTION delete (p_uri IN VARCHAR2)
+      RETURN BOOLEAN;
+
+   FUNCTION delete (p_uri IN VARCHAR2, p_parameters OUT dbx.g_assoc_array)
+      RETURN BOOLEAN;
+
+   /**
+   * Register a new PATCH route with the router
+   *
+   * @param     p_url_pattern      the url pattern
+   * @return    boolean
+   */
+   FUNCTION patch (p_uri IN VARCHAR2)
+      RETURN BOOLEAN;
+
+   FUNCTION patch (p_uri IN VARCHAR2, p_parameters OUT dbx.g_assoc_array)
+      RETURN BOOLEAN;
 
 
    /**

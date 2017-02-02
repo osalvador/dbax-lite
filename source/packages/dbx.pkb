@@ -1,3 +1,4 @@
+/* Formatted on 02/02/2017 17:03:44 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY dbx
 AS
    FUNCTION get (p_array g_assoc_array, p_key IN VARCHAR2)
@@ -247,7 +248,7 @@ AS
             l_return    := l_return || '; HttpOnly';
          END IF;
 
-         l_return    := l_return || chr (10);
+         l_return    := l_return || chr (13) || chr (10);
 
          l_name      := l_cookies.next (l_name);
       END LOOP;
@@ -272,7 +273,7 @@ AS
 
          LOOP
             EXIT WHEN l_key IS NULL;
-            htp.p (l_key || ':' || l_headers (l_key));
+            htp.p (l_key || ':' || l_headers (l_key) || chr (13) || chr (10));
             l_key       := l_headers.next (l_key);
          END LOOP;
       END IF;
@@ -309,6 +310,30 @@ AS
       END LOOP;
    END print_owa_page;
 
+   PROCEDURE set_request_method
+   AS
+   BEGIN
+      IF request_.header ('REQUEST_METHOD') = 'POST'
+      THEN
+         IF request_.header ('X-HTTP-METHOD-OVERRIDE') IS NOT NULL
+         THEN
+            -- standard method override
+            request_.method (upper (request_.header ('X-HTTP-METHOD-OVERRIDE')));
+         ELSIF request_.header ('HTTP_X_ORACLE_CACHE_ENCRYPT') IS NOT NULL
+         THEN
+            -- mod_plsql mehotd override
+            -- You must send this header X-ORACLE-CACHE-ENCRYPT            
+            request_.method (upper (request_.header ('HTTP_X_ORACLE_CACHE_ENCRYPT')));            
+         ELSE
+            -- No override method
+            request_.method (upper (request_.header ('REQUEST_METHOD')));
+         END IF;
+      ELSE
+         -- No override method
+         request_.method (upper (request_.header ('REQUEST_METHOD')));
+      END IF;
+   END set_request_method;
+
    PROCEDURE set_request (name_array    IN owa_util.vc_arr DEFAULT empty_vc_arr
                         , value_array   IN owa_util.vc_arr DEFAULT empty_vc_arr )
    AS
@@ -322,7 +347,7 @@ AS
       --Get headers get from CGI ENV
       FOR i IN 1 .. owa.num_cgi_vars
       LOOP
-         l_headers (owa.cgi_var_name (i)) := owa.cgi_var_val (i);
+         l_headers (upper (owa.cgi_var_name (i))) := owa.cgi_var_val (i);
       END LOOP;
 
       --Set request headers
@@ -396,7 +421,8 @@ AS
       END IF;
 
       --Set request
-      request_.method (request_.header ('REQUEST_METHOD'));
+      set_request_method;
+
 
       IF request_.method = 'GET'
       THEN

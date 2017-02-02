@@ -1,4 +1,3 @@
-/* Formatted on 02/02/2017 10:02:57 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY request_
 AS
    /**
@@ -13,10 +12,17 @@ AS
       RETURN r_request.method;
    END;
 
+   FUNCTION real_method
+      RETURN VARCHAR2
+   AS
+   BEGIN
+      RETURN request_.header ('REQUEST_METHOD');
+   END real_method;
+
    PROCEDURE method (p_method IN VARCHAR2)
    AS
    BEGIN
-      IF upper (p_method) IN ('GET', 'POST') OR p_method IS NULL
+      IF upper (p_method) IN ('GET', 'POST', 'PUT', 'PATCH', 'DELETE') OR p_method IS NULL
       THEN
          r_request.method := upper (p_method);
       END IF;
@@ -164,14 +170,20 @@ AS
       RETURN VARCHAR2
    AS
    BEGIN
-      RETURN r_request.headers ('HTTP_HOST') || r_request.headers ('SCRIPT_NAME') || r_request.headers ('PATH_INFO');
+      RETURN    r_request.headers ('REQUEST_PROTOCOL')
+             || '://'
+             || r_request.headers ('HTTP_HOST')
+             || r_request.headers ('SCRIPT_NAME')
+             || r_request.headers ('PATH_INFO');
    END url;
 
    FUNCTION full_url
       RETURN VARCHAR2
    AS
    BEGIN
-      RETURN    r_request.headers ('HTTP_HOST')
+      RETURN    r_request.headers ('REQUEST_PROTOCOL')
+             || '://'
+             || r_request.headers ('HTTP_HOST')
              || r_request.headers ('SCRIPT_NAME')
              || r_request.headers ('PATH_INFO')
              || '?'

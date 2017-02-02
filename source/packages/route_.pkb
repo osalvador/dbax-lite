@@ -230,6 +230,31 @@ AS
       RETURN match (p_uri, p_http_verbs, l_dummy);
    END match;
 
+   FUNCTION any_ (p_uri IN VARCHAR2, p_parameters OUT dbx.g_assoc_array)
+      RETURN BOOLEAN
+   AS
+   BEGIN
+      IF router (p_uri, p_parameters)
+      THEN
+         RETURN TRUE;
+      ELSE
+         RETURN FALSE;
+      END IF;
+   END any_;
+
+   FUNCTION any_ (p_uri IN VARCHAR2)
+      RETURN BOOLEAN
+   AS
+      l_dummy   dbx.g_assoc_array;
+   BEGIN
+      IF router (p_uri, l_dummy)
+      THEN
+         RETURN TRUE;
+      ELSE
+         RETURN FALSE;
+      END IF;
+   END any_;
+
    FUNCTION get (p_uri IN VARCHAR2, p_parameters OUT dbx.g_assoc_array)
       RETURN BOOLEAN
    AS
@@ -269,5 +294,66 @@ AS
    BEGIN
       RETURN post (p_uri, l_dummy);
    END post;
+
+   FUNCTION put (p_uri IN VARCHAR2, p_parameters OUT dbx.g_assoc_array)
+      RETURN BOOLEAN
+   AS
+   BEGIN
+      IF request_.method = 'PUT' AND router (p_uri, p_parameters)
+      THEN
+         RETURN TRUE;
+      ELSE
+         RETURN FALSE;
+      END IF;
+   END put;
+
+   FUNCTION put (p_uri IN VARCHAR2)
+      RETURN BOOLEAN
+   AS
+      l_dummy   dbx.g_assoc_array;
+   BEGIN
+      RETURN put (p_uri, l_dummy);
+   END put;
+
+   FUNCTION delete (p_uri IN VARCHAR2, p_parameters OUT dbx.g_assoc_array)
+      RETURN BOOLEAN
+   AS
+   BEGIN
+      IF request_.method = 'DELETE' AND router (p_uri, p_parameters)
+      THEN
+         RETURN TRUE;
+      ELSE
+         RETURN FALSE;
+      END IF;
+   END delete;
+
+   FUNCTION delete (p_uri IN VARCHAR2)
+      RETURN BOOLEAN
+   AS
+      l_dummy   dbx.g_assoc_array;
+   BEGIN
+      RETURN "DELETE" (p_uri, l_dummy);
+   END delete;
+
+
+   FUNCTION patch (p_uri IN VARCHAR2, p_parameters OUT dbx.g_assoc_array)
+      RETURN BOOLEAN
+   AS
+   BEGIN
+      IF request_.method = 'PATCH' AND router (p_uri, p_parameters)
+      THEN
+         RETURN TRUE;
+      ELSE
+         RETURN FALSE;
+      END IF;
+   END patch;
+
+   FUNCTION patch (p_uri IN VARCHAR2)
+      RETURN BOOLEAN
+   AS
+      l_dummy   dbx.g_assoc_array;
+   BEGIN
+      RETURN patch (p_uri, l_dummy);
+   END patch;
 END route_;
 /

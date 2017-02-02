@@ -1,4 +1,3 @@
-/* Formatted on 02/02/2017 9:53:34 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE request_
 AS
    /**
@@ -21,6 +20,14 @@ AS
    * @return the value if exists
    */
    FUNCTION method
+      RETURN VARCHAR2;
+
+   /**
+   * Get the real request method.
+   *
+   * @return the value if exists
+   */
+   FUNCTION real_method
       RETURN VARCHAR2;
 
    /**
