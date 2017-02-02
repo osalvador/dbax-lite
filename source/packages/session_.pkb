@@ -1,4 +1,3 @@
-/* Formatted on 01/02/2017 17:02:31 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY session_
 AS
    --g$session User Session Asocciative Array

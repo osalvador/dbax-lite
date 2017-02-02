@@ -1,3 +1,4 @@
+/* Formatted on 02/02/2017 10:02:57 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY request_
 AS
    /**
@@ -157,5 +158,24 @@ AS
    BEGIN
       r_request.route := p_uri;
    END;
+
+
+   FUNCTION url
+      RETURN VARCHAR2
+   AS
+   BEGIN
+      RETURN r_request.headers ('HTTP_HOST') || r_request.headers ('SCRIPT_NAME') || r_request.headers ('PATH_INFO');
+   END url;
+
+   FUNCTION full_url
+      RETURN VARCHAR2
+   AS
+   BEGIN
+      RETURN    r_request.headers ('HTTP_HOST')
+             || r_request.headers ('SCRIPT_NAME')
+             || r_request.headers ('PATH_INFO')
+             || '?'
+             || r_request.headers ('QUERY_STRING');
+   END full_url;
 END request_;
 /

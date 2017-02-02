@@ -1,3 +1,4 @@
+/* Formatted on 02/02/2017 9:53:34 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE request_
 AS
    /**
@@ -154,5 +155,21 @@ AS
    * @param  p_uri     the route uri
    */
    PROCEDURE route (p_uri IN VARCHAR2);
+
+   /**
+   * Get the URL (no query string) for the request.
+   *
+   * @return the inputs segment array
+   */
+   FUNCTION url
+      RETURN VARCHAR2;
+
+   /**
+   * Get the full URL for the request.
+   *
+   * @return the inputs segment array
+   */
+   FUNCTION full_url
+      RETURN VARCHAR2;
 END request_;
 /
