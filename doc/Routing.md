@@ -2,7 +2,7 @@
 
 ## Basic Routing
 
-The most basic dbax routes simply accept a http verb and URI, providing a very simple and expressive method of defining routes:
+The most basic **dbax** routes simply accept a http verb and URI, providing a very simple and expressive method of defining routes:
 
 ```sql      
 if route_.get ('foo')
@@ -12,12 +12,12 @@ end if;
 ```
 
 
-**The Route Procedure**
+### The Route Procedure
 
-All dbax routes are defined in your route function, passed as argument in your procedure front controller. 
+All **dbax** routes are defined in your route function, passed as argument in your procedure front controller. 
 
 
-**Available Router Methods**
+### Available Router Methods
 
 The router allows you to register routes that respond to GET and POST HTTP verbs:
 
@@ -44,9 +44,8 @@ Of course, sometimes you will need to capture segments of the URI within your ro
 ```sql
 if route_.get ('user/{id}', l_params )
 then 
- return 'User ' || l_params('id');
+	return 'User ' || l_params('id');
 end if;
-
 ```
 
 You may define as many route parameters as required by your route:
@@ -54,8 +53,9 @@ You may define as many route parameters as required by your route:
 ```sql
 if route_.get ('posts/{post}/comments/{comment}', l_params)
 then
-  return 'Post: ' || l_params ('post') 
-  || ' Comment: ' || l_params ('comment');
+	return
+	' Post: ' || l_params ('post') ||
+	' Comment: ' || l_params ('comment');
 end if;
 
 ```
@@ -69,8 +69,9 @@ Occasionally you may need to specify a route parameter, but make the presence of
 ```sql
 if route_.get ('user/{id}?/{name}?', l_param)
 then
-  return 'The id: ' || l_param ('id') 
-      || 'The name: ' || l_param ('name');
+	return
+	' The id: ' || l_param ('id') ||
+    ' The name: ' || l_param ('name');
 end if;
 ```
 
@@ -90,6 +91,6 @@ Occasionally you may need to specify a case insensitive routes. You may do so by
 ```sql
 if route_.get ('USER/{id}@1,1,i', l_param)
 then
- return 'The id: ' || l_param('id') ;
+	return 'The id: ' || l_param('id') ;
 end if;
 ```

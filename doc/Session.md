@@ -21,10 +21,10 @@ end if;
 
 #### Retrieving All Session Data
 
-If you would like to retrieve all the data in the session, you may use the `getAll` function:
+If you would like to retrieve all the data in the session, you may use the `gel_all` function:
 
 ```sql
-l_data := session_.getAll();
+l_data := session_.get_all();
 ```
 
 #### Determining If An Item Exists In The Session

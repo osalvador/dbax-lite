@@ -1,6 +1,5 @@
 # HTTP Requests
 
-
 ## Accessing The Request
 
 To access to the current HTTP request, simply use `request_` package anywere in your code:
@@ -37,14 +36,14 @@ l_uri := request_.path();
 
 #### Retrieving The Request URL
 
-To retrieve the full URL for the incoming request you may use the `url` or `fullUrl` methods. The  `url` method will return the URL without the query string, while the `fullUrl` method includes the query string:
+To retrieve the full URL for the incoming request you may use the `url` or `full_url` methods. The  `url` method will return the URL without the query string, while the `full_url` method includes the query string:
 
 ```sql
 --Without Query String...
 l_url := request_.url();
 
 -- With Query String...
-l_url := request_.fullUrl();
+l_url := request_.full_url();
 ```
 
 #### Retrieving The Request Method

@@ -4,7 +4,7 @@
 
 ### Strings & Arrays
 
-All routes and controllers should return a response to be sent back to the user's browser. dbax provides several different ways to return responses. The most basic response is simply returning a string from a route or controller. The framework will automatically convert the string into a full HTTP response:
+All routes and controllers should return a response to be sent back to the user's browser. **dbax** provides several different ways to return responses. The most basic response is simply returning a string from a route or controller. The framework will automatically convert the string into a full HTTP response:
 
 ```sql
 if route_.get ('foo') then
@@ -69,9 +69,6 @@ end if;
 
 ## Other Response Types
 
-The response helper may be used to generate other types of response instances. When the  response helper is called without arguments, an implementation of the  Illuminate\Contracts\Routing\ResponseFactory contract is returned. This contract provides several helpful methods for generating responses.
-
-
 ### View Responses
 
 If you need control over the response's status and headers but also need to return a view as the response's content, you should use the `view_` package:
@@ -88,9 +85,7 @@ Of course, you do not need to pass a custom HTTP status code or custom headers.
 
 ### JSON Responses
 
-Por defecto dbax no incluye modulos para la creacion de json, pero usted puede usar el método que quiera para hacerlo y posteriormente personalizar la respuesta: 
-
-By default dbax does not include automatic generation of json responses , but you can use the module you want to do it and then customize the response:
+By default **dbax** does not include automatic generation of JSON responses, but you can use the module ([pljson](https://github.com/pljson/pljson) or [JSON support in Oracle 12c](https://oracle-base.com/articles/12c/json-support-in-oracle-database-12cr1)) you want to do it and then customize the response:
 
 ```sql
 if route_.get ('user') then
