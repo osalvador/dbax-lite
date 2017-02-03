@@ -27,7 +27,7 @@ BEGIN
    /**
    * Aplication properties
    */
-   dbx.g$properties ('base_path') := '/apps/!greeting?p=';
+   dbx.g$properties ('base_path') := '/ords/!greeting?p=';
    dbx.g$properties ('resources_url') := 'http://v4-alpha.getbootstrap.com';   
    dbx.g$properties ('encoding') := 'UTF-8';
    dbx.g$properties ('error_style') := 'DebugStyle';

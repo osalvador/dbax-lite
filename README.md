@@ -9,6 +9,7 @@ dbax lite is the lightweight version of [dbax](https://github.com/osalvador/dbax
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Documentation](doc/index.md)
+- [Examples](#examples)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -41,6 +42,15 @@ git clone https://github.com/osalvador/dbax-lite.git
 cd dbax-lite/source/install
 sqlplus "user/userpass"@SID @dbax-lite-install.sql
 ```
+
+
+## Examples 
+
+### Greeting application 
+
+Simple application that greets the user. The [PRG](https://en.wikipedia.org/wiki/Post/Redirect/Get) pattern is used to prevent duplicate form submissions. 
+
+[View Greeting application code](source/examples/greeting)
 
 ## Contributing
 
