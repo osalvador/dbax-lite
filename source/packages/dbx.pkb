@@ -1,4 +1,3 @@
-/* Formatted on 02/02/2017 17:03:44 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY dbx
 AS
    FUNCTION get (p_array g_assoc_array, p_key IN VARCHAR2)
@@ -798,3 +797,4 @@ AS
    --dbax_log.close_log;
    END dispatcher;
 END dbx;
+/

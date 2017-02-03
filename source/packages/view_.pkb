@@ -1,4 +1,3 @@
-/* Formatted on 01/02/2017 15:06:22 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY view_
 AS
    /**************************

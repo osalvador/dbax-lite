@@ -151,3 +151,4 @@ AS
    */
    PROCEDURE raise_exception (p_error_code IN NUMBER, p_error_msg IN VARCHAR2);
 END dbx;
+/

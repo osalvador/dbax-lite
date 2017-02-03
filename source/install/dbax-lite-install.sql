@@ -8,7 +8,7 @@ Rem    REQUIREMENTS
 Rem      - Oracle Database 11g or later
 Rem
 Rem    Example:
-Rem      sqlplus "user/userpass" @dbax-lite-install
+Rem      sqlplus "user/userpass"@SID @dbax-lite-install
 Rem
 
 whenever sqlerror exit
@@ -24,23 +24,30 @@ PROMPT ------------------------------------------;
 PROMPT -- Creating Table Views --;
 PROMPT ------------------------------------------;
 @@../tables/wdx_views.sql;
+@@../tables/wdx_sessions.sql;
 
 PROMPT ------------------------------------------;
 PROMPT -- Compiling Packages Specs --;
 PROMPT ------------------------------------------;
 
-@@../packages/dbax_core.pks;
-@@../packages/dbax_teplsql.pks;
-@@../packages/tapi_wdx_views.pks;
+@@../packages/dbx.pks;
+@@../packages/request_.pks;
+@@../packages/response_.pks;
+@@../packages/route_.pks;
+@@../packages/session_.pks;
+@@../packages/view_.pks;
+
 
 PROMPT ------------------------------------------;
 PROMPT -- Installing Packages Bodies --;
 PROMPT ------------------------------------------;
 
-
-@@../packages/dbax_teplsql.pkb;
-@@../packages/dbax_core.pkb;
-@@../packages/tapi_wdx_views.pkb;
+@@../packages/dbx.pkb;
+@@../packages/request_.pkb;
+@@../packages/response_.pkb;
+@@../packages/route_.pkb;
+@@../packages/session_.pkb;
+@@../packages/view_.pkb;
 
 quit;
 /
