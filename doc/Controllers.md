@@ -13,12 +13,12 @@ Below is an example of a basic controller package:
 ```sql
 create or replace package body pk_user_controller
 as
-    /**
-     * Show the profile for the given user.
-     *
-     * @param  int  $id
-     * @return Response
-     */
+  /**
+   * Show the profile for the given user.
+   *
+   * @param  int  $id
+   * @return CLOB
+   */
    function show(p_id in pls_integer) return clob
    as
    begin

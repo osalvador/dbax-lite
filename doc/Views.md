@@ -109,7 +109,7 @@ And then in your router / controller for example:
 declare
 	l_users_cursor   sys_refcursor;
 begin
-    if route_.get ('usuarios')
+    if route_.get ('users')
     then
        --Open cursor to pass to view
        OPEN l_users_cursor FOR SELECT * FROM sys.all_users ORDER BY created DESC;

@@ -24,13 +24,19 @@ The router allows you to register routes that respond to GET and POST HTTP verbs
 ```sql
 l_bool := route_.get ('foo');
 l_bool := route_.post ('foo');
+l_bool := route_.put ('foo');
+l_bool := route_.patch ('foo');
+l_bool := route_.delete ('foo');
 ```
 
 
-Sometimes you may need to register a route that responds to multiple HTTP verbs. You may do so using the route method: 
+Sometimes you may need to register a route that responds to multiple HTTP verbs. You may do so using the `match`method. Or, you may even register a route that responds to all HTTP verbs using the `any_` method:
+
 
 ```sql
 l_bool := route_.match ('foo', 'get , post');
+
+l_bool := route_.any_ ('foo');
 ```
 
 

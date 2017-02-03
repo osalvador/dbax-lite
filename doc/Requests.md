@@ -7,18 +7,18 @@ To access to the current HTTP request, simply use `request_` package anywere in 
 ```sql
 create or replace package body pk_user_controller
 as
-   /**
+    /**
     * Store a new user.
     *
-    * @return Response
+    * @return CLOB
     */
-   function store return clob
-   as
-      l_name varchar2(4000);
-   begin
-      l_name := request_.input('name');
-      ...
-   end;
+    function store return clob
+    as
+        l_name varchar2(4000);
+    begin
+        l_name := request_.input('name');
+        ...
+    end;
 end pk_user_controller;
 ```
 
