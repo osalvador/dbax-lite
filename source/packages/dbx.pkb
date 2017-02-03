@@ -1,3 +1,4 @@
+/* Formatted on 02/02/2017 17:03:44 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY dbx
 AS
    FUNCTION get (p_array g_assoc_array, p_key IN VARCHAR2)
@@ -376,11 +377,11 @@ AS
                      l_name_array := substr (name_array (i), 1, instr (name_array (i), '[]') - 1) || '[' || j || ']';
                   END LOOP;
 
-                  l_get (lower (l_name_array)) :=
+                  l_get (l_name_array) :=
                      convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (l_name_array) || ':' || dbx.g$get (LOWER (l_name_array)));
                ELSE
-                  l_get (lower (name_array (i))) :=
+                  l_get (name_array (i)) :=
                      convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (name_array (i)) || ':' || dbx.g$get (LOWER (name_array (i))));
                END IF;
@@ -407,11 +408,11 @@ AS
                      l_name_array := substr (name_array (i), 1, instr (name_array (i), '[]') - 1) || '[' || j || ']';
                   END LOOP;
 
-                  l_post (lower (l_name_array)) :=
+                  l_post (l_name_array) :=
                      convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (l_name_array) || ':' || dbx.g$post (LOWER (l_name_array)));
                ELSE
-                  l_post (lower (name_array (i))) :=
+                  l_post (name_array (i)) :=
                      convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (name_array (i)) || ':' || dbx.g$post (LOWER (name_array (i))));
                END IF;
@@ -421,7 +422,6 @@ AS
 
       --Set request
       set_request_method;
-
 
       IF request_.method = 'GET'
       THEN
@@ -797,4 +797,3 @@ AS
    --dbax_log.close_log;
    END dispatcher;
 END dbx;
-/
