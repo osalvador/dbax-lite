@@ -1,27 +1,12 @@
 CREATE OR REPLACE PROCEDURE greeting (name_array    IN owa_util.vc_arr DEFAULT dbx.empty_vc_arr
                                     , value_array   IN owa_util.vc_arr DEFAULT dbx.empty_vc_arr )
 AS
-   /* Unique application ID Name */
+   -- Unique application ID Name
    l_appid CONSTANT   VARCHAR2 (100) := 'GREETING';
 BEGIN
-   /**
-   * Aplication properties
-   */
-   dbx.g$properties ('base_path') := '/ords/!greeting?p=';
-   dbx.g$properties ('resources_url') := 'http://v4-alpha.getbootstrap.com';
-   dbx.g$properties ('encoding') := 'UTF-8';
-   dbx.g$properties ('error_style') := 'DebugStyle';
-
-   /* Properties frequently used in views */
-   view_.data ('resources_url', dbx.g$properties ('resources_url'));
-   view_.data ('base_path', dbx.g$properties ('base_path'));
-
-   /**
-   * @param     appid           The unique application ID
-   * @param     name_array      User name parameters
-   * @param     value_array     User value parameters
-   * @param     Router          Your application routing function
-   */
+   -- Custom aplication properties  
+   dbx.set_property('error_style', 'DebugStyle');   
+   -- dbax framework kernel 
    dbx.dispatcher (p_appid     => l_appid
                  , name_array  => name_array
                  , value_array => value_array
@@ -87,10 +72,14 @@ AS
       l_input_age    PLS_INTEGER;
    BEGIN
       l_input_name := session_.pull ('l_input_name');
-      l_input_age := session_.pull ('l_input_age');      
+      l_input_age := session_.pull ('l_input_age');
 
       view_.data ('l_input_name', l_input_name);
       view_.data ('l_input_age', l_input_age);
+      
+      /* Properties frequently  used in views  */   
+      view_.data ('base_path', dbx.get_property ('base_path'));
+      view_.data ('resources_url', 'http://v4-alpha.getbootstrap.com');
 
       RETURN view_.run (greeting_view (), 'greeting');
    END greeting_controller;

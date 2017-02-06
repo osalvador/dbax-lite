@@ -50,7 +50,7 @@ sqlplus "user/userpass"@SID @dbax-lite-install.sql
 
 Simple application that greets the user. The [PRG](https://en.wikipedia.org/wiki/Post/Redirect/Get) pattern is used to prevent duplicate form submissions. 
 
-[View Greeting application code](source/examples/greeting)
+[View Greeting application code](examples/greeting)
 
 ## Contributing
 
