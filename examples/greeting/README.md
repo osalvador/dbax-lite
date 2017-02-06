@@ -8,6 +8,16 @@ The [PRG](https://en.wikipedia.org/wiki/Post/Redirect/Get) pattern is used to pr
 ![dbax greeting Application](greetingApp.gif)
 
 
+## Install application
+
+Simply run the `greetingApp.sql` and the application will be compiled. No grants are necessary. 
+
+```sh
+git clone https://github.com/osalvador/dbax-lite.git
+cd dbax-lite/examples/greeting
+sqlplus "user/userpass"@SID @greetingApp.sql
+```
+
 ## Source code explanation
 
 ### Front controller procedure
