@@ -31,6 +31,10 @@ As you can see, the first argument passed to the `view_.run` package corresponds
 
 Whenever a view is run for the first time, or has changed since the last time it was run, it will be compiled to pure plsql. This is done by performance, as it is much more efficient to execute plsql. This is why the `wdx_views` table is used to store the compiled code of the view.
 
+
+> **Note:** Changes made in the included sub-views are not automatically detected by **dbax**. You must force recompilation of the parent views.
+
+
 ## Purging views
 
 As mentioned earlier, compiled views are stored in the `wdx_views` table. Sometimes it is necessary to purge or delete all compiled views, for this you can use the `purge_compiled` method:
@@ -57,7 +61,7 @@ In addition to varchar, you can pass other data types:
 
 Inside your view, you can then access each value using its corresponding key, such as `<%= key %>`. 
 
-> **Note** Only `varchar2` data can be accessed from HTML with `${key}` and PLSQL `<% = key %>`. See [tePLSQL arguments] (https://github.com/osalvador/tePLSQL#teplsql-arguments) for more information. 
+> **Note** Only `varchar2` data can be accessed from HTML with `${key}` and PLSQL `<%= key %>`. See [tePLSQL arguments] (https://github.com/osalvador/tePLSQL#teplsql-arguments) for more information. 
 
 Special attention to `SYS_REFCURSOR` since it is a pointer to a cursor. Therefore you should iterate this cursor in the traditional Oracle way, `LOOP FETCH INTO` or `FETCH BULK COLLECT INTO`:
 
@@ -127,4 +131,19 @@ end;
 By default all data are accessible by all rendered views during the request life cycle.
 
 
-# Including views in other views
+## Including Sub-Views
+
+tePLSQL's `<%@ include() %>` directive allows you to include a tePLSQL view from within another view. All variables that are available to the parent view will be made available to the included view:
+
+```html
+<div>
+    <%@ include(pk_all_users_views.shared_errors) %>
+
+    <form>
+        <!-- Form Contents -->
+    </form>
+</div>
+```
+
+
+Of course, if you attempt to @include a view which does not exist, **dbax** will throw an error. 
