@@ -86,9 +86,8 @@ AS
       l_input_name   VARCHAR2 (3000);
       l_input_age    PLS_INTEGER;
    BEGIN
-      l_input_name := session_.get ('l_input_name');
-      l_input_age := session_.get ('l_input_age');
-      session_.flush ();
+      l_input_name := session_.pull ('l_input_name');
+      l_input_age := session_.pull ('l_input_age');      
 
       view_.data ('l_input_name', l_input_name);
       view_.data ('l_input_age', l_input_age);
