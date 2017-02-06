@@ -41,7 +41,7 @@ exec view_.purge_compiled;
 
 ## Passing Data To Views
 
-As you saw in the previous example, you may pass a varchar data to views:
+As you saw in the previous example, you may pass a `varchar2` data to views:
 
 ```sql
 view_.data('name', 'Victoria');
@@ -49,13 +49,15 @@ return view_.run(greeting(), 'greeting');
 ```
 
 In addition to varchar, you can pass other data types:
-- `VARCHAR`
+- `VARCHAR2`
 - `NUMBER`
 - `DATE`
 - `dbx.g_assoc_array`
 - `SYS_REFCURSOR`
 
 Inside your view, you can then access each value using its corresponding key, such as `<%= key %>`. 
+
+> **Note** Only `varchar2` data can be accessed from HTML with `${key}` and PLSQL `<% = key %>`. See [tePLSQL arguments] (https://github.com/osalvador/tePLSQL#teplsql-arguments) for more information. 
 
 Special attention to `SYS_REFCURSOR` since it is a pointer to a cursor. Therefore you should iterate this cursor in the traditional Oracle way, `LOOP FETCH INTO` or `FETCH BULK COLLECT INTO`:
 
@@ -123,3 +125,6 @@ end;
 ```
 
 By default all data are accessible by all rendered views during the request life cycle.
+
+
+# Including views in other views

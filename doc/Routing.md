@@ -19,7 +19,8 @@ All **dbax** routes are defined in your route function, passed as argument in yo
 
 ### Available Router Methods
 
-The router allows you to register routes that respond to GET and POST HTTP verbs:
+The router allows you to register routes that respond to any HTTP verb:
+
 
 ```sql
 l_bool := route_.get ('foo');
@@ -27,6 +28,7 @@ l_bool := route_.post ('foo');
 l_bool := route_.put ('foo');
 l_bool := route_.patch ('foo');
 l_bool := route_.delete ('foo');
+l_bool := route_.options ('foo');
 ```
 
 

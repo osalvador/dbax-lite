@@ -11,44 +11,28 @@ The goal of this document is to give you a good, high-level overview of how the 
 
 ### First Things
 
-The entry point for all requests to a **dbax** application is the public *application front contrller procedure*  All requests are directed to this procedure by your PLSQL Gateway (ORDS / DBMS_EPG) configuration. The *application front contrller procedure* doesn't contain much code. Rather, it is simply a starting point for loading the rest of the framework.
+The entry point for all requests to a **dbax** application is the public *application front controller procedure*  All requests are directed to this procedure by your PLSQL Gateway (ORDS / DBMS_EPG) configuration. The *application front controller procedure* doesn't contain much code. Rather, it is simply a starting point for loading the rest of the framework.
 
-The *application front contrller procedure* loads your application properties and inject to the framework the routing function of your application. Then start the dispatcher. 
+The *application front controller procedure* loads your application properties and inject to the framework the routing function of your application. Then start the dispatcher. 
 
 Application front controller procedure example: 
 
 ```sql
-CREATE OR REPLACE PROCEDURE greeting (name_array    IN OWA_UTIL.vc_arr DEFAULT dbx.empty_vc_arr
-                                    , value_array   IN OWA_UTIL.vc_arr DEFAULT dbx.empty_vc_arr )
+CREATE OR REPLACE PROCEDURE greeting (name_array    IN owa_util.vc_arr DEFAULT dbx.empty_vc_arr
+                                    , value_array   IN owa_util.vc_arr DEFAULT dbx.empty_vc_arr )
 AS
-   /* Unique application ID Name */
+   -- Unique application ID Name
    l_appid CONSTANT   VARCHAR2 (100) := 'GREETING';
 BEGIN
-   /**
-   * Aplication properties
-   */
-   dbx.g$properties ('base_path') := '/ords/!greeting?p=';
-   dbx.g$properties ('resources_url') := 'http://v4-alpha.getbootstrap.com';   
-   dbx.g$properties ('encoding') := 'UTF-8';
-   dbx.g$properties ('error_style') := 'DebugStyle';
-
-   /* Properties frequently used in views */
-   view_.data ('resources_url', dbx.g$properties ('resources_url'));
-   view_.data ('base_path', dbx.g$properties ('base_path'));
-
-   /**
-   * @param     appid           The unique application ID 
-   * @param     name_array      User name parameters 
-   * @param     value_array     User value parameters
-   * @param     Router          Your application routing function
-   */   
+   -- Custom aplication properties  
+   dbx.set_property('error_style', 'DebugStyle');   
+   -- dbax framework kernel 
    dbx.dispatcher (p_appid     => l_appid
                  , name_array  => name_array
                  , value_array => value_array
                  , router      => 'PK_APP_GREETING.ROUTER');
 END greeting;
 /
-
 ```
 
 
