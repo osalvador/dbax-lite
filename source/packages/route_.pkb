@@ -355,5 +355,27 @@ AS
    BEGIN
       RETURN patch (p_uri, l_dummy);
    END patch;
+   
+   
+   FUNCTION options (p_uri IN VARCHAR2, p_parameters OUT dbx.g_assoc_array)
+      RETURN BOOLEAN
+   AS
+   BEGIN
+      IF request_.method = 'OPTIONS' AND router (p_uri, p_parameters)
+      THEN
+         RETURN TRUE;
+      ELSE
+         RETURN FALSE;
+      END IF;
+   END options;
+
+   FUNCTION options (p_uri IN VARCHAR2)
+      RETURN BOOLEAN
+   AS
+      l_dummy   dbx.g_assoc_array;
+   BEGIN
+      RETURN options (p_uri, l_dummy);
+   END options;   
+   
 END route_;
 /
