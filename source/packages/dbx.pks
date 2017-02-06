@@ -19,9 +19,6 @@ AS
    --Empty array for dynamic parameter
    empty_vc_arr     owa_util.vc_arr;
 
-   --G$PROPERTIES An associative array of application properties
-   g$properties     dbx.g_assoc_array;
-
    --G_STOP_PROCESS Boolean that indicates stop dbax engine
    g_stop_process   BOOLEAN := FALSE;
 
@@ -36,11 +33,12 @@ AS
 
 
    /**
-   * Central procedure that dispatches requests to controllers. AKA front controller.
+   * dbax Dispatcher. The dbax framework Kernel. This procedure will be invoked from the application front controller procedure
    *
-   * @param  p_appid        the application id of the request
-   * @param  name_array     vc_arr with the name of the arguments
-   * @param  value_array    vc_arr with the values of the arguments
+   * @param     p_appid         the unique application ID
+   * @param     name_array      user name parameters from CGI 
+   * @param     value_array     user value parameters from CGI
+   * @param     router          the application routing function
    */
    PROCEDURE dispatcher (p_appid       IN VARCHAR2
                        , name_array    IN owa_util.vc_arr DEFAULT empty_vc_arr
@@ -59,12 +57,20 @@ AS
       RETURN VARCHAR2;
 
    /**
-   * Gets property value of the current application.
+   * Retrieve a property value from the application properties.
    *
    * @param  p_key        the key name of the propertie
    */
    FUNCTION get_property (p_key IN VARCHAR2)
       RETURN VARCHAR2;
+
+   /**
+   * Set a property to application properties
+   *
+   * @param  p_key          the property key 
+   * @param  p_value        the property value
+   */      
+   PROCEDURE set_property (p_key IN VARCHAR2, p_value IN VARCHAR2);
 
    /**
    * Prints the received data to the http buffer
@@ -84,8 +90,8 @@ AS
    *
    * @param  p_local_path     the uri(string)
    */
-   FUNCTION get_path (p_local_path IN VARCHAR2 DEFAULT NULL )
-      RETURN VARCHAR2;
+--   FUNCTION get_path (p_local_path IN VARCHAR2 DEFAULT NULL )
+--      RETURN VARCHAR2;
 
    /**
    * Create a new redirect response to the given path.

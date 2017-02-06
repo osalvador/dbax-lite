@@ -1,6 +1,9 @@
-/* Formatted on 02/02/2017 17:03:44 (QP5 v5.115.810.9015) */
+/* Formatted on 06/02/2017 11:44:16 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY dbx
 AS
+   --G$PROPERTIES An associative array of application properties
+   g$properties   dbx.g_assoc_array;
+
    FUNCTION get (p_array g_assoc_array, p_key IN VARCHAR2)
       RETURN VARCHAR2
    AS
@@ -13,25 +16,37 @@ AS
       END IF;
    END get;
 
-   -- TODO: Refactor this function
+
    FUNCTION get_property (p_key IN VARCHAR2)
       RETURN VARCHAR2
    AS
-      l_value   VARCHAR2 (3000) := NULL;
    BEGIN
-      l_value     := g$properties (lower (p_key));
-
-      IF l_value IS NULL
+      IF g$properties.exists (p_key)
       THEN
-         l_value     := g$properties (upper (p_key));
-      END IF;
-
-      RETURN l_value;
-   EXCEPTION
-      WHEN OTHERS
-      THEN
+         RETURN g$properties (p_key);
+      ELSE
          RETURN NULL;
+      END IF;
    END get_property;
+
+   PROCEDURE set_property (p_key IN VARCHAR2, p_value IN VARCHAR2)
+   AS
+   BEGIN
+      g$properties (p_key) := p_value;
+   END set_property;
+
+   /**
+   * Set base_path property to application properties. 
+   */   
+   PROCEDURE set_base_path
+   AS
+   BEGIN
+      -- If base_path is not defined.
+      IF dbx.get_property ('base_path') IS NULL
+      THEN
+         dbx.set_property ('base_path', request_.header ('SCRIPT_NAME') || '/!' || lower (dbx.g$appid) || '?p=');
+      END IF;
+   END set_base_path;
 
    PROCEDURE p (p_data IN CLOB)
    AS
@@ -76,7 +91,7 @@ AS
       RETURN VARCHAR2
    AS
    BEGIN
-      RETURN dbx.get_property ('BASE_PATH') || p_local_path;
+      RETURN dbx.get_property ('base_path') || p_local_path;
    END get_path;
 
 
@@ -322,8 +337,8 @@ AS
          ELSIF request_.header ('HTTP_X_ORACLE_CACHE_ENCRYPT') IS NOT NULL
          THEN
             -- mod_plsql mehotd override
-            -- You must send this header X-ORACLE-CACHE-ENCRYPT            
-            request_.method (upper (request_.header ('HTTP_X_ORACLE_CACHE_ENCRYPT')));            
+            -- You must send this header X-ORACLE-CACHE-ENCRYPT
+            request_.method (upper (request_.header ('HTTP_X_ORACLE_CACHE_ENCRYPT')));
          ELSE
             -- No override method
             request_.method (upper (request_.header ('REQUEST_METHOD')));
@@ -377,12 +392,10 @@ AS
                      l_name_array := substr (name_array (i), 1, instr (name_array (i), '[]') - 1) || '[' || j || ']';
                   END LOOP;
 
-                  l_get (l_name_array) :=
-                     convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
+                  l_get (l_name_array) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (l_name_array) || ':' || dbx.g$get (LOWER (l_name_array)));
                ELSE
-                  l_get (name_array (i)) :=
-                     convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
+                  l_get (name_array (i)) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (name_array (i)) || ':' || dbx.g$get (LOWER (name_array (i))));
                END IF;
             END LOOP;
@@ -408,12 +421,10 @@ AS
                      l_name_array := substr (name_array (i), 1, instr (name_array (i), '[]') - 1) || '[' || j || ']';
                   END LOOP;
 
-                  l_post (l_name_array) :=
-                     convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
+                  l_post (l_name_array) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (l_name_array) || ':' || dbx.g$post (LOWER (l_name_array)));
                ELSE
-                  l_post (name_array (i)) :=
-                     convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
+                  l_post (name_array (i)) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
                --dbax_log.debug (LOWER (name_array (i)) || ':' || dbx.g$post (LOWER (name_array (i))));
                END IF;
             END LOOP;
@@ -444,21 +455,21 @@ AS
       -- Get Line of code
       l_code_line :=
          regexp_substr (p_errorbacktrace
-                      , ', line (.*?)' || chr (10)
+                      , ', [[:print:]]* (.*?)' || chr (10)
                       , 1
                       , 1
                       , 'n'
                       , 1);
       l_owner     :=
          regexp_substr (p_errorbacktrace
-                      , ' at "(.*?)\.'
+                      , ' [[:print:]]* "(.*?)\.'
                       , 1
                       , 1
                       , 'n'
                       , 1);
       l_name      :=
          regexp_substr (p_errorbacktrace
-                      , ' at "' || l_owner || '\.(.*?)"'
+                      , ' [[:print:]]* "' || l_owner || '\.(.*?)"'
                       , 1
                       , 1
                       , 'n'
@@ -664,7 +675,7 @@ AS
       owa.get_page (l_http_output, l_lines);
 
       htp.init;
-      owa_util.mime_header ('text/html', FALSE, dbx.get_property ('ENCODING'));
+      owa_util.mime_header ('text/html', FALSE, dbx.get_property ('encoding'));
       owa_util.status_line (500);
       owa_util.http_header_close;
 
@@ -718,8 +729,12 @@ AS
       --Set Request parameters
       set_request (name_array, value_array);
 
+      --Set base_path propertie
+      set_base_path;
+
+
       /***************
-      * Obtener la URL para enrutar
+      * Get URI to route
       ***************/
 
       --If is a queryString model, get de URL to route from reserved parameter 'p' in dbx.g$get or dbx.g$post array
@@ -773,7 +788,7 @@ AS
          owa.get_page (l_http_output, l_lines);
 
          htp.init;
-         owa_util.mime_header (nvl (response_.content, 'text/html'), FALSE, dbx.get_property ('ENCODING'));
+         owa_util.mime_header (nvl (response_.content, 'text/html'), FALSE, dbx.get_property ('encoding'));
          owa_util.status_line (nstatus => nvl (response_.status, 200), creason => NULL, bclose_header => FALSE);
          htp.prn (generate_cookie_header);
          print_http_header;
