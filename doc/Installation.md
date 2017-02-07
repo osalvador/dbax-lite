@@ -5,18 +5,19 @@
 
 The **dbax** framework has a few system requirements, you will need to make sure your server meets the following requirements:
 
-- Oracle Database 11g or greater. [Oracle Express edition](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html) (free edition) is also compatible. 
+- Oracle Database 11g or greater.
 	- [How to get an Oracle database](#how-to-get-an-oracle-database)
-- PL/SQL Gateway. [Oracle Rest Data Services](http://www.oracle.com/technetwork/developer-tools/rest-data-services/overview/index.html) enabling the pl/sql gateway, this is the first option. Or [DBMS_EPG](https://docs.oracle.com/cd/B28359_01/appdev.111/b28419/d_epg.htm#CHDIDGIG).
-	- Configure PL/SQL Gateway
+- PL/SQL Gateway.
+	- [Configure PL/SQL Gateway](configure-a-plsql-gateway)
 		- [ORDS](#ords-installation)
 		- [DBMS_EPG](#dbms_epg-configuration)
+- [dbax installation](#dbax-installation)
 - [Web server configuracion for pretty URLs](#web-server-configuration)
 	- [Nginx](#nginx)
 	- [Tomcat](#tomcat)
 
 
-## Installing dbax
+## dbax installation
 
 To install **dbax** you will need to have a user with the `RESOURCE` role. Then installation process is very simple, just download the source code and compile it.
 
@@ -42,15 +43,13 @@ CREATE TYPE
 
 ### For development environment
 
-**Oracle Database 11g Express Edition**
+[**Oracle Database 11g Express Edition**](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html)
 
 From Oracle page:
 
 > Oracle Database 11g Express Edition (Oracle Database XE) is an entry-level, small-footprint database based on the Oracle Database 11g Release 2 code base. It's free to develop, deploy, and distribute; fast to download; and simple to administer.
 
-[Oracle Express edition](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html)
-
-**Oracle Pre-Built Developer VMs (for Oracle VM VirtualBox)**
+`[**Oracle Pre-Built Developer VMs (for Oracle VM VirtualBox)**](http://www.oracle.com/technetwork/community/developer-vm/index.html)
 
 Oracle provides pre-built developer virtual machines available for free download.
 
@@ -61,8 +60,6 @@ From Oracle page:
 
 The recommended virtual machine is [Database App Development VM](http://www.oracle.com/technetwork/community/developer-vm/index.html#dbapp)
 
-[Pre-Built Developer VMs (for Oracle VM VirtualBox)](http://www.oracle.com/technetwork/community/developer-vm/index.html)
-
 **Docker Image**
 
 Unofficial docker image: [Oralce XE 11g](https://hub.docker.com/r/wnameless/oracle-xe-11g/)
@@ -70,24 +67,26 @@ Unofficial docker image: [Oralce XE 11g](https://hub.docker.com/r/wnameless/orac
 
 ### For production environment
 
-**Oracle Database 11g Express Edition**
+[**Oracle Database 11g Express Edition**](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html)
 
 > Oracle Database 11g Express Edition (Oracle Database XE) is an entry-level, small-footprint database based on the Oracle Database 11g Release 2 code base. It's free to develop, deploy, and distribute; fast to download; and simple to administer. 
 
-[Oracle Express edition](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html)
 
-**Amazon RDS for Oracle Database**
+[**Amazon RDS for Oracle Database**](https://aws.amazon.com/en/rds/oracle/)
 
 > Oracle® Database is a relational database management system developed by Oracle. Amazon RDS makes it easy to set up, operate, and scale Oracle Database deployments in the cloud. With Amazon RDS, you can deploy multiple editions of Oracle Database in minutes with cost-efficient and re-sizable hardware capacity. Amazon RDS frees you up to focus on application development by managing time-consuming database administration tasks including provisioning, backups, software patching, monitoring, and hardware scaling.
 
-[Amazon RDS for Oracle Database](https://aws.amazon.com/en/rds/oracle/)
 
 ## Configure a PL/SQL Gateway
 
 ### ORDS Installation 
 
+[Oracle Rest Data Services](http://www.oracle.com/technetwork/developer-tools/rest-data-services/overview/index.html)
 
 ### DBMS_EPG configuration 
+
+[DBMS_EPG](https://docs.oracle.com/cd/B28359_01/appdev.111/b28419/d_epg.htm#CHDIDGIG)
+
 
 ```sql
 BEGIN
@@ -184,7 +183,7 @@ Set the rewrite valve in Tomcat's `context.xml` located in `${TOMCAT_HOME}/conf/
 
 **Making it all happen with `rewrite.config`**
 
-Now you can drop your rewrite.config right into the WEB-INF there. Here's an example `rewrite.config` that rewrites the URL to greeting application. The file must be located in `${TOMCAT_HOME}/webapps/ROOT/WEB-INF/rewrite.config`
+Now you can drop your `rewrite.config` into the WEB-INF there. Here's an example `rewrite.config` that rewrites the URL to greeting application. The file must be located in `${TOMCAT_HOME}/webapps/ROOT/WEB-INF/rewrite.config`
 
 
 Rewrite From: **http://host:port/greeting/home**
