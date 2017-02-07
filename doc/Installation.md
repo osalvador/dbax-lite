@@ -27,7 +27,7 @@ sqlplus "user/userpass"@SID @dbax-lite-install.sql
 ```
 
 
-The RESOURCE role has the following grants:
+RESOURCE role has the following grants:
 
 ```sql
 CREATE PROCEDURE	
@@ -43,11 +43,15 @@ CREATE TYPE
 ### For development environment
 
 **Oracle Database 11g Express Edition**
-Oracle Database 11g Express Edition (Oracle Database XE) is an entry-level, small-footprint database based on the Oracle Database 11g Release 2 code base. It's free to develop, deploy, and distribute; fast to download; and simple to administer.
+
+From Oracle page:
+
+> Oracle Database 11g Express Edition (Oracle Database XE) is an entry-level, small-footprint database based on the Oracle Database 11g Release 2 code base. It's free to develop, deploy, and distribute; fast to download; and simple to administer.
 
 [Oracle Express edition](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html)
 
 **Oracle Pre-Built Developer VMs (for Oracle VM VirtualBox)**
+
 Oracle provides pre-built developer virtual machines available for free download.
 
 From Oracle page:
@@ -64,7 +68,7 @@ The recommended virtual machine is [Database App Development VM](http://www.orac
 Unofficial docker image: [Oralce XE 11g](https://hub.docker.com/r/wnameless/oracle-xe-11g/)
 
 
-### For production environment**
+### For production environment
 
 **Oracle Database 11g Express Edition**
 
