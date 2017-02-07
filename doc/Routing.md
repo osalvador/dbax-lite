@@ -42,6 +42,14 @@ l_bool := route_.any_ ('foo');
 ```
 
 
+> **NOTE:** The PL/SQL gateways only support GET and POST HTTP verbs. To overcome this problem, dbax uses the Method-Override technique, which consists of communicating with dbax with the POST verb and sending the `X-HTTP-Method-Override` HTTP header with the verb we really want to communicate with.
+> 
+>  	`X-HTTP-Method-Override: PUT`
+	`X-HTTP-Method-Override: PATCH`
+	`X-HTTP-Method-Override: DELETE`
+	`X-HTTP-Method-Override: OPTIONS`
+
+
 ## Route Parameters
 
 ### Required Parameters

@@ -210,6 +210,26 @@ http://<server-name>:<port>/dbax/<appid>
 ```
 
 
+**Limitations**
+
+DBMS_EPG has some limitations
+
+- Custom headers: DBMS_EPG does not allow to send custom HTTP headers, so in order to be able to do Method Override, dbax uses the `X-ORACLE-CACHE-ENCRYPT` HTTP Header reserved by Oracle.
+
+```
+	X-ORACLE-CACHE-ENCRYPT: PUT
+	X-ORACLE-CACHE-ENCRYPT: PATCH
+	X-ORACLE-CACHE-ENCRYPT: DLETE
+	X-ORACLE-CACHE-ENCRYPT: OPTIONS
+```
+
+- HttpOnly cookies: DBMS_EPG only allows sending a single HttpOnly cookie to clients. Consecutive sent cookies are ignored. You can customize this parameter, which defaults is set to true. 
+
+```sql
+response_.cookie('name', 'value', l_20_minutes, p_httpOnly => false );
+```
+
+
 ## Web Server Configuration
 
 ### Pretty URLs
