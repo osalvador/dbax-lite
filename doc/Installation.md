@@ -8,7 +8,7 @@ The **dbax** framework has a few system requirements, you will need to make sure
 - Oracle Database 11g or greater.
 	- [How to get an Oracle database](#how-to-get-an-oracle-database)
 - PL/SQL Gateway.
-	- [Configure PL/SQL Gateway](configure-a-plsql-gateway)
+	- [Configure PL/SQL Gateway](#configure-a-plsql-gateway)
 		- [ORDS](#ords-installation)
 		- [DBMS_EPG](#dbms_epg-configuration)
 - [dbax installation](#dbax-installation)
@@ -19,7 +19,7 @@ The **dbax** framework has a few system requirements, you will need to make sure
 
 ## dbax installation
 
-To install **dbax** you will need to have a user with the `RESOURCE` role. Then installation process is very simple, just download the source code and compile it.
+If you already have access to an oracle database, installing **dbax** is very simple. You will need to have a user with the `RESOURCE` role. Just download the source code and compile it.
 
 ```sh
 git clone https://github.com/osalvador/dbax-lite.git
@@ -49,7 +49,7 @@ From Oracle page:
 
 > Oracle Database 11g Express Edition (Oracle Database XE) is an entry-level, small-footprint database based on the Oracle Database 11g Release 2 code base. It's free to develop, deploy, and distribute; fast to download; and simple to administer.
 
-`[**Oracle Pre-Built Developer VMs (for Oracle VM VirtualBox)**](http://www.oracle.com/technetwork/community/developer-vm/index.html)
+[**Oracle Pre-Built Developer VMs (for Oracle VM VirtualBox)**](http://www.oracle.com/technetwork/community/developer-vm/index.html)
 
 Oracle provides pre-built developer virtual machines available for free download.
 
@@ -126,18 +126,18 @@ Enter 1 if you wish to start in standalone mode or 2 to exit [1]:2
 
 #### These are the typical responses for an Oracle Express database:
 
-**Enter the location to store configuration data:** /u01/ords/conf
-**Enter the name of the database server [localhost]:** localhost
-**Enter the database listen port [1521]:** 1521
-**Enter 1 to specify the database service name, or 2 to specify the database SID [1]:* 2
-**Enter the database SID [xe]:** xe
-**Enter 1 if you want to verify/install Oracle REST Data Services schema or 2 to skip this step [1]:** 2
-**Enter 1 if you want to use PL/SQL Gateway or 2 to skip this step. If using Oracle Application Express or migrating from mod_plsql then you must enter 1 [1]:** 1
-**Enter the PL/SQL Gateway database user name [APEX_PUBLIC_USER]:** <DBAX USERNAME>
-**Enter the database password for dbax:**
-**Confirm password:**
-**Enter 1 to specify passwords for Application Express RESTful Services database users (APEX_LISTENER, APEX_REST_PUBLIC_USER) or 2 to skip this step [1]:** 2
-**Enter 1 if you wish to start in standalone mode or 2 to exit [1]:** 2
+- Enter the location to store configuration data: **/u01/ords/conf**
+- Enter the name of the database server [localhost]: **localhost**
+- Enter the database listen port [1521]: **1521**
+- Enter 1 to specify the database service name, or 2 to specify the database SID [1]: **2**
+- Enter the database SID [xe]: **xe**
+- Enter 1 if you want to verify/install Oracle REST Data Services schema or 2 to skip this step [1]: **2**
+- Enter 1 if you want to use PL/SQL Gateway or 2 to skip this step. If using Oracle Application Express or migrating from mod_plsql then you must enter 1 [1]: **1**
+- Enter the PL/SQL Gateway database user name [APEX_PUBLIC_USER]: **<DBAX USERNAME>**
+- Enter the database password for dbax:
+- Confirm password:
+- Enter 1 to specify passwords for Application Express RESTful Services database users (APEX_LISTENER, APEX_REST_PUBLIC_USER) or 2 to skip this step [1]: **2**
+- Enter 1 if you wish to start in standalone mode or 2 to exit [1]: **2**
 
 #### Deploy in Tomcat
 
