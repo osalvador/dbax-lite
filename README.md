@@ -8,7 +8,7 @@ dbax lite is the lightweight version of [dbax](https://github.com/osalvador/dbax
 - [Features](#features)
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Documentation](doc/index.md)
+- [Documentation](doc/readme.md)
 - [Examples](#examples)
 - [Contributing](#contributing)
 - [License](#license)
@@ -35,7 +35,7 @@ dbax Lite Framework is a PL/SQL MVC system. It's designed to be lightweight and 
 
 ## Installation
 
-Clone the repo and install:
+Clone the repo and install in your Oracle database. See [Installation](doc/Installation.md) section in the documentation for more information. 
 
 ```sh
 git clone https://github.com/osalvador/dbax-lite.git
