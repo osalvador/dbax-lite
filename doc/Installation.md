@@ -6,14 +6,14 @@
 The **dbax** framework has a few system requirements, you will need to make sure your server meets the following requirements:
 
 - Oracle Database 11g or greater. [Oracle Express edition](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html) (free edition) is also compatible. 
-	- How to get an Oracle database
+	- [How to get an Oracle database](#how-to-get-an-oracle-database)
 - PL/SQL Gateway. [Oracle Rest Data Services](http://www.oracle.com/technetwork/developer-tools/rest-data-services/overview/index.html) enabling the pl/sql gateway, this is the first option. Or [DBMS_EPG](https://docs.oracle.com/cd/B28359_01/appdev.111/b28419/d_epg.htm#CHDIDGIG).
-	- Configure a PL/SQL Gateway
-		- ORDS
-		- DBMS_EPG
-- Web server configuracion for pretty URLs
-	- Nginx
-	- Tomcat
+	- Configure PL/SQL Gateway
+		- [ORDS](#ords-installation)
+		- [DBMS_EPG](#dbms_epg-configuration)
+- [Web server configuracion for pretty URLs](#web-server-configuration)
+	- [Nginx](#nginx)
+	- [Tomcat](#tomcat)
 
 
 ## Installing dbax
@@ -82,11 +82,12 @@ Unofficial docker image: [Oralce XE 11g](https://hub.docker.com/r/wnameless/orac
 
 [Amazon RDS for Oracle Database](https://aws.amazon.com/en/rds/oracle/)
 
+## Configure a PL/SQL Gateway
 
-## ORDS Installation 
+### ORDS Installation 
 
 
-## DBMS_EPG configuration 
+### DBMS_EPG configuration 
 
 ```sql
 BEGIN
@@ -128,6 +129,7 @@ END;
 If you are using Nginx, the following directive in your site configuration will direct all requests to the *application fron contrller* in your PL/SQL Gateway, making a reverse proxy:
 
 From: **http://example.com/home**
+
 To: **http://127.0.0.1:8080/ords/!example?p=/home**
 
 ```
@@ -140,6 +142,7 @@ location / {
 
 
 From: **http://example.com/greeting/home**
+
 To: **http://127.0.0.1:8080/ords/!greeting?p=/home**
 
 ```
@@ -185,6 +188,7 @@ Now you can drop your rewrite.config right into the WEB-INF there. Here's an exa
 
 
 Rewrite From: **http://host:port/greeting/home**
+
 To: **http://host:port/ords/!greeting?p=/home**
 
 ```
