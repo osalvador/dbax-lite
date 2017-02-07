@@ -11,5 +11,8 @@
 - [Controllers](Controllers.md)
 - [Requests](Requests.md)
 - [Responses](Responses.md)
-- [Views](Views.md)
 - [Session](Session.md)
+
+### Views & Template
+- [Views](Views.md)
+- [tePLSQL templates](tePLSQL-templates.md)
