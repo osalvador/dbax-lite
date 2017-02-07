@@ -8,17 +8,25 @@ You can define the properties you need, as long as they are not reserved by the 
 
 ## Reserved properties
 
-- 
+- `base_path`: contains path to the application front controller.
+- `encoding`: contains the response Content-Type charset encoding.
+- `error_style`: null or DebugStyle. If set to DebugStyle run-time errors will be displayed with the maximum detail.
 
 ## Setting properties
 
+You may use the set_property function to add a series of custom properties to the application:
+
+```sql
+-- Custom aplication properties  
+dbx.set_property('error_style', 'DebugStyle');
+dbx.set_property('base_path', '/greeting');
+```
+
+
 ## Retrieving properties
 
-Accessing Configuration Values
+You may easily access your configuration values using the get_property function from anywhere in your application. 
 
-You may easily access your configuration values using the global config helper function from anywhere in your application. The configuration values may be accessed using "dot" syntax, which includes the name of the file and option you wish to access. A default value may also be specified and will be returned if the configuration option does not exist:
-
-$value = config('app.timezone');
-To set configuration values at runtime, pass an array to the config helper:
-
-config(['app.timezone' => 'America/Chicago']);
+```sql
+l_error_style := dbx.get_property ('error_style');
+```
