@@ -81,12 +81,99 @@ Unofficial docker image: [Oralce XE 11g](https://hub.docker.com/r/wnameless/orac
 
 ### ORDS Installation 
 
-[Oracle Rest Data Services](http://www.oracle.com/technetwork/developer-tools/rest-data-services/overview/index.html)
+[Oracle Rest Data Services](http://www.oracle.com/technetwork/developer-tools/rest-data-services/overview/index.html) (ORDS), formerly known as the APEX Listener, allows PL/SQL Web applications to be deployed. ORDS can be deployed on WebLogic, Glassfish or Tomcat. This article describes the installation of ORDS on Tomcat 7 and 8.
+
+**Download**
+
+Download [Oracle Rest Data Services](http://www.oracle.com/technetwork/developer-tools/rest-data-services/downloads/index.html)
+
+**Install ORDS for dbax**
+
+Just unzip the software and run `java -jar ords.war install advanced`. 
+
+```
+[tomcat@dbaxio tmp]$ unzip ords.3.0.9.348.07.16.zip
+	...
+	inflating: examples/soda/getting-started/QBE.3.json
+	inflating: examples/soda/getting-started/QBE.4.json
+	inflating: examples/soda/getting-started/po.json
+	inflating: examples/soda/getting-started/poUpdated.json
+	inflating: ords.war
+	inflating: params/ords_params.properties
+	inflating: readme.html
+
+[tomcat@dbaxio tmp]$ java -jar ords.war install advanced
+This Oracle REST Data Services instance has not yet been configured.
+Please complete the following prompts
+
+Enter the location to store configuration data:/u01/ords/conf
+Enter the name of the database server [localhost]:
+Enter the database listen port [1521]:
+Enter 1 to specify the database service name, or 2 to specify the database SID [1]:2
+Enter the database SID [xe]:
+Enter 1 if you want to verify/install Oracle REST Data Services schema or 2 to skip this step [1]:2
+Enter 1 if you want to use PL/SQL Gateway or 2 to skip this step.
+If using Oracle Application Express or migrating from mod_plsql then you must enter 1 [1]:1
+Enter the PL/SQL Gateway database user name [APEX_PUBLIC_USER]:dbax
+Enter the database password for dbax:
+Confirm password:
+Enter 1 to specify passwords for Application Express RESTful Services database users (APEX_LISTENER, APEX_REST_PUBLIC_USER) or 2 to skip this step [1]:2
+Feb 07, 2017 9:01:49 AM
+INFO: Updated configurations: defaults, apex
+Enter 1 if you wish to start in standalone mode or 2 to exit [1]:2
+```
+
+
+#### These are the typical responses for an Oracle Express database:
+
+**Enter the location to store configuration data:** /u01/ords/conf
+**Enter the name of the database server [localhost]:** localhost
+**Enter the database listen port [1521]:** 1521
+**Enter 1 to specify the database service name, or 2 to specify the database SID [1]:* 2
+**Enter the database SID [xe]:** xe
+**Enter 1 if you want to verify/install Oracle REST Data Services schema or 2 to skip this step [1]:** 2
+**Enter 1 if you want to use PL/SQL Gateway or 2 to skip this step. If using Oracle Application Express or migrating from mod_plsql then you must enter 1 [1]:** 1
+**Enter the PL/SQL Gateway database user name [APEX_PUBLIC_USER]:** <DBAX USERNAME>
+**Enter the database password for dbax:**
+**Confirm password:**
+**Enter 1 to specify passwords for Application Express RESTful Services database users (APEX_LISTENER, APEX_REST_PUBLIC_USER) or 2 to skip this step [1]:** 2
+**Enter 1 if you wish to start in standalone mode or 2 to exit [1]:** 2
+
+#### Deploy in Tomcat
+
+Copy the "ords.war" file to the Tomcat "webapps" directory.
+
+```sh
+[tomcat@dbaxio tmp]$ cp ords.war $CATALINA_HOME/webapps/
+```
+
+ORDS should now be accessible using the following type of URL.
+
+```
+http://<server-name>:<port>/ords/<appid>
+```
+
 
 ### DBMS_EPG configuration 
 
 [DBMS_EPG](https://docs.oracle.com/cd/B28359_01/appdev.111/b28419/d_epg.htm#CHDIDGIG)
 
+**Configure HTTP Access**
+
+In order to access a XML DB web service, the HTTP port number of the XML DB built in HTTP server must be configured using the DBMS_XDB package. The GETHTTPPORT function displays the current port number setting. If you've not used the XML DB HTTP server before, it will probably be set to "0" which means HTTP access is disabled. Use the SETHTTPPORT procedure to set the port number to a non-zero value. In most of their examples, Oracle use the value of "8080".
+
+```sql
+ SQL> EXEC dbms_xdb.sethttpport(8080);
+  PL/SQL procedure successfully completed.
+
+ SQL> SELECT dbms_xdb.gethttpport FROM dual;
+  GETHTTPPORT
+  ----------- 
+  8080
+```
+
+
+**Create DAD**
 
 ```sql
 BEGIN
@@ -116,12 +203,18 @@ BEGIN
 END;
 ```
 
+DBMS_EPG should now be accessible using the following type of URL.
+
+```
+http://<server-name>:<port>/dbax/<appid>
+```
+
 
 ## Web Server Configuration
 
 ### Pretty URLs
 
-**dbax** uses the query string parameter `p` to identify the URI entered by the user. In this way and with a simple rewrite of urls **dbax** has pretty and clean urls. 
+**dbax** uses the query string parameter `p` to identify the URI entered by the user. In this way and with a simple URL rewrite, **dbax** has pretty and clean URLs. 
 
 #### Nginx
 
@@ -157,7 +250,7 @@ To: **http://127.0.0.1:8080/ords/!greeting?p=/home**
 
 Tomcat from version 8 implements [URL rewrite functionality](https://tomcat.apache.org/tomcat-8.0-doc/rewrite.html) in a way that is very similar to mod_rewrite from Apache HTTP Server.
 
-Essentially, all you need to do is include the rewrite valve class `org.apache.catalina.valves.rewrite.RewriteValve` in your application's context. This can be either the global `context.xml` or in the context block of a host in the server.xml; both found in Tomcat's `${TOMCAT_HOME}/conf` directory. Then drop a `rewrite.config` file containing your rewrites into the WEB-INF folder of `${TOMCAT_HOME}/webapps/ROOT/WEB-INF` or wherever your application's root WEB-INF is. Using the global `context.xml` will effect all virtual host setups you've defined in your `server.xml` so if you have multiple apps running, it may be best to do a per host setup of the rewrite valve.
+Essentially, all you need to do is include the rewrite valve class `org.apache.catalina.valves.rewrite.RewriteValve` in your application's context. This can be either the global `context.xml` or in the context block of a host in the `server.xml`; both found in Tomcat's `${TOMCAT_HOME}/conf` directory. Then drop a `rewrite.config` file containing your rewrites into the WEB-INF folder of `${TOMCAT_HOME}/webapps/ROOT/WEB-INF` or wherever your application's root WEB-INF. Using the global `context.xml` will effect all virtual host setups you've defined in your `server.xml` so if you have multiple apps running, it may be best to do a per host setup of the rewrite valve.
 
 
 **Global Configuration**
