@@ -133,15 +133,15 @@ Enter 1 if you wish to start in standalone mode or 2 to exit [1]:2
 - Enter the database SID [xe]: **xe**
 - Enter 1 if you want to verify/install Oracle REST Data Services schema or 2 to skip this step [1]: **2**
 - Enter 1 if you want to use PL/SQL Gateway or 2 to skip this step. If using Oracle Application Express or migrating from mod_plsql then you must enter 1 [1]: **1**
-- Enter the PL/SQL Gateway database user name [APEX_PUBLIC_USER]: **<DBAX USERNAME>**
-- Enter the database password for dbax:
-- Confirm password:
+- Enter the PL/SQL Gateway database user name [APEX_PUBLIC_USER]: **DBAX_USERNAME**
+- Enter the database password for dbax: **passwd**
+- Confirm password: **passwd**
 - Enter 1 to specify passwords for Application Express RESTful Services database users (APEX_LISTENER, APEX_REST_PUBLIC_USER) or 2 to skip this step [1]: **2**
 - Enter 1 if you wish to start in standalone mode or 2 to exit [1]: **2**
 
 #### Deploy in Tomcat
 
-Copy the "ords.war" file to the Tomcat "webapps" directory.
+Copy the `ords.war` file to the Tomcat webapps directory.
 
 ```sh
 [tomcat@dbaxio tmp]$ cp ords.war $CATALINA_HOME/webapps/
@@ -156,7 +156,7 @@ http://<server-name>:<port>/ords/<appid>
 
 ### DBMS_EPG configuration 
 
-[DBMS_EPG](https://docs.oracle.com/cd/B28359_01/appdev.111/b28419/d_epg.htm#CHDIDGIG)
+> The [DBMS_EPG](https://docs.oracle.com/cd/B28359_01/appdev.111/b28419/d_epg.htm#CHDIDGIG) package implements the embedded PL/SQL gateway that enables a web browser to invoke a PL/SQL stored procedure through an HTTP listener.
 
 **Configure HTTP Access**
 
@@ -253,7 +253,7 @@ Tomcat from version 8 implements [URL rewrite functionality](https://tomcat.apac
 Essentially, all you need to do is include the rewrite valve class `org.apache.catalina.valves.rewrite.RewriteValve` in your application's context. This can be either the global `context.xml` or in the context block of a host in the `server.xml`; both found in Tomcat's `${TOMCAT_HOME}/conf` directory. Then drop a `rewrite.config` file containing your rewrites into the WEB-INF folder of `${TOMCAT_HOME}/webapps/ROOT/WEB-INF` or wherever your application's root WEB-INF. Using the global `context.xml` will effect all virtual host setups you've defined in your `server.xml` so if you have multiple apps running, it may be best to do a per host setup of the rewrite valve.
 
 
-**Global Configuration**
+##### Global Configuration
 
 Set the rewrite valve in Tomcat's `context.xml` located in `${TOMCAT_HOME}/conf/context.xml`:
 
@@ -274,7 +274,7 @@ Set the rewrite valve in Tomcat's `context.xml` located in `${TOMCAT_HOME}/conf/
 </Context>
 ```
 
-**Making it all happen with `rewrite.config`**
+##### Making it all happen with `rewrite.config`
 
 Now you can drop your `rewrite.config` into the WEB-INF there. Here's an example `rewrite.config` that rewrites the URL to greeting application. The file must be located in `${TOMCAT_HOME}/webapps/ROOT/WEB-INF/rewrite.config`
 
