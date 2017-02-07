@@ -35,7 +35,7 @@ dbax Lite Framework is a PL/SQL MVC system. It's designed to be lightweight and 
 
 ## Installation
 
-Clone the repo and install in your Oracle database. See [Installation](doc/Installation.md) section in the documentation for more information. 
+Clone the repo and install in your Oracle database. See [Installation](docs/Installation.md) section in the documentation for more information. 
 
 ```sh
 git clone https://github.com/osalvador/dbax-lite.git
