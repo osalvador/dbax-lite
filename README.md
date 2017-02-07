@@ -64,7 +64,7 @@ BEGIN
                  , name_array  => name_array
                  , value_array => value_array
                  , router      => 'PK_APP_HELLO.ROUTER');
-END greeting;
+END hello;
 /
 
 CREATE OR REPLACE PACKAGE pk_app_hello
