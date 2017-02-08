@@ -8,7 +8,7 @@ dbax lite is the lightweight version of [dbax](https://github.com/osalvador/dbax
 - [Features](#features)
 - [Requirements](#requirements)
 - [Installation](#installation)
-- [Documentation](docs/readme.md)
+- [Documentation](docs/README.md)
 - [Examples](#examples)
 - [Contributing](#contributing)
 - [License](#license)
