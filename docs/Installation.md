@@ -16,6 +16,20 @@ The **dbax** framework has a few system requirements, you will need to make sure
 	- [Nginx](#nginx)
 	- [Tomcat](#tomcat)
 
+## Architecture Overview
+
+### dbax with ORDS as PL/SQL Gateway
+
+To use ORDS as plsql gateway is necessary to deploy it in a JEE container. Our recommendation goes to use a web server to serve the static content, URL rewrite and perform a reverse proxy to the JEE container where the `ords.war` is deployed. ORDS can be configured for multiple Oracle database instances where dbax is installed.
+
+![dbax with ORDS](dbax-lite-ords-architecture.png)
+
+### dbax with DBMS_EPG as PL/SQL Gateway
+
+If you decide to use DBMS_EPG as PL/SQL gateway, then we recommend you use a web server to serve the static content, URL rewrite and perform a reverse proxy to the Oracle database where dbax is installed.
+
+![dbax with DBMS_EPG](dbax-lite-dbms_epg-architecture.png)
+
 
 ## dbax installation
 
