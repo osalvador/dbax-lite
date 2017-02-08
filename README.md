@@ -1,5 +1,5 @@
 # dbax Lite Framework
-dbax is PL/SQL framework for MVC Web Development for high-performing database-driven Web applications.
+dbax is PL/SQL framework for MVC Web Development for high-performing database-driven Web applications. It's designed to be lightweight and modular, allowing developers to build better and easy to maintain code with PL/SQL to develop Web applications. 
 
 dbax lite is the lightweight version of [dbax](https://github.com/osalvador/dbax) project, with the following features:
 
@@ -12,9 +12,6 @@ dbax lite is the lightweight version of [dbax](https://github.com/osalvador/dbax
 * Fast; dbax has been developed on top of PL/SQL Web Toolkit.
 * Free; dbax is licensed under the LGPL license so you can use it however you please. 
 
-
-## What is the dbax lite Framework?
-dbax Lite Framework is a PL/SQL MVC system. It's designed to be lightweight and modular, allowing developers to build better and easy to maintain code with PL/SQL to develop web applications. 
 
 ## Requirements
 
@@ -30,7 +27,6 @@ git clone https://github.com/osalvador/dbax-lite.git
 cd dbax-lite/source/install
 sqlplus "user/userpass"@SID @dbax-lite-install.sql
 ```
-
 
 ## Examples 
 
