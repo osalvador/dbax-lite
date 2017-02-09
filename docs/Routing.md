@@ -2,7 +2,7 @@
 
 ## Basic Routing
 
-The most basic **dbax** routes simply accept a http verb and URI, providing a very simple and expressive method of defining routes:
+The most basic dbax routes simply accept a http verb and URI, providing a very simple and expressive method of defining routes:
 
 ```sql      
 if route_.get ('foo')
@@ -14,7 +14,7 @@ end if;
 
 ### The Route Procedure
 
-All **dbax** routes are defined in your route function, passed as argument in your procedure front controller. 
+All dbax routes are defined in your route function, passed as argument in your procedure front controller. 
 
 
 ### Available Router Methods
@@ -41,14 +41,23 @@ l_bool := route_.match ('foo', 'get , post');
 l_bool := route_.any_ ('foo');
 ```
 
+#### Method Override
 
-> **NOTE:** The PL/SQL gateways only support GET and POST HTTP verbs. To overcome this problem, dbax uses use the `X-HTTP-Method-Override` header. Pass the method you want to use in the `X-HTTP-Method-Override` header and make your call using the POST method.
-	``` 
+The PL/SQL gateways only support GET and POST HTTP verbs. To overcome this problem, dbax uses use the `X-HTTP-Method-Override` header. Pass the method you want to use in the `X-HTTP-Method-Override` header and make your call using the **POST** method.
+
 	X-HTTP-Method-Override: PUT
 	X-HTTP-Method-Override: PATCH
 	X-HTTP-Method-Override: DELETE
 	X-HTTP-Method-Override: OPTIONS
-	```
+
+The router functions use this header to determine the method of the request. It is possible to obtain the real method using the `request_` package
+
+```sql
+l_method := request_.method();
+
+l_real_method := request_.real_method();
+```
+
 
 ## Route Parameters
 
