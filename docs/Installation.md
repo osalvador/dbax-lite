@@ -7,8 +7,8 @@ The dbax framework has a few system requirements, you will need to make sure you
 
 - Oracle Database 11g or greater.
 - PL/SQL Gateway
-		- ORDS 
-		- DBMS_EPG 
+  + ORDS 
+	+ DBMS_EPG 
 
 
 ## Architecture Overview
@@ -54,9 +54,7 @@ CREATE TYPE
 
 #### Oracle Database 11g Express Edition
 
-From Oracle page:
-
-> Oracle Database 11g Express Edition (Oracle Database XE) is an entry-level, small-footprint database based on the Oracle Database 11g Release 2 code base. It's free to develop, deploy, and distribute; fast to download; and simple to administer.
+Oracle Database 11g Express Edition (Oracle Database XE) is an entry-level, small-footprint database based on the Oracle Database 11g Release 2 code base. It's free to develop, deploy, and distribute; fast to download; and simple to administer.
 
 [Oracle Database 11g Express Edition >](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html)
 
@@ -64,7 +62,7 @@ From Oracle page:
 
 Oracle provides pre-built developer virtual machines available for free download. From Oracle page:
 
-> [Oracle Pre-Built Developer VMs (for Oracle VM VirtualBox) >](http://www.oracle.com/technetwork/community/developer-vm/index.html). Learning your way around a new software stack is challenging enough without having to spend multiple cycles on the install process. Instead, we have packaged such stacks into pre-built Oracle VM VirtualBox appliances that you can download, install, and experience as a single unit. Just downloaded/assemble the files, import into VirtualBox (available for free), import, and go (but not for production use or redistribution)!
+[Oracle Pre-Built Developer VMs (for Oracle VM VirtualBox)](http://www.oracle.com/technetwork/community/developer-vm/index.html). Learning your way around a new software stack is challenging enough without having to spend multiple cycles on the install process. Instead, we have packaged such stacks into pre-built Oracle VM VirtualBox appliances that you can download, install, and experience as a single unit. Just downloaded/assemble the files, import into VirtualBox (available for free), import, and go (but not for production use or redistribution)!
 
 The recommended virtual machine for dbax 
 
@@ -76,33 +74,18 @@ Unofficial docker image
 
 [Oralce XE 11g >](https://hub.docker.com/r/wnameless/oracle-xe-11g/)
 
-
 ### For production environment
 
-#### Buy Oracle Database License
+- Buy Oracle Database Licens: [Oracle Database 12c Standard Edition 2](https://www.oracle.com/database/standard-edition-two/index.html)
+- [Oracle Database 11g Express Edition](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html)
+- [Amazon RDS for Oracle Database](https://aws.amazon.com/en/rds/oracle/)
 
-[Oracle Database 12c Standard Edition 2 >](https://www.oracle.com/database/standard-edition-two/index.html)
-
-
-#### Oracle Database 11g Express Edition
-
-> Oracle Database 11g Express Edition (Oracle Database XE) is an entry-level, small-footprint database based on the Oracle Database 11g Release 2 code base. It's free to develop, deploy, and distribute; fast to download; and simple to administer. 
-
-[Oracle Database 11g Express Edition >](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html)
-
-#### Amazon RDS for Oracle Database
-
-> Oracle® Database is a relational database management system developed by Oracle. Amazon RDS makes it easy to set up, operate, and scale Oracle Database deployments in the cloud. With Amazon RDS, you can deploy multiple editions of Oracle Database in minutes with cost-efficient and re-sizable hardware capacity. Amazon RDS frees you up to focus on application development by managing time-consuming database administration tasks including provisioning, backups, software patching, monitoring, and hardware scaling.
-
-[Amazon RDS for Oracle Database >](https://aws.amazon.com/en/rds/oracle/)
 
 ## Configure a PL/SQL Gateway
 
 ### ORDS Installation 
 
 [Oracle Rest Data Services](http://www.oracle.com/technetwork/developer-tools/rest-data-services/overview/index.html) (ORDS), formerly known as the APEX Listener, allows PL/SQL Web applications to be deployed. ORDS can be deployed on WebLogic, Glassfish or Tomcat. This article describes the installation of ORDS on Tomcat 7 and 8.
-
-#### Download
 
 [Download ORDS >](http://www.oracle.com/technetwork/developer-tools/rest-data-services/downloads/index.html)
 
@@ -143,7 +126,7 @@ Enter 1 if you wish to start in standalone mode or 2 to exit [1]:2
 ```
 
 
-#### These are the typical responses for an Oracle Express database:
+#### These are the typical responses for Oracle XE:
 
 - Enter the location to store configuration data: **/u01/ords/conf**
 - Enter the name of the database server [localhost]: **localhost**
@@ -175,7 +158,7 @@ http://<server-name>:<port>/ords/<appid>
 
 ### DBMS_EPG configuration 
 
-> The [DBMS_EPG](https://docs.oracle.com/cd/B28359_01/appdev.111/b28419/d_epg.htm#CHDIDGIG) package implements the embedded PL/SQL gateway that enables a web browser to invoke a PL/SQL stored procedure through an HTTP listener.
+The [DBMS_EPG](https://docs.oracle.com/cd/B28359_01/appdev.111/b28419/d_epg.htm#CHDIDGIG) package implements the embedded PL/SQL gateway that enables a web browser to invoke a PL/SQL stored procedure through an HTTP listener.
 
 #### Configure HTTP Access
 
@@ -257,7 +240,7 @@ dbax uses the query string parameter `p` to identify the URI entered by the user
 
 #### Nginx
 
-If you are using Nginx, the following directive in your site configuration will direct all requests to the *application fron contrller* in your PL/SQL Gateway, making a reverse proxy:
+If you are using Nginx, the following directive in your site configuration will direct all requests to the *application front controller* in your PL/SQL Gateway, making a reverse proxy:
 
 Rewrite and proxy from  `http://example.com/home` to `http://127.0.0.1:8080/ords/!example?p=/home`
 
@@ -296,7 +279,7 @@ Set the rewrite valve in Tomcat's `context.xml` located in `${TOMCAT_HOME}/conf/
 <?xml version='1.0' encoding='utf-8'?>
 <!-- The contents of this file will be loaded for each web application -->
 <Context>
-  
+
  	  <!-- REWRITE VALVE -->
     <Valve className="org.apache.catalina.valves.rewrite.RewriteValve" />
     <!-- // -->
