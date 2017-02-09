@@ -12,7 +12,7 @@ https://scotch.io/tutorials/simple-laravel-crud-with-resource-controllers
 ----
 
 
-#### Apache
+#### Apache Pretty URLs
 
 You need to configure Apache to provide URLs without the *application front controller* in the path. Before serving **dbax** with Apache, be sure to enable and configure the `mod_rewrite` module.
 

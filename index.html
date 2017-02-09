@@ -21,17 +21,16 @@
   <meta content="dbax lite framework" property="og:title">
   <meta content="dbax lite a PL/SQL framework for MVC Web Development" name="description">
 
-  <!-- Initializer -->
-  <script>
-    Flatdoc.run({
-      fetcher: Flatdoc.file('README.md')
-    });
-  </script>
-
   <style>
     .content pre > code {
-            font-size: 0.95em;
+            font-size: 1em;
     }
+    /* Display menu always */
+    @media (max-width: 768px) {
+      .menubar {
+        display: block;
+      }
+    }    
   </style>
 
 </head>
@@ -54,18 +53,109 @@
   
   <div class='content-root'>
     <div class='menubar'>
-      <div class='section'>
-        <a class='big button' href='https://github.com/osalvador/dbax-lite/archive/master.zip' target='_blank'>Download</a>
-      </div>
+
       <div class='menu section' role='flatdoc-menu'></div>
-      <div class='bottom section'>
-        <iframe src='https://ghbtns.com/github-btn.html?user=osalvador&amp;repo=dbax-lite&amp;type=watch&amp;count=true' allowtransparency="true" frameborder="0" scrolling="0" width="170" height="20"></iframe>
-        <br>
-        <a href='https://github.com/osalvador/dbax-lite'>View on GitHub</a><br>        
-      </div>
+
+      <div class='menu section'>
+        <!-- Doc Menu -->
+        <ul class="level-1" id="root-list"> 
+
+           <li class="level-1">
+              <a id="homeLink" href="#" class="level-1">Home</a>
+           </li>
+
+           <li class="level-1">
+              <a  class="level-1">Getting Started</a>
+              <ul class="level-2">
+                 <li class="level-2"><a id="Installation-link" href="#" class="level-2">Installation</a></li>
+                 <li class="level-2"><a id="Configuration-link" href="#" class="level-2">Configuration</a></li>
+                 <li class="level-2"><a id="Request-Lifecycle-link" href="#" class="level-2">Request Lifecycle</a></li>
+              </ul>
+           </li>
+
+           <li id="" class="level-1">
+              <a  class="level-1">The HTTP Layer</a>
+              <ul class="level-2" >
+                 <li class="level-2"><a id="Routing-link" href="#" class="level-2">Routing</a></li>
+                 <li class="level-2"><a id="Controllers-link" href="#" class="level-2">Controllers</a></li>
+                 <li class="level-2"><a id="Requests-link" href="#" class="level-2">Requests</a></li>
+                 <li class="level-2"><a id="Responses-link" href="#" class="level-2">Responses</a></li>
+                 <li class="level-2"><a id="Session-link" href="#" class="level-2">Session</a></li>                  
+              </ul>
+           </li>
+
+           <li id="" class="level-1">
+              <a class="level-1">Views & Templates</a>
+              <ul class="level-2" id="">
+                 <li class="level-2"><a id="Views-link" href="#" class="level-2">Views</a></li>
+                 <li class="level-2"><a id="tePLSQL-templates-link" href="#" class="level-2">tePLSQL templates</a></li>              
+              </ul>
+           </li>
+        </ul>
+
+      </div>      
     </div>
     <div role='flatdoc-content' class='content'></div>
   </div>
+
+   <!-- Initializer -->
+  <script>    
+    repoPath = "https://raw.githubusercontent.com/osalvador/dbax-lite/gh-pages/"
+
+    Flatdoc.run({
+      fetcher: Flatdoc.file(repoPath + 'README.md')
+    });
+
+    function flatDocThis(fileURI){
+        Flatdoc.run({
+          fetcher: Flatdoc.file(repoPath + fileURI)
+        });        
+    }
+
+    $( document ).ready(function() {        
+   
+        $( "#homeLink" ).click(function() {
+            flatDocThis( "README.md" );
+        });
+
+        //Getting started
+        $( "#Installation-link" ).click(function() {
+            flatDocThis( "docs/Installation.md" );
+        });
+        $( "#Configuration-link" ).click(function() {
+            flatDocThis( "docs/Configuration.md" );
+        });
+        $( "#Request-Lifecycle-link" ).click(function() {
+            flatDocThis( "docs/Request-Lifecycle.md" );
+        });        
+        
+        //Http Layer
+        $( "#Routing-link" ).click(function() {
+            flatDocThis( "docs/Routing.md" );
+        });
+        $( "#Controllers-link" ).click(function() {
+            flatDocThis( "docs/Controllers.md" );
+        });
+        $( "#Requests-link" ).click(function() {
+            flatDocThis( "docs/Requests.md" );
+        });
+        $( "#Responses-link" ).click(function() {
+            flatDocThis( "docs/Responses.md" );
+        });
+        $( "#Session-link" ).click(function() {
+            flatDocThis( "docs/Session.md" );
+        });        
+
+        //Views & Templates
+        $( "#Views-link" ).click(function() {
+            flatDocThis( "docs/Views.md" );
+        });
+        $( "#tePLSQL-templates-link" ).click(function() {
+            flatDocThis( "docs/tePLSQL-templates.md" );
+        });                
+  
+    });
+  </script>
 
 </body>
 </html>
