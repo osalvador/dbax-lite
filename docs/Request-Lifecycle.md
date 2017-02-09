@@ -9,7 +9,7 @@ The goal of this document is to give you a good, high-level overview of how the 
 
 ## Lifecycle Overview
 
-![dbax request lifecycle](dbax-lite-application-flow.png)
+![dbax request lifecycle](https://raw.githubusercontent.com/osalvador/dbax-lite/gh-pages/docs/dbax-lite-application-flow.png)
 
 ### First Things
 
