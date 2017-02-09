@@ -64,11 +64,10 @@
 
    <!-- Initializer -->
   <script>    
-    repoPath = "https://raw.githubusercontent.com/osalvador/dbax-lite/gh-pages/"
-
     Flatdoc.run({
       fetcher: Flatdoc.file('README.md')
     });    
+    
     $(document).on('flatdoc:ready', function() {
         //highlight.js init
         $('pre code').each(function(i, block) {

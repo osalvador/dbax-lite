@@ -27,14 +27,81 @@
 
   <style>
     .content pre > code {
-            font-size: 0.90em;
+            font-size: 1em;
     }
     /* Display menu always */
     @media (max-width: 768px) {
       .menubar {
         display: block;
       }
-    }    
+    }
+    /* Menu without JS*/
+    .menu-clean ul.level-1 > li + li {
+      margin-top: 20px;
+    }
+    .menu-clean a {
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+      position: relative;
+      display: block;
+      padding-top: 1px;
+      padding-bottom: 1px;
+      margin-right: -30px;
+    }
+    .menu-clean a,
+    .menu-clean a:visited {
+      color: #2badad;
+    }
+    .menu-clean a:hover {
+      color: #228a8a;
+    }
+    .menu-clean a.level-1 {
+      font-family: montserrat, sans-serif;
+      text-transform: uppercase;
+      font-size: 0.9em;
+      font-weight: bold;
+    }
+    .menu-clean a.level-1,
+    .menu-clean a.level-1:visited {
+      color: #9090aa;
+    }
+    .menu-clean a.level-1:hover {
+      color: #565666;
+    }
+    .menu-clean a.level-2 {
+      font-weight: normal;
+    }
+    .menu-clean a.level-3 {
+      font-weight: normal;
+      font-size: 0.9em;
+      padding-left: 10px;
+    }
+    .menu-clean a.active {
+      font-weight: bold !important;
+    }
+    .menu-clean a.active,
+    .menu-clean a.active:visited,
+    .menu-clean a.active:hover {
+      color: #505050 !important;
+    }
+    .menu-clean a.active:after {
+      content: '';
+      display: block;
+      -webkit-box-sizing: border-box;
+      -moz-box-sizing: border-box;
+      box-sizing: border-box;
+      position: absolute;
+      top: 10px;
+      right: 30px;
+      width: 9px;
+      height: 3px;
+      -webkit-border-radius: 2px;
+      border-radius: 2px;
+      background: #2badad;
+    }
+
+
   </style>
 
 </head>
@@ -60,7 +127,7 @@
 
       <div class='menu section' role='flatdoc-menu'></div>
 
-      <div class='menu section'>
+      <div class='menu-clean section'>
         <!-- Doc Menu -->
         <ul class="level-1" id="root-list"> 
 
@@ -71,28 +138,28 @@
            <li class="level-1">
               <a  class="level-1">Getting Started</a>
               <ul class="level-2">
-                 <li class="level-2"><a id="Installation-link" href="#" class="level-2">Installation</a></li>
-                 <li class="level-2"><a id="Configuration-link" href="#" class="level-2">Configuration</a></li>
-                 <li class="level-2"><a id="Request-Lifecycle-link" href="#" class="level-2">Request Lifecycle</a></li>
+                 <li class="level-2"><a id="Installation-link" href="?file=docs/Installation.md" class="level-2">Installation</a></li>
+                 <li class="level-2"><a id="Configuration-link" href="?file=docs/Configuration.md" class="level-2">Configuration</a></li>
+                 <li class="level-2"><a id="Request-Lifecycle-link" href="?file=docs/Request-Lifecycle.md" class="level-2">Request Lifecycle</a></li>
               </ul>
            </li>
 
            <li id="" class="level-1">
               <a  class="level-1">The HTTP Layer</a>
               <ul class="level-2" >
-                 <li class="level-2"><a id="Routing-link" href="#" class="level-2">Routing</a></li>
-                 <li class="level-2"><a id="Controllers-link" href="#" class="level-2">Controllers</a></li>
-                 <li class="level-2"><a id="Requests-link" href="#" class="level-2">Requests</a></li>
-                 <li class="level-2"><a id="Responses-link" href="#" class="level-2">Responses</a></li>
-                 <li class="level-2"><a id="Session-link" href="#" class="level-2">Session</a></li>                  
+                 <li class="level-2"><a id="Routing-link" href="?file=docs/Routing.md" class="level-2">Routing</a></li>
+                 <li class="level-2"><a id="Controllers-link" href="?file=docs/Controllers.md" class="level-2">Controllers</a></li>
+                 <li class="level-2"><a id="Requests-link" href="?file=docs/Requests.md" class="level-2">Requests</a></li>
+                 <li class="level-2"><a id="Responses-link" href="?file=docs/Responses.md" class="level-2">Responses</a></li>
+                 <li class="level-2"><a id="Session-link" href="?file=docs/Session.md" class="level-2">Session</a></li>                  
               </ul>
            </li>
 
            <li id="" class="level-1">
               <a class="level-1">Views & Templates</a>
               <ul class="level-2" id="">
-                 <li class="level-2"><a id="Views-link" href="#" class="level-2">Views</a></li>
-                 <li class="level-2"><a id="tePLSQL-templates-link" href="#" class="level-2">tePLSQL templates</a></li>              
+                 <li class="level-2"><a id="Views-link" href="?file=docs/Views.md" class="level-2">Views</a></li>
+                 <li class="level-2"><a id="tePLSQL-templates-link" href="?file=docs/tePLSQL-templates.md" class="level-2">tePLSQL templates</a></li>              
               </ul>
            </li>
         </ul>
@@ -103,62 +170,28 @@
   </div>
 
    <!-- Initializer -->
-  <script>    
-    repoPath = "https://raw.githubusercontent.com/osalvador/dbax-lite/gh-pages/"
-
-    Flatdoc.run({
-      fetcher: Flatdoc.file(repoPath + 'README.md')
-    });
-
-    function flatDocThis(fileURI){
-        Flatdoc.run({
-          fetcher: Flatdoc.file(repoPath + fileURI)
-        });        
+  <script>
+    function getParameterByName(name, url) {
+        if (!url) {
+          url = window.location.href;
+        }
+        name = name.replace(/[\[\]]/g, "\\$&");
+        var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+            results = regex.exec(url);
+        if (!results) return null;
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, " "));
     }
 
-    $( document ).ready(function() {        
+    /*Get QueryString parameter ?file=*/
+    var FILE_NAME = getParameterByName("file") || 'README.md';
 
-        $( "#homeLink" ).click(function() {
-            flatDocThis( "README.md" );
-        });
+    var REPO_PATH = "https://raw.githubusercontent.com/osalvador/dbax-lite/gh-pages/"
 
-        //Getting started
-        $( "#Installation-link" ).click(function() {
-            flatDocThis( "docs/Installation.md" );
-        });
-        $( "#Configuration-link" ).click(function() {
-            flatDocThis( "docs/Configuration.md" );
-        });
-        $( "#Request-Lifecycle-link" ).click(function() {
-            flatDocThis( "docs/Request-Lifecycle.md" );
-        });        
-        
-        //Http Layer
-        $( "#Routing-link" ).click(function() {
-            flatDocThis( "docs/Routing.md" );
-        });
-        $( "#Controllers-link" ).click(function() {
-            flatDocThis( "docs/Controllers.md" );
-        });
-        $( "#Requests-link" ).click(function() {
-            flatDocThis( "docs/Requests.md" );
-        });
-        $( "#Responses-link" ).click(function() {
-            flatDocThis( "docs/Responses.md" );
-        });
-        $( "#Session-link" ).click(function() {
-            flatDocThis( "docs/Session.md" );
-        });        
+    Flatdoc.run({
+      fetcher: Flatdoc.file(REPO_PATH + FILE_NAME)
+    });
 
-        //Views & Templates
-        $( "#Views-link" ).click(function() {
-            flatDocThis( "docs/Views.md" );
-        });
-        $( "#tePLSQL-templates-link" ).click(function() {
-            flatDocThis( "docs/tePLSQL-templates.md" );
-        });                
-  
-      });
 
     $(document).on('flatdoc:ready', function() {
         //highlight.js init
