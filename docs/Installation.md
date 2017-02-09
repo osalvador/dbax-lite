@@ -3,18 +3,13 @@
 
 ## Server Requirements
 
-The **dbax** framework has a few system requirements, you will need to make sure your server meets the following requirements:
+The dbax framework has a few system requirements, you will need to make sure your server meets the following requirements:
 
 - Oracle Database 11g or greater.
-	- [How to get an Oracle database](#how-to-get-an-oracle-database)
-- PL/SQL Gateway.
-	- [Configure PL/SQL Gateway](#configure-a-plsql-gateway)
-		- [ORDS](#ords-installation)
-		- [DBMS_EPG](#dbms_epg-configuration)
-- [dbax installation](#dbax-installation)
-- [Web server configuracion for pretty URLs](#web-server-configuration)
-	- [Nginx](#nginx)
-	- [Tomcat](#tomcat)
+- PL/SQL Gateway
+		- ORDS 
+		- DBMS_EPG 
+
 
 ## Architecture Overview
 
@@ -33,7 +28,7 @@ If you decide to use DBMS_EPG as PL/SQL gateway, then we recommend you use a web
 
 ## dbax installation
 
-If you already have access to an oracle database, installing **dbax** is very simple. You will need to have a user with the `RESOURCE` role. Just download the source code and compile it.
+If you already have access to an oracle database, installing dbax is very simple. You will need to have a user with the `RESOURCE` role. Just download the source code and compile it.
 
 ```sh
 git clone https://github.com/osalvador/dbax-lite.git
@@ -57,39 +52,49 @@ CREATE TYPE
 
 ### For development environment
 
-[**Oracle Database 11g Express Edition**](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html)
+#### Oracle Database 11g Express Edition
 
 From Oracle page:
 
 > Oracle Database 11g Express Edition (Oracle Database XE) is an entry-level, small-footprint database based on the Oracle Database 11g Release 2 code base. It's free to develop, deploy, and distribute; fast to download; and simple to administer.
 
-[**Oracle Pre-Built Developer VMs (for Oracle VM VirtualBox)**](http://www.oracle.com/technetwork/community/developer-vm/index.html)
+[Oracle Database 11g Express Edition >](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html)
 
-Oracle provides pre-built developer virtual machines available for free download.
+#### Oracle Pre-Built Developer VMs
 
-From Oracle page:
+Oracle provides pre-built developer virtual machines available for free download. From Oracle page:
 
-> Learning your way around a new software stack is challenging enough without having to spend multiple cycles on the install process. Instead, we have packaged such stacks into pre-built Oracle VM VirtualBox appliances that you can download, install, and experience as a single unit. Just downloaded/assemble the files, import into VirtualBox (available for free), import, and go (but not for production use or redistribution)!
+> [Oracle Pre-Built Developer VMs (for Oracle VM VirtualBox) >](http://www.oracle.com/technetwork/community/developer-vm/index.html). Learning your way around a new software stack is challenging enough without having to spend multiple cycles on the install process. Instead, we have packaged such stacks into pre-built Oracle VM VirtualBox appliances that you can download, install, and experience as a single unit. Just downloaded/assemble the files, import into VirtualBox (available for free), import, and go (but not for production use or redistribution)!
 
+The recommended virtual machine for dbax 
 
-The recommended virtual machine is [Database App Development VM](http://www.oracle.com/technetwork/community/developer-vm/index.html#dbapp)
+[Database App Development VM >](http://www.oracle.com/technetwork/community/developer-vm/index.html#dbapp)
 
-**Docker Image**
+#### Docker Image
 
-Unofficial docker image: [Oralce XE 11g](https://hub.docker.com/r/wnameless/oracle-xe-11g/)
+Unofficial docker image
+
+[Oralce XE 11g >](https://hub.docker.com/r/wnameless/oracle-xe-11g/)
 
 
 ### For production environment
 
-[**Oracle Database 11g Express Edition**](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html)
+#### Buy Oracle Database License
+
+[Oracle Database 12c Standard Edition 2 >](https://www.oracle.com/database/standard-edition-two/index.html)
+
+
+#### Oracle Database 11g Express Edition
 
 > Oracle Database 11g Express Edition (Oracle Database XE) is an entry-level, small-footprint database based on the Oracle Database 11g Release 2 code base. It's free to develop, deploy, and distribute; fast to download; and simple to administer. 
 
+[Oracle Database 11g Express Edition >](http://www.oracle.com/technetwork/database/database-technologies/express-edition/overview/index.html)
 
-[**Amazon RDS for Oracle Database**](https://aws.amazon.com/en/rds/oracle/)
+#### Amazon RDS for Oracle Database
 
 > Oracle® Database is a relational database management system developed by Oracle. Amazon RDS makes it easy to set up, operate, and scale Oracle Database deployments in the cloud. With Amazon RDS, you can deploy multiple editions of Oracle Database in minutes with cost-efficient and re-sizable hardware capacity. Amazon RDS frees you up to focus on application development by managing time-consuming database administration tasks including provisioning, backups, software patching, monitoring, and hardware scaling.
 
+[Amazon RDS for Oracle Database >](https://aws.amazon.com/en/rds/oracle/)
 
 ## Configure a PL/SQL Gateway
 
@@ -97,11 +102,11 @@ Unofficial docker image: [Oralce XE 11g](https://hub.docker.com/r/wnameless/orac
 
 [Oracle Rest Data Services](http://www.oracle.com/technetwork/developer-tools/rest-data-services/overview/index.html) (ORDS), formerly known as the APEX Listener, allows PL/SQL Web applications to be deployed. ORDS can be deployed on WebLogic, Glassfish or Tomcat. This article describes the installation of ORDS on Tomcat 7 and 8.
 
-**Download**
+#### Download
 
-Download [Oracle Rest Data Services](http://www.oracle.com/technetwork/developer-tools/rest-data-services/downloads/index.html)
+[Download ORDS >](http://www.oracle.com/technetwork/developer-tools/rest-data-services/downloads/index.html)
 
-**Install ORDS for dbax**
+#### Install ORDS for dbax
 
 Just unzip the software and run `java -jar ords.war install advanced`. 
 
@@ -172,7 +177,7 @@ http://<server-name>:<port>/ords/<appid>
 
 > The [DBMS_EPG](https://docs.oracle.com/cd/B28359_01/appdev.111/b28419/d_epg.htm#CHDIDGIG) package implements the embedded PL/SQL gateway that enables a web browser to invoke a PL/SQL stored procedure through an HTTP listener.
 
-**Configure HTTP Access**
+#### Configure HTTP Access
 
 In order to access a XML DB web service, the HTTP port number of the XML DB built in HTTP server must be configured using the DBMS_XDB package. The GETHTTPPORT function displays the current port number setting. If you've not used the XML DB HTTP server before, it will probably be set to "0" which means HTTP access is disabled. Use the SETHTTPPORT procedure to set the port number to a non-zero value. In most of their examples, Oracle use the value of "8080".
 
@@ -187,7 +192,7 @@ In order to access a XML DB web service, the HTTP port number of the XML DB buil
 ```
 
 
-**Create DAD**
+#### Create DAD
 
 ```sql
 BEGIN
@@ -224,7 +229,7 @@ http://<server-name>:<port>/dbax/<appid>
 ```
 
 
-**Limitations**
+#### Limitations
 
 DBMS_EPG has some limitations
 
@@ -248,15 +253,13 @@ response_.cookie('name', 'value', l_20_minutes, p_httpOnly => false );
 
 ### Pretty URLs
 
-**dbax** uses the query string parameter `p` to identify the URI entered by the user. In this way and with a simple URL rewrite, **dbax** has pretty and clean URLs. 
+dbax uses the query string parameter `p` to identify the URI entered by the user. In this way and with a simple URL rewrite, dbax has pretty and clean URLs. 
 
 #### Nginx
 
 If you are using Nginx, the following directive in your site configuration will direct all requests to the *application fron contrller* in your PL/SQL Gateway, making a reverse proxy:
 
-From: **http://example.com/home**
-
-To: **http://127.0.0.1:8080/ords/!example?p=/home**
+Rewrite and proxy from  `http://example.com/home` to `http://127.0.0.1:8080/ords/!example?p=/home`
 
 ```
 location / {    
@@ -267,9 +270,7 @@ location / {
 ```
 
 
-From: **http://example.com/greeting/home**
-
-To: **http://127.0.0.1:8080/ords/!greeting?p=/home**
+Rewrite and proxy from `http://example.com/greeting/home` to `http://127.0.0.1:8080/ords/!greeting?p=/home`
 
 ```
  location /greeting/ {
@@ -295,12 +296,11 @@ Set the rewrite valve in Tomcat's `context.xml` located in `${TOMCAT_HOME}/conf/
 <?xml version='1.0' encoding='utf-8'?>
 <!-- The contents of this file will be loaded for each web application -->
 <Context>
-
- 	<!-- REWRITE VALVE -->
+  
+ 	  <!-- REWRITE VALVE -->
     <Valve className="org.apache.catalina.valves.rewrite.RewriteValve" />
     <!-- // -->
 	
-
     <!-- Default set of monitored resources. If one of these changes, the    -->
     <!-- web application will be reloaded.                                   -->
     <WatchedResource>WEB-INF/web.xml</WatchedResource>
@@ -313,9 +313,7 @@ Set the rewrite valve in Tomcat's `context.xml` located in `${TOMCAT_HOME}/conf/
 Now you can drop your `rewrite.config` into the WEB-INF there. Here's an example `rewrite.config` that rewrites the URL to greeting application. The file must be located in `${TOMCAT_HOME}/webapps/ROOT/WEB-INF/rewrite.config`
 
 
-Rewrite From: **http://host:port/greeting/home**
-
-To: **http://host:port/ords/!greeting?p=/home**
+Rewrite from  `http://host:port/greeting/home` to `http://host:port/ords/!greeting?p=/home`
 
 ```
 RewriteRule /greeting(.*?)$ /ords/!greeting?p=$1 [L]
