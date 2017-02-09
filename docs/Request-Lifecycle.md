@@ -4,7 +4,7 @@
 
 When using any tool in the "real world", you feel more confident if you understand how that tool works. Application development is no different. When you understand how your development tools function, you feel more comfortable and confident using them.
 
-The goal of this document is to give you a good, high-level overview of how the **dbax** framework works. By getting to know the overall framework better, everything feels less "magical" and you will be more confident building your applications. If you don't understand all of the terms right away, don't lose heart! Just try to get a basic grasp of what is going on, and your knowledge will grow as you explore other sections of the documentation.
+The goal of this document is to give you a good, high-level overview of how the dbax framework works. By getting to know the overall framework better, everything feels less "magical" and you will be more confident building your applications. If you don't understand all of the terms right away, don't lose heart! Just try to get a basic grasp of what is going on, and your knowledge will grow as you explore other sections of the documentation.
 
 
 ## Lifecycle Overview
@@ -13,9 +13,9 @@ The goal of this document is to give you a good, high-level overview of how the 
 
 ### First Things
 
-The entry point for all requests to a **dbax** application is the public *application front controller procedure*  All requests are directed to this procedure by your PLSQL Gateway (ORDS / DBMS_EPG) configuration. The *application front controller procedure* doesn't contain much code. Rather, it is simply a starting point for loading the rest of the framework.
+The entry point for all requests to a dbax application is the public *application front controller procedure*. All requests are directed to this procedure by your PLSQL Gateway (ORDS / DBMS_EPG) configuration. The application front controller procedure doesn't contain much code. Rather, it is simply a starting point for loading the rest of the framework.
 
-The *application front controller procedure* loads your application properties and inject to the framework the routing function of your application. Then start the dispatcher. 
+The application front controller procedure loads your application properties and inject to the framework the routing function of your application. Then start the dispatcher. 
 
 Application front controller procedure example: 
 
