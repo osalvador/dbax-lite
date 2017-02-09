@@ -17,13 +17,17 @@
   <link  href='https://cdn.rawgit.com/rstacruz/flatdoc/v0.9.0/theme-white/style.css' rel='stylesheet'>
   <script src='https://cdn.rawgit.com/rstacruz/flatdoc/v0.9.0/theme-white/script.js'></script>
 
+  <!-- Code highlight-->
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/styles/atom-one-light.min.css">
+  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.9.0/highlight.min.js"></script>
+
   <!-- Meta -->
   <meta content="dbax lite framework" property="og:title">
   <meta content="dbax lite a PL/SQL framework for MVC Web Development" name="description">
 
   <style>
     .content pre > code {
-            font-size: 1em;
+            font-size: 0.90em;
     }
     /* Display menu always */
     @media (max-width: 768px) {
@@ -113,7 +117,7 @@
     }
 
     $( document ).ready(function() {        
-   
+
         $( "#homeLink" ).click(function() {
             flatDocThis( "README.md" );
         });
@@ -154,7 +158,14 @@
             flatDocThis( "docs/tePLSQL-templates.md" );
         });                
   
-    });
+      });
+
+    $(document).on('flatdoc:ready', function() {
+        //highlight.js init
+        $('pre code').each(function(i, block) {
+          hljs.highlightBlock(block);
+        });
+     });
   </script>
 
 </body>
