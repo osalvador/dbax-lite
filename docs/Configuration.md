@@ -2,7 +2,7 @@
 
 ## Introduction
 
-All of the configuration properties for the **dbax** framework are stored in an associative array. **dbax** offers a simple api in which you can set or get the properties that you have defined.
+All of the configuration properties for the dbax framework are stored in an associative array. dbax offers a simple api in which you can set or get the properties that you have defined.
 
 You can define the properties you need, as long as they are not reserved by the framework.
 
