@@ -68,20 +68,13 @@ Username if user is logged
 
 Central procedure that dispatches requests to controllers. AKA front controller.
 
-@param  p_appid        the application id of the request
-@param  name_array     vc_arr with the name of the arguments
-@param  value_array    vc_arr with the values of the arguments
-@param  router         the name of the router function of your application
+#### Parametrs
+- `p_appid`:         the application id of the request
+- `name_array`:      vc_arr with the name of the arguments
+- `value_array`:     vc_arr with the values of the arguments
+- `router`:          the name of the router function of your application
 
 ```sql
-   /**
-   * Central procedure that dispatches requests to controllers. AKA front controller.
-   *
-   * @param  p_appid        the application id of the request
-   * @param  name_array     vc_arr with the name of the arguments
-   * @param  value_array    vc_arr with the values of the arguments
-   * @param  router         the name of the router function of your application
-   */
    PROCEDURE dispatcher (p_appid       IN VARCHAR2
                        , name_array    IN owa_util.vc_arr DEFAULT empty_vc_arr
                        , value_array   IN owa_util.vc_arr DEFAULT empty_vc_arr
