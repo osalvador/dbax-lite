@@ -1,46 +1,97 @@
 # dbx
+dbax framework's Kernel package 
 
-```javascript
-CREATE OR REPLACE PACKAGE dbx
-AS
-   /***********************
-   *  PL/SQL TABLES Types
-   ************************/
+##  PL/SQL TABLES Types
 
-   /* Associative Array type */
+### g_assoc_array
+Associative Array type
+
+```sql
    TYPE g_assoc_array
    IS
       TABLE OF VARCHAR2 (32767)
          INDEX BY VARCHAR2 (255);
-   
-   /* Varchar Array type */
+```
+
+
+### g_varchar_array
+Varchar Array type
+
+```sql
    TYPE g_varchar_array
    IS
       TABLE OF VARCHAR2 (32767)
          INDEX BY BINARY_INTEGER;
+```
 
-   /***********************
-   *  Global variables
-   ************************/         
+##  Global session variables
 
-   /* Empty array for dynamic parameter */ 
+### empty_vc_arr
+Empty array for dynamic parameter. For internal use only.
+
+```sql
    empty_vc_arr     owa_util.vc_arr;
+```
 
-   /* Application properties */
+### g$properties 
+Application properties
+
+```sql
    g$properties     dbx.g_assoc_array;
+```
 
-   /* Indicates stop dbax engine */
+### g_stop_process
+Indicates stop dbax engine.
+
+```sql
    g_stop_process   BOOLEAN := FALSE;
+```
 
-   /* Current Application ID */
+### g$appid
+Current Application ID
+
+```sql
    g$appid          VARCHAR2 (50);
+```
 
-   /* Username if user is logged */
+### g$username
+Username if user is logged
+
+```
    g$username       VARCHAR2 (255);
+```
 
-   /* Url path */ 
-   g$path           VARCHAR2 (2000);
 
+## Functions and Procedures
+
+### dispatcher
+
+Central procedure that dispatches requests to controllers. AKA front controller.
+
+@param  p_appid        the application id of the request
+@param  name_array     vc_arr with the name of the arguments
+@param  value_array    vc_arr with the values of the arguments
+@param  router         the name of the router function of your application
+
+```sql
+   /**
+   * Central procedure that dispatches requests to controllers. AKA front controller.
+   *
+   * @param  p_appid        the application id of the request
+   * @param  name_array     vc_arr with the name of the arguments
+   * @param  value_array    vc_arr with the values of the arguments
+   * @param  router         the name of the router function of your application
+   */
+   PROCEDURE dispatcher (p_appid       IN VARCHAR2
+                       , name_array    IN owa_util.vc_arr DEFAULT empty_vc_arr
+                       , value_array   IN owa_util.vc_arr DEFAULT empty_vc_arr
+                       , router        IN VARCHAR2 DEFAULT NULL );
+```
+
+
+```sql
+
+  
 
    /**
    * Central procedure that dispatches requests to controllers. AKA front controller.
