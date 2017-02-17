@@ -1,4 +1,3 @@
-/* Formatted on 06/02/2017 11:44:16 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY dbx
 AS
    --G$PROPERTIES An associative array of application properties
@@ -812,3 +811,4 @@ AS
    --dbax_log.close_log;
    END dispatcher;
 END dbx;
+/
