@@ -29,14 +29,26 @@ If you decide to use DBMS_EPG as PL/SQL gateway, then we recommend you use a web
 
 ## dbax installation
 
-If you already have access to an oracle database, installing dbax is very simple. You will need to have a user with the `RESOURCE` role. Just download the source code and compile it.
+If you already have access to an oracle database, installing dbax is very simple. You will need to have a user with the `RESOURCE` role. Just download the latest release source code and compile it.
 
 ```sh
-git clone https://github.com/osalvador/dbax-lite.git
-cd dbax-lite/source/install
+wget https://github.com/osalvador/dbax-lite/archive/0.1.0.zip
+unzip dbax-lite-0.1.0.zip
+cd dbax-lite-0.1.0/dbax-lite/source/install
 sqlplus "user/userpass"@SID @dbax-lite-install.sql
 ```
 
+
+### Crate User
+
+If you need it, here is an example of how to create a user for dbax.
+
+```sql
+CREATE USER dbax IDENTIFIED BY dbax DEFAULT TABLESPACE
+  users TEMPORARY TABLESPACE temp;
+  
+GRANT RESOURCE, CREATE SESSION TO dbax;
+```
 
 RESOURCE role has the following grants:
 
