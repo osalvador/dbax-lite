@@ -17,7 +17,7 @@ dbax is PL/SQL framework for MVC Web Development of high-performing database-dri
 
 ## Documentation
 
-[dbax documentation](https://osalvador.github.io/dbax-lite)
+[dbax documentation](https://dbax.io/documentation/en/)
 
 ## Requirements
 
@@ -87,11 +87,11 @@ END;
 
 [Download source code >](examples/hello/helloApp.sql)
 
-### Greeting application 
+### More examples
 
-Simple application that greets the user. The [PRG](https://en.wikipedia.org/wiki/Post/Redirect/Get) pattern is used to prevent duplicate form submissions. 
+Working demos and sample code of applications made with dbax.
 
-[View Greeting application code >](examples/greeting)
+[dbax Demo Applications >](http://apps.dbax.io/)
 
 
 ## Roadmap
