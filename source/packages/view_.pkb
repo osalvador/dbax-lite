@@ -23,6 +23,11 @@ AS
       TABLE OF dbx.g_varchar_array
          INDEX BY VARCHAR2 (255);*/
 
+   TYPE t_assoc_clob
+   IS
+      TABLE OF clob
+         INDEX BY VARCHAR2 (255);
+
    TYPE t_assoc_refcursor
    IS
       TABLE OF PLS_INTEGER
@@ -31,6 +36,7 @@ AS
    g_assoc_varchar     dbx.g_assoc_array;
    g_assoc_number      t_assoc_number;
    g_assoc_date        t_assoc_date;
+   g_assoc_clob        t_assoc_clob;
    g_assoc_assoc       t_assoc_assoc;
    g_assoc_refcursor   t_assoc_refcursor;
 
@@ -674,6 +680,33 @@ AS
          l_tmp_clob  := '';
       END IF;
 
+
+      -------------------
+      -- CLOB Array --
+      -------------------
+      l_key       := g_assoc_clob.first;
+
+      IF l_key IS NOT NULL
+      THEN
+         --Open declaration blok
+         l_tmp_clob  := '<%!';
+
+         LOOP
+            EXIT WHEN l_key IS NULL;
+
+            l_tmp_clob  := l_tmp_clob || l_key || ' CLOB :=  view_.get_data_clob(''' || l_key || ''');' || chr (10);
+
+            l_key       := g_assoc_clob.next (l_key);
+         END LOOP;
+
+         --Close declaration blok
+         l_tmp_clob  := l_tmp_clob || '%>';
+
+         p_template  := p_template || l_tmp_clob;
+
+         l_tmp_clob  := '';
+      END IF;
+      
       -------------------
       -- Assoc Array --
       -------------------
@@ -1094,6 +1127,25 @@ AS
       IF g_assoc_date.exists (p_name)
       THEN
          RETURN g_assoc_date (p_name);
+      ELSE
+         RETURN NULL;
+      END IF;
+   END;
+
+
+   PROCEDURE data (p_name IN VARCHAR2, p_value IN CLOB)
+   AS
+   BEGIN
+      g_assoc_clob (p_name) := p_value;
+   END;
+
+   FUNCTION get_data_clob (p_name IN VARCHAR2)
+      RETURN CLOB
+   AS
+   BEGIN
+      IF g_assoc_clob.exists (p_name)
+      THEN
+         RETURN g_assoc_clob (p_name);
       ELSE
          RETURN NULL;
       END IF;

@@ -96,6 +96,8 @@ AS
    PROCEDURE data (p_name IN VARCHAR2, p_value IN dbx.g_assoc_array);
 
    --PROCEDURE data (p_name IN VARCHAR2, p_value IN dbx.g_varchar_array);
+   
+   PROCEDURE data (p_name IN VARCHAR2, p_value IN CLOB);
 
    PROCEDURE data (p_name IN VARCHAR2, p_cursor IN sys_refcursor);
 
@@ -110,6 +112,9 @@ AS
 
    FUNCTION get_data_assoc (p_name IN VARCHAR2)
       RETURN dbx.g_assoc_array;
+
+   FUNCTION get_data_clob (p_name IN VARCHAR2)
+      RETURN clob;
 
    FUNCTION get_data_refcursor (p_name IN VARCHAR2)
       RETURN sys_refcursor;
