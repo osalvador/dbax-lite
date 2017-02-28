@@ -25,6 +25,7 @@ PROMPT -- Creating Table Views --;
 PROMPT ------------------------------------------;
 @@../tables/wdx_views.sql;
 @@../tables/wdx_sessions.sql;
+@@../tables/wdx_log.sql;
 
 PROMPT ------------------------------------------;
 PROMPT -- Compiling Packages Specs --;
@@ -36,6 +37,7 @@ PROMPT ------------------------------------------;
 @@../packages/route_.pks;
 @@../packages/session_.pks;
 @@../packages/view_.pks;
+@@../packages/log_.pks;
 
 
 PROMPT ------------------------------------------;
@@ -48,6 +50,7 @@ PROMPT ------------------------------------------;
 @@../packages/route_.pkb;
 @@../packages/session_.pkb;
 @@../packages/view_.pkb;
+@@../packages/log_.pkb;
 
 quit;
 /

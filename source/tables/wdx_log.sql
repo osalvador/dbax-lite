@@ -1,0 +1,34 @@
+
+CREATE TABLE WDX_LOG
+(
+  ID            NUMBER(30)                      NOT NULL,
+  APPID         VARCHAR2(50 BYTE)               NOT NULL,
+  SESSION_ID    VARCHAR2(50 BYTE)                   NULL,
+  LOG_LEVEL     VARCHAR2(10 BYTE)                   NULL,
+  LOG_MESSAGE      CLOB                                NULL,
+  CREATED_BY        VARCHAR2(100 BYTE)          DEFAULT -1                    NOT NULL,
+  CREATED_DATE      TIMESTAMP                   DEFAULT SYSTIMESTAMP          NOT NULL,  
+);
+
+
+CREATE UNIQUE INDEX WDX_LOG_PK ON WDX_LOG
+(ID);
+
+
+ALTER TABLE WDX_LOG ADD (
+  CONSTRAINT WDX_LOG_PK
+ PRIMARY KEY
+ (ID));
+
+CREATE SEQUENCE WDX_LOG_seq START WITH 1;
+
+CREATE OR REPLACE TRIGGER WDX_LOG_trg 
+BEFORE INSERT ON WDX_LOG 
+FOR EACH ROW
+
+BEGIN
+  SELECT WDX_LOG_seq.NEXTVAL
+  INTO   :new.id
+  FROM   dual;
+END;
+/
