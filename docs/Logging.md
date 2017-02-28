@@ -2,7 +2,8 @@
 
 ## Introduction
 
-When you start a new dbax application, logging is already configured for you. dbax utilizes the `log_` library, which provides simple but powerful API. dbax stores your logs in the `WDX_LOG` table with one row per user request transaction. 
+When you start a new dbax application, logging is already configured for you. dbax utilizes the `log_` library, which provides simple but powerful API. dbax stores your logs in the `WDX_LOG` table saving all the messages of a complete request of the user in a single row.
+
 
 ## Configuration
 
@@ -42,23 +43,30 @@ The logger provides the eight logging levels defined in [RFC 5424](https://tools
 
 ## Reviwe yor logs
 
-dbax stores its logs in the `WDX_LOG` table, a row is inserted for each user request where all log messages in a single transaction are stored. The `LOG_MESSAGE` field is where log messages are stored. 
+dbax stores its logs in the `WDX_LOG` table, saving all the messages of a complete request of the user in a single row. The `LOG_MESSAGE` field is where log messages are stored. 
 
 ```
-ID      |SESSION_ID          |LOG_LEVEL|LOG_MESSAGE|CREATED_BY |CREATED_DATE    
---------|--------------------|---------|-----------|-----------|---------------------------|
-HELLO		01112451000198580	debug	(CLOB)		ANONYMOUS	28/02/17 09:37:41,320773000
-HELLO		01112451000198580	debug	(CLOB)		ANONYMOUS	28/02/17 09:39:58,996656000
-GREETING	01112451000163191	debug	(CLOB)		ANONYMOUS	28/02/17 09:40:27,073755000
-GREETING	01112451000163191	debug	(CLOB)		ANONYMOUS	28/02/17 09:42:20,663604000 
+select * from WDX_LOG;
+
+ID| APPID      |SESSION_ID          |LOG_LEVEL|LOG_MESSAGE|CREATED_BY |CREATED_DATE    
+--|------------|--------------------|---------|-----------|-----------|------------------------|
+1	HELLO  		01112451000198580		debug	(CLOB)		ANONYMOUS	28/02/17 09:37:41,320773000
+2	HELLO  		01112451000198580		debug	(CLOB)		ANONYMOUS	28/02/17 09:39:58,996656000
+3	GREETING	01112451000163191		debug	(CLOB)		ANONYMOUS	28/02/17 09:40:27,073755000
+4	GREETING	01112451000163191		debug	(CLOB)		ANONYMOUS	28/02/17 09:42:20,663604000 
 ```
 
 
 ### LOG_MESSAGE content
 
-The log messages stored in the `LOG_MESSAGE` field contains the following structure
+The messages stored in the `LOG_MESSAGE` field contains the following structure: 
 
 `[TIMESTAMP] [LOG_LEVEL] [[SCHEMA].[PACKAGE]:[LINE_NUMBER]] [LOG_MESSAGE]`
+
+- `[TIMESTAMP]` the timestamp of the message.
+- `[LOG_LEVEL]` the log level of the message.
+- `[[[SCHEMA].[PACKAGE]:[LINE_NUMBER]]]` the shema name, package name and the package line number where the message is written. 
+- `[LOG_MESSAGE]` the log message sent. 
 
 Log message content example: 
 
@@ -123,5 +131,5 @@ Log message content example:
 ```
 
 
-dbax logger prints all CGI Environment to the log when the `log_level` is *error*, *critical*, *alert*, *emergency* or *debug*.
+dbax logger automatically prints all CGI Environment to the log when the `log_level` is *error*, *critical*, *alert*, *emergency* or *debug*.
 
