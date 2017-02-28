@@ -35,8 +35,8 @@ AS
    END set_property;
 
    /**
-   * Set base_path property to application properties. 
-   */   
+   * Set base_path property to application properties.
+   */
    PROCEDURE set_base_path
    AS
    BEGIN
@@ -317,7 +317,7 @@ AS
          END IF;
       END LOOP;
 
-      -- imprimir el resto de lineas
+      -- Print the rest of lines
       FOR i IN l_start_line .. p_lines
       LOOP
          htp.prn (l_thepage (i));
@@ -392,10 +392,10 @@ AS
                   END LOOP;
 
                   l_get (l_name_array) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
-               --dbax_log.debug (LOWER (l_name_array) || ':' || dbx.g$get (LOWER (l_name_array)));
+                  log_.debug ('Request input:'||l_name_array || '=' || l_get (l_name_array));
                ELSE
                   l_get (name_array (i)) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
-               --dbax_log.debug (LOWER (name_array (i)) || ':' || dbx.g$get (LOWER (name_array (i))));
+                  log_.debug ('Request input:'||name_array (i) || '=' || l_get (name_array (i)));
                END IF;
             END LOOP;
          END IF;
@@ -421,10 +421,10 @@ AS
                   END LOOP;
 
                   l_post (l_name_array) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
-               --dbax_log.debug (LOWER (l_name_array) || ':' || dbx.g$post (LOWER (l_name_array)));
+                  log_.debug ('Request input:'||l_name_array || '=' || l_post (l_name_array));
                ELSE
                   l_post (name_array (i)) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
-               --dbax_log.debug (LOWER (name_array (i)) || ':' || dbx.g$post (LOWER (name_array (i))));
+                  log_.debug ('Request input:'||name_array (i) || '=' || l_post (name_array (i)));
                END IF;
             END LOOP;
          END IF;
@@ -575,7 +575,6 @@ AS
       l_http_output   htp.htbuf_arr;
       l_lines         NUMBER DEFAULT 99999999 ;
    BEGIN
-      --dbax_log.open_log ('debug');
       g_stop_process := TRUE;
 
       -- Get error_style from application properties
@@ -590,13 +589,11 @@ AS
 
       view_.data ('callStack', dbms_utility.format_call_stack ());
 
-
-      --dbax_log.error ('p_cod_error:' || p_error_code || ' p_msg_error:' || p_error_msg);
-      --dbax_log.error (dbax_core.g$view ('errorStack'));
-      --dbax_log.error (dbax_core.g$view ('errorBacktrace'));
-      --dbax_log.error (dbax_core.g$view ('callStack'));
-
-      --l_log_id    := dbax_log.close_log;
+      log_.error ('p_cod_error:' || p_error_code || ' p_msg_error:' || p_error_msg);
+      log_.error (CHR(10) || view_.get_data_varchar ('errorStack'));
+      log_.error (CHR(10) || view_.get_data_varchar ('errorBacktrace'));
+      log_.error (CHR(10) || view_.get_data_varchar ('callStack'));
+      l_log_id    := log_.write;
 
       view_.data ('logId', to_char (l_log_id));
       view_.data ('code'
@@ -799,16 +796,13 @@ AS
       END IF;
 
       session_.save;
-   --TODO
-   --dbax_log.close_log;
-
+      log_.write;
    EXCEPTION
       WHEN OTHERS
       THEN
          session_.save;
          raise_exception (sqlcode, sqlerrm);
-   --TODO
-   --dbax_log.close_log;
+         log_.write;
    END dispatcher;
 END dbx;
 /
