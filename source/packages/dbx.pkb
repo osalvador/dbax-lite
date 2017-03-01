@@ -687,8 +687,11 @@ AS
       BEGIN
          EXECUTE IMMEDIATE 'BEGIN :l_val := ' || p_router || '; END;' USING OUT l_response;
 
-         --Print response to the buffer
-         dbx.p (l_response);
+         IF NOT g_stop_process
+         THEN
+            --Print response to the buffer
+            dbx.p (l_response);
+         END IF;
       EXCEPTION
          WHEN OTHERS
          THEN
