@@ -32,9 +32,9 @@ dbax is PL/SQL framework for MVC Web Development of high-performing database-dri
 Download latest release and install in your Oracle database. See [Installation](https://osalvador.github.io/dbax-lite/?file=docs/Installation.md) section in the documentation for more information. 
 
 ```sh
-wget https://github.com/osalvador/dbax-lite/archive/v0.2.0.zip
-unzip v0.2.0.zip
-cd dbax-lite-0.2.0/source/install
+wget https://github.com/osalvador/dbax-lite/archive/v0.2.1.zip
+unzip v0.2.1.zip
+cd dbax-lite-0.2.1/source/install
 sqlplus "user/userpass"@SID @dbax-lite-install.sql
 ```
 
