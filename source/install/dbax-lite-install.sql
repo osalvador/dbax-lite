@@ -21,7 +21,7 @@ ALTER SESSION SET plsql_code_type = 'NATIVE';
 
 
 PROMPT ------------------------------------------;
-PROMPT -- Creating Table Views --;
+PROMPT -- Creating Tables --;
 PROMPT ------------------------------------------;
 @@../tables/wdx_views.sql;
 @@../tables/wdx_sessions.sql;
