@@ -41,7 +41,7 @@ The logger provides the eight logging levels defined in [RFC 5424](https://tools
 	log_.debug('This is debug message');
 ```
 
-## Reviwe yor logs
+## Review your logs
 
 dbax stores its logs in the `WDX_LOG` table, saving all the messages of a complete request of the user in a single row. The `LOG_MESSAGE` field is where log messages are stored. 
 
@@ -50,8 +50,8 @@ select * from WDX_LOG;
 
 ID| APPID      |SESSION_ID          |LOG_LEVEL|LOG_MESSAGE|CREATED_BY |CREATED_DATE    
 --|------------|--------------------|---------|-----------|-----------|------------------------|
-1	HELLO  		01112451000198580		debug	(CLOB)		ANONYMOUS	28/02/17 09:37:41,320773000
-2	HELLO  		01112451000198580		debug	(CLOB)		ANONYMOUS	28/02/17 09:39:58,996656000
+1	HELLO		01112451000198580		debug	(CLOB)		ANONYMOUS	28/02/17 09:37:41,320773000
+2	HELLO		01112451000198580		debug	(CLOB)		ANONYMOUS	28/02/17 09:39:58,996656000
 3	GREETING	01112451000163191		debug	(CLOB)		ANONYMOUS	28/02/17 09:40:27,073755000
 4	GREETING	01112451000163191		debug	(CLOB)		ANONYMOUS	28/02/17 09:42:20,663604000 
 ```
@@ -65,7 +65,7 @@ The messages stored in the `LOG_MESSAGE` field contains the following structure:
 
 - `[TIMESTAMP]` the timestamp of the message.
 - `[LOG_LEVEL]` the log level of the message.
-- `[[[SCHEMA].[PACKAGE]:[LINE_NUMBER]]]` the shema name, package name and the package line number where the message is written. 
+- `[[SCHEMA].[PACKAGE]:[LINE_NUMBER]]` the shema name, package name and the package line number where the message is written. 
 - `[LOG_MESSAGE]` the log message sent. 
 
 Log message content example: 
