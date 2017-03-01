@@ -55,6 +55,7 @@ return view_.run(greeting(), 'greeting');
 In addition to varchar, you can pass other data types:
 
 - `VARCHAR2`
+- `CLOB`
 - `NUMBER`
 - `DATE`
 - `dbx.g_assoc_array`
@@ -62,7 +63,7 @@ In addition to varchar, you can pass other data types:
 
 Inside your view, you can then access each value using its corresponding key, such as `<%= key %>`. 
 
-> **Note** Only `VARCHAR2` data can be accessed from HTML with `${key}` and PLSQL `<%= key %>`. See [tePLSQL arguments] (https://github.com/osalvador/tePLSQL#teplsql-arguments) for more information. 
+> **Note** Only `VARCHAR2` data can be accessed from HTML with `${key}` and PLSQL `<%= key %>`. See [tePLSQL arguments](https://github.com/osalvador/tePLSQL#teplsql-arguments) for more information. 
 
 Special attention to `SYS_REFCURSOR` since it is a pointer to a cursor. Therefore you should iterate this cursor in the traditional Oracle way, `LOOP FETCH INTO` or `FETCH BULK COLLECT INTO`:
 

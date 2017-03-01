@@ -10,7 +10,8 @@ You can define the properties you need, as long as they are not reserved by the 
 
 - `base_path`: contains path to the application front controller.
 - `encoding`: contains the response Content-Type charset encoding.
-- `error_style`: null or DebugStyle. If set to DebugStyle run-time errors will be displayed with the maximum detail.
+- `error_style`: null or DebugStyle. If set to DebugStyle run-time errors will be displayed with the maximum detail. More info in [Error section](https://dbax.io/documentation/en/Errors.html)
+- `log_level`: contains the log level severity for the aplication. You can define eight logging levels defined in [RFC 5424](https://tools.ietf.org/html/rfc5424). More info in [Logging section](https://dbax.io/documentation/en/Logging.html)
 
 ## Setting properties
 
