@@ -134,7 +134,7 @@ The current UNIX timestamp is <%= systimestamp %>.
 ```
 
 
-### Echoing Data If It Exists
+### Print Data If It Exists
 
 Sometimes you may wish to print a variable, but you aren't sure if the variable has been set. We can express this in simple PLSQL code like so:
 
@@ -175,7 +175,7 @@ In addition to conditional statements, tePLSQL provides simple directives for wo
 <% end loop; %>
 
 <% while true loop %>
-    <p>I'm looping forever.</p>
+    <p>I am looping forever.</p>
 <% end loop; %>
 ```
 
@@ -192,9 +192,11 @@ tePLSQL also allows you to define comments in your views. However, unlike HTML c
 
 In some situations, it's useful to embed PLSQL code into your views. You can use the tePLSQL code block `<% %>` directive to execute a block of plain PLSQL within your template:
 
+```
 <%
-    --PLSQL Code
+    /*PLSQL Code*/
 %>
+```
 
 > Note: While tePLSQL provides this feature, using it frequently may be a signal that you have too much logic embedded within your template.
 
