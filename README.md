@@ -80,18 +80,17 @@ END;
 ```
 
 
-[Download source code >](examples/hello/helloApp.sql)
+[View Hello World application >](apps.dbax.io/hello)
 
 ### Greeting application 
 
 Simple application that greets the user. The [PRG](https://en.wikipedia.org/wiki/Post/Redirect/Get) pattern is used to prevent duplicate form submissions. 
 
-[View Greeting application code >](examples/greeting)
+[View Greeting application >](apps.dbax.io/greeting)
 
 
 ## Roadmap
 
-- Logging
 - Security
 - Authentication
 - Authorization
