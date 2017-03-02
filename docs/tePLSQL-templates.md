@@ -110,7 +110,7 @@ And will be rendered as:
 
 ## Displaying Data
 
-You may display data passed to your tePLSQL views by wrapping the variable in curly braces. For example, given the following route:
+You may display VARCHAR2 data passed to your tePLSQL views by wrapping the variable with `${varName}`.For example, given the following route:
 
 ```sql
 IF route_.get ('greeting')
@@ -120,12 +120,50 @@ THEN
 END IF;
 ```
 
-
 You may display the contents of the name variable like so:
 
 ```
 Hello, ${name}.
 ```
+
+
+To display different Data Types (or even VARCHAR2) data you may use the expression `<%= %>` directive. For example, given the following route: 
+
+```sql
+IF route_.get ('greeting')
+THEN
+  -- Varchar
+  view_.data('name','Samantha');
+  -- Number
+  view_.data('Age',33);
+  -- Date
+  view_.data('Tomorrow',sysdate+1);
+  -- Associaative Array
+  view_.data('assoc_array',request_.headers ());
+  -- CLOB
+  view_.data('clob_data', TO_CLOB('This is my CLOB'));
+
+  --SYS_REFCURSOR
+  OPEN l_users_cursor FOR SELECT * FROM SYS.all_users order by created desc;
+  view_.data ('users_refcursor', l_users_cursor);
+
+
+  view_.run (pk_app_name.welcome (), 'welcome');
+END IF;
+```
+
+You may display the contents of the variables like so:
+
+```
+Hello, <% name %> you are <%= age %> years old, tomorrow day <%= to_char(Tomorrow, 'DD') %> will be another day. 
+
+Your browser is <%= assoc_array('HTTP_USER_AGENT') %>. And <%= clob_data %> data.
+```
+
+> Note: You should iterate SYS_CURSOR in the traditional Oracle way, LOOP FETCH INTO or FETCH BULK COLLECT INTO. [You can view an example in Views section](https://dbax.io/documentation/en/Views.html#views-passing-data-to-views)
+
+
+> Note: With expression directive `<%= %>` , the name of the variables are not case sensitive. 
 
 Of course, you are not limited to displaying the contents of the variables passed to the view. You may also print the results of any PLSQL function. In fact, you can put any PLSQL code you wish inside of a tePLSQL expression statement:
 
@@ -176,6 +214,14 @@ In addition to conditional statements, tePLSQL provides simple directives for wo
 
 <% while true loop %>
     <p>I am looping forever.</p>
+<% end loop; %>
+
+/* You can even use an Implicit Cursor FOR LOOP Statement*/
+<%  for item in (select last_name, job_id 
+                 from employees
+                  where job_id like '%CLERK%'
+                  order by last_name) loop %>     
+      <p> Name = <%= item.last_name %>, Job = <%= item.job_id %>
 <% end loop; %>
 ```
 
