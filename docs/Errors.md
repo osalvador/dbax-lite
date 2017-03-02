@@ -27,7 +27,7 @@ All exceptions are handled by the framework and raises with `dbx.raise_exception
 
 ## Custom HTTP Exceptions
 
-La forma mas elegante de lanzar una excepcion personalizada es usando el procedimiento de estandar de Oracle `raise_application_error`. Typically, you invoke this procedure to raise a user-defined exception and return its error code and error message to the invoker.
+The most elegant way to raise a custom exception is by using the Oracle standard `raise_application_error` procedure. Typically, you invoke this procedure to raise a user-defined exception and return its error code and error message to the invoker.
 
 
 ```sql
