@@ -181,6 +181,23 @@ Sometimes you may wish to print a variable, but you aren't sure if the variable 
 ```
 
 
+## Declaration of variables
+
+tePLSQL includes the Declaration block direcetive `<%! %>`, that is the declaration for a set of PL/SQL variables that are visible throughout the template.
+
+You may declare a ROWTYPE array, for example to FETCH BULK COLLECT INTO a collection from SYS_REFCURSOR:
+
+```
+<%! TYPE l_users_type
+    IS
+    TABLE OF sys.all_users%ROWTYPE
+    INDEX BY PLS_INTEGER;
+                 
+    l_users   l_users_type;
+%>
+```
+
+
 ## Control Structures
 
 In addition to nested templates and displaying data, tePLSQL also provides PLSQL control structures, such as conditional statements and loops.
