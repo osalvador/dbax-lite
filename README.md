@@ -80,13 +80,13 @@ END;
 ```
 
 
-[View Hello World application >](apps.dbax.io/hello)
+[View Hello World application >](http://apps.dbax.io/hello)
 
 ### Greeting application 
 
 Simple application that greets the user. The [PRG](https://en.wikipedia.org/wiki/Post/Redirect/Get) pattern is used to prevent duplicate form submissions. 
 
-[View Greeting application >](apps.dbax.io/greeting)
+[View Greeting application >](http://apps.dbax.io/greeting)
 
 
 ## Roadmap
