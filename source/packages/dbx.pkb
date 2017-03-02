@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY dbx
+CREATE OR REPLACE PACKAGE BODY DBAX_THIN.dbx
 AS
    --G$PROPERTIES An associative array of application properties
    g$properties   dbx.g_assoc_array;
@@ -573,7 +573,9 @@ AS
       l_log_id        PLS_INTEGER;
       --
       l_http_output   htp.htbuf_arr;
+      l_dummy         htp.htbuf_arr;
       l_lines         NUMBER DEFAULT 99999999 ;
+      
    BEGIN
       g_stop_process := TRUE;
 
@@ -612,14 +614,14 @@ AS
       <link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
       <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-      <![endif]-->    
+      <![endif]-->
        <style>.operative { font-weight: bold; border:1px solid red }</style>
    </head>
    <body>
       <header class="navbar navbar-default navbar-static-top" role="banner">
          <div class="container">
             <div class="navbar-header">
-               <a href="https://github.com/osalvador/dbax-lite" class="navbar-brand">dbax exception: 500 Internal Server Error</a>
+               <a href="https://dbax.io" class="navbar-brand">dbax exception: 500 Internal Server Error</a>
             </div>
          </div>
       </header>
@@ -631,22 +633,22 @@ AS
                 <br>
                <h4 class="text-center">There is a problem with the resource you are looking for, and it cannot be displayed. <code id="http_referer"></code></h4>
                <h4 class="text-center">Contact your administrator with details of the action you performed before error occured with this log id: ${logId}</h4>
-               <% if error_style = 'DebugStyle' then %> 
+               <% if error_style = 'DebugStyle' then %>
                <hr>
                <h2 id="userError">User Error</h2>
                <pre class="prettyprint"><code class="language-sql">Error Code: ${errorCode}</code></pre>
                <pre class="prettyprint"><code class="language-sql">${errorMsg}</code></pre>
                <hr>
-               <h2 id="errorStack">Error Stack</h2>               
+               <h2 id="errorStack">Error Stack</h2>
                <pre class="prettyprint"><code class="language-sql">${errorStack}</code></pre>
                <hr>
                <h2 id="errorBacktrace">Error Backtrace</h2>
-               <pre class="prettyprint"><code class="language-sql">${errorBacktrace}</code></pre>              
+               <pre class="prettyprint"><code class="language-sql">${errorBacktrace}</code></pre>
                <hr>
                <h2 id="callStack">Call Stack</h2>
                <pre class="prettyprint"><code class="language-sql">${callStack}</code></pre>
-               <hr>              
-               <h2 id="code">Code</h2>               
+               <hr>
+               <h2 id="code">Code</h2>
                ${code}
               <hr>
               <% end if; %>
@@ -658,24 +660,20 @@ AS
       <!-- Latest compiled and minified JavaScript -->
       <script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
       <script type="text/javascript">
-          document.getElementById("http_referer").innerHTML = window.location.pathname;       
-       </script>      
+          document.getElementById("http_referer").innerHTML = window.location.pathname;
+       </script>
       <script src="https://cdn.rawgit.com/google/code-prettify/master/loader/run_prettify.js?lang=sql&amp;skin=sons-of-obsidian"></script>
    </body>
 </html>]';
 
-      --Run view
-      view_.run (l_html_error, '500');
-
-      -- Get page from owa buffer
-      owa.get_page (l_http_output, l_lines);
-
+      --HTTP Response
       htp.init;
       owa_util.mime_header ('text/html', FALSE, dbx.get_property ('encoding'));
       owa_util.status_line (500);
       owa_util.http_header_close;
-
-      print_owa_page (l_http_output, l_lines);
+      
+      --Run view
+      view_.run (l_html_error, '500');
    END raise_exception;
 
 
