@@ -85,7 +85,7 @@ END;
 ```
 
 
-[Download source code >](examples/hello/helloApp.sql)
+[View Hello World application >](http://apps.dbax.io/hello)
 
 ### More examples
 
