@@ -1,4 +1,3 @@
-/* Formatted on 28/02/2017 15:37:17 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY log_
 AS
    --Default Log level is DEBUG

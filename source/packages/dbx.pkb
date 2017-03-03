@@ -1,4 +1,4 @@
-CREATE OR REPLACE PACKAGE BODY DBAX_THIN.dbx
+CREATE OR REPLACE PACKAGE BODY dbx
 AS
    --G$PROPERTIES An associative array of application properties
    g$properties   dbx.g_assoc_array;
