@@ -107,5 +107,60 @@ AS
    BEGIN
       cookie (p_name => p_name, p_value => NULL, p_expires => sysdate - 100);
    END forget_cookie;
+
+
+   FUNCTION download (p_file_content IN BLOB, p_file_name IN VARCHAR2, p_content IN VARCHAR2)
+      RETURN CLOB
+   AS
+      l_blob_content   BLOB := p_file_content;
+   BEGIN
+      dbx.g_stop_process := TRUE;
+
+      htp.init;
+      owa_util.mime_header (nvl (p_content, 'application/octet-stream'), FALSE, dbx.get_property ('encoding'));
+      htp.p ('Content-Length: ' || dbms_lob.getlength (l_blob_content));
+      htp.p ('Content-Disposition: attachment; filename="' || p_file_name || '"');
+      owa_util.status_line (200);
+      owa_util.http_header_close;
+
+      wpg_docload.download_file (l_blob_content);
+
+      RETURN NULL;
+   END download;
+
+   FUNCTION clob2blob (p_clob IN CLOB)
+      RETURN BLOB
+   IS
+      v_blob            BLOB;
+      l_dest_offset     INTEGER := 1;
+      l_source_offset   INTEGER := 1;
+      l_lang_context    INTEGER := dbms_lob.default_lang_ctx;
+      l_warning         INTEGER := dbms_lob.warn_inconvertible_char;
+   BEGIN
+      --Paso el CLOB a BLOB
+      dbms_lob.createtemporary (v_blob, TRUE);
+
+
+      dbms_lob.converttoblob (dest_lob    => v_blob
+                            , src_clob    => p_clob
+                            , amount      => dbms_lob.getlength (p_clob)
+                            , dest_offset => l_dest_offset
+                            , src_offset  => l_source_offset
+                            , blob_csid   => dbms_lob.default_csid
+                            , lang_context => l_lang_context
+                            , warning     => l_warning);
+
+      -- Free temporary BLOBs.
+      --DBMS_LOB.freetemporary (v_blob);
+      RETURN v_blob;
+   END clob2blob;
+
+
+   FUNCTION download (p_file_content IN CLOB, p_file_name IN VARCHAR2, p_content IN VARCHAR2 DEFAULT NULL )
+      RETURN CLOB
+   AS
+   BEGIN
+      RETURN download (clob2blob (p_file_content), p_file_name, p_content);
+   END download;
 END response_;
 /

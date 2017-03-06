@@ -134,5 +134,20 @@ AS
    * @param    p_name      the cookie name
    */
    PROCEDURE forget_cookie (p_name IN VARCHAR2);
+
+
+
+   /**
+   * Create a new file download response.
+   *
+   * @param     p_file_content      the blob or clob file content
+   * @param     p_file_name         the file name
+   * @param     p_content           the file content type
+   */
+   FUNCTION download (p_file_content IN BLOB, p_file_name IN VARCHAR2, p_content IN VARCHAR2 default null)
+      RETURN CLOB;
+      
+   FUNCTION download (p_file_content IN CLOB, p_file_name IN VARCHAR2, p_content IN VARCHAR2 default null)
+      RETURN CLOB;            
 END response_;
 /
