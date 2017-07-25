@@ -706,7 +706,7 @@ AS
 
          l_tmp_clob  := '';
       END IF;
-      
+
       -------------------
       -- Assoc Array --
       -------------------
@@ -972,6 +972,7 @@ AS
       l_template         CLOB;
       l_error_template   CLOB;
    BEGIN
+/*
       IF p_template_name IS NULL AND p_template IS NULL
       THEN
          RETURN;
@@ -1023,8 +1024,9 @@ AS
                                , p_template  => p_template
                                , p_compiled_template => l_template);
       END IF;
+*/
 
-
+      l_template := view_.add(p_view => p_template, p_name => p_template_name, p_appid => p_appid);
       --Bind the variables into template
       bind_vars (l_template, g_assoc_varchar);
 
@@ -1076,6 +1078,76 @@ AS
    BEGIN
       run (p_view, p_name);
       RETURN NULL;
+   END;
+
+   PROCEDURE add (p_view IN CLOB, p_name IN VARCHAR2, p_appid IN VARCHAR2)
+   AS
+      l_template         CLOB;
+   BEGIN
+      --Set view name
+      name (p_name);
+      --Execute view
+      l_template := view_.add(p_view => p_view, p_name => p_name, p_appid => p_appid);
+   END;
+
+   FUNCTION add (p_view IN CLOB, p_name IN VARCHAR2, p_appid IN VARCHAR2) RETURN CLOB
+   AS
+      l_template         CLOB;
+      l_error_template   CLOB;
+   BEGIN
+      IF p_name IS NULL AND p_view IS NULL
+      THEN
+         return empty_clob();
+      END IF;
+
+      --Get template
+      IF p_name IS NOT NULL AND p_view IS NOT NULL
+      THEN
+         --Si ambos parametros no son nulos se trata del model de dbax lite
+         --Comprobar si el template ha cambiado para ejecutar solo el compilado
+
+         IF template_has_changed (p_template_name => p_name, p_appid => p_appid, p_template => p_view)
+         THEN
+            -- sino compilarlo y ejecutarlo y guardarlo
+            l_template  := local_compile (p_view, p_appid);
+
+            -- Save compiled Template
+            save_compiled_template (p_template_name => p_name
+                                  , p_appid     => p_appid
+                                  , p_template  => p_view
+                                  , p_compiled_template => l_template);
+         ELSE
+            -- si el template está compilado ejecutar ese
+            l_template  := include_compiled (p_name, p_appid);
+         END IF;
+      ELSIF p_view IS NULL
+      THEN
+         l_template  := include_compiled (p_name, p_appid);
+
+         --If template is not compiled
+         IF length (l_template) = 0 OR length (l_template) IS NULL
+         THEN
+            -- sino compilarlo y ejecutarlo y guardarlo
+            l_template  := compile (p_name, p_appid, l_error_template);
+
+            -- Save compiled Template
+            save_compiled_template (p_template_name => p_name
+                                  , p_appid     => p_appid
+                                  , p_template  => p_view
+                                  , p_compiled_template => l_template);
+         END IF;
+      ELSE
+         --compile the template
+         l_template  := local_compile (p_view, p_appid);
+
+         -- Save compiled Template
+         save_compiled_template (p_template_name => p_name
+                               , p_appid     => p_appid
+                               , p_template  => p_view
+                               , p_compiled_template => l_template);
+      END IF;
+
+      return l_template;
    END;
 
    PROCEDURE data (p_name IN VARCHAR2, p_value IN VARCHAR2)
