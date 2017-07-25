@@ -69,6 +69,17 @@ AS
    FUNCTION run (p_view IN CLOB, p_name IN VARCHAR2)
       RETURN VARCHAR2;
 
+
+   /**
+   * Save the view so it can be used in includes
+   *
+   * @param     p_view      the view template
+   * @param     p_name      the name of the view.
+   */
+   PROCEDURE add (p_view IN CLOB, p_name IN VARCHAR2, p_appid IN VARCHAR2);
+   FUNCTION add (p_view IN CLOB, p_name IN VARCHAR2, p_appid IN VARCHAR2) RETURN CLOB;
+
+
    /**
    * Set the name of the view
    *
@@ -96,7 +107,7 @@ AS
    PROCEDURE data (p_name IN VARCHAR2, p_value IN dbx.g_assoc_array);
 
    --PROCEDURE data (p_name IN VARCHAR2, p_value IN dbx.g_varchar_array);
-   
+
    PROCEDURE data (p_name IN VARCHAR2, p_value IN CLOB);
 
    PROCEDURE data (p_name IN VARCHAR2, p_cursor IN sys_refcursor);
