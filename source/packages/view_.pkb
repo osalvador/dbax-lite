@@ -397,7 +397,10 @@ AS
       l_compare   PLS_INTEGER;
    BEGIN
       BEGIN
-         SELECT   dbms_lob.compare (source, p_template)
+         SELECT   dbms_lob.compare (
+                        nvl(source, empty_clob()),
+                        nvl(p_template, empty_clob())
+                  )
            INTO   l_compare
            FROM   wdx_views
           WHERE   name = p_template_name AND appid = nvl (p_appid, dbx.g$appid);
@@ -972,12 +975,11 @@ AS
       l_template         CLOB;
       l_error_template   CLOB;
    BEGIN
-/*
       IF p_template_name IS NULL AND p_template IS NULL
       THEN
          RETURN;
       END IF;
-
+/*
       --Get template
       IF p_template_name IS NOT NULL AND p_template IS NOT NULL
       THEN
@@ -1097,7 +1099,7 @@ AS
    BEGIN
       IF p_name IS NULL AND p_view IS NULL
       THEN
-         return empty_clob();
+         return null;
       END IF;
 
       --Get template
