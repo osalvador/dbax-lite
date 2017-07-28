@@ -1,3 +1,4 @@
+/* Formatted on 07/03/2017 16:21:42 (QP5 v5.115.810.9015) */
 CREATE OR REPLACE PACKAGE BODY request_
 AS
    /**
@@ -189,5 +190,41 @@ AS
              || '?'
              || r_request.headers ('QUERY_STRING');
    END full_url;
+
+
+
+   FUNCTION upload (p_file_name IN VARCHAR2, p_username IN VARCHAR2 DEFAULT NULL )
+      RETURN VARCHAR2
+   AS
+      l_real_name   VARCHAR2 (1000);
+   BEGIN
+      l_real_name := substr (p_file_name, instr (p_file_name, '/') + 1);
+
+      -- Update any existing document to allow new one.
+      UPDATE   wdx_documents
+         SET   name         = to_char (sysdate, 'YYYYMMDDHH24MISS') || '_' || l_real_name
+       WHERE   name = l_real_name AND appid = dbx.g$appid;
+
+
+      UPDATE   wdx_documents
+         SET   appid = dbx.g$appid, name = l_real_name, username = nvl (p_username, username)
+       WHERE   name = p_file_name;
+
+      RETURN l_real_name;
+   END upload;
+
+
+   FUNCTION file (p_file_name IN VARCHAR2)
+      RETURN BLOB
+   AS
+      l_blob_content   BLOB;
+   BEGIN
+      SELECT   blob_content
+        INTO   l_blob_content
+        FROM   wdx_documents
+       WHERE   name = p_file_name;
+
+      RETURN l_blob_content;
+   END file;
 END request_;
 /

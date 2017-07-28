@@ -1,3 +1,4 @@
+
 CREATE OR REPLACE PACKAGE BODY dbx
 AS
    --G$PROPERTIES An associative array of application properties
@@ -200,6 +201,24 @@ AS
       RETURN l_array;
    END tokenizer;
 
+
+   FUNCTION get_document (p_name IN VARCHAR2)
+      RETURN BLOB
+   AS
+      l_blob_content   BLOB;
+   BEGIN
+      SELECT   blob_content
+        INTO   l_blob_content
+        FROM   wdx_documents
+       WHERE   name = p_name AND appid = dbx.g$appid;
+
+      RETURN l_blob_content;
+   EXCEPTION
+      WHEN no_data_found
+      THEN
+         RETURN NULL;
+   END get_document;
+
    /**********************************************************************
    *                    Code from dbax_cookie
    ***********************************************************************/
@@ -287,7 +306,7 @@ AS
 
          LOOP
             EXIT WHEN l_key IS NULL;
-            htp.p (l_key || ':' || l_headers (l_key) || chr (13) || chr (10));
+            htp.prn (l_key || ':' || l_headers (l_key) || chr (13) || chr (10));
             l_key       := l_headers.next (l_key);
          END LOOP;
       END IF;
@@ -327,20 +346,25 @@ AS
    PROCEDURE set_request_method
    AS
    BEGIN
+      log_.debug ('The real method is:' || request_.header ('REQUEST_METHOD'));
+
       IF request_.header ('REQUEST_METHOD') = 'POST'
       THEN
          IF request_.header ('X-HTTP-METHOD-OVERRIDE') IS NOT NULL
          THEN
             -- standard method override
             request_.method (upper (request_.header ('X-HTTP-METHOD-OVERRIDE')));
+            log_.debug ('Header X-HTTP-METHOD-OVERRIDE found');
          ELSIF request_.header ('HTTP_X_ORACLE_CACHE_ENCRYPT') IS NOT NULL
          THEN
             -- mod_plsql mehotd override
             -- You must send this header X-ORACLE-CACHE-ENCRYPT
             request_.method (upper (request_.header ('HTTP_X_ORACLE_CACHE_ENCRYPT')));
+            log_.debug ('Header HTTP_X_ORACLE_CACHE_ENCRYPT found');
          ELSE
             -- No override method
             request_.method (upper (request_.header ('REQUEST_METHOD')));
+            log_.debug ('No override method found.');
          END IF;
       ELSE
          -- No override method
@@ -370,75 +394,39 @@ AS
       --Get QueryString params
       l_get       := dbx.query_string_to_array (request_.header ('QUERY_STRING'));
 
-      IF request_.header ('REQUEST_METHOD') = 'GET'
+
+      IF name_array.exists (1) AND name_array (1) IS NOT NULL
       THEN
-         IF name_array.exists (1) AND name_array (1) IS NOT NULL
-         THEN
-            FOR i IN name_array.first .. name_array.last
-            LOOP
-               --if the parameter ends with [ ] it is an array
-               IF name_array (i) LIKE '%[]'
-               THEN
-                  j           := 1;
+         FOR i IN name_array.first .. name_array.last
+         LOOP
+            --if the parameter ends with [ ] it is an array
+            IF name_array (i) LIKE '%[]'
+            THEN
+               j           := 1;
 
-                  --Set Name of the parameter[n]
+               --Set Name of the parameter[n]
+               l_name_array := substr (name_array (i), 1, instr (name_array (i), '[]') - 1) || '[' || j || ']';
+
+               --Generate Array index
+               WHILE l_get.exists (l_name_array)
+               LOOP
+                  j           := j + 1;
                   l_name_array := substr (name_array (i), 1, instr (name_array (i), '[]') - 1) || '[' || j || ']';
+               END LOOP;
 
-                  --Generate Array index
-                  WHILE l_get.exists (l_name_array)
-                  LOOP
-                     j           := j + 1;
-                     l_name_array := substr (name_array (i), 1, instr (name_array (i), '[]') - 1) || '[' || j || ']';
-                  END LOOP;
-
-                  l_get (l_name_array) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
-                  log_.debug ('Request input:'||l_name_array || '=' || l_get (l_name_array));
-               ELSE
-                  l_get (name_array (i)) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
-                  log_.debug ('Request input:'||name_array (i) || '=' || l_get (name_array (i)));
-               END IF;
-            END LOOP;
-         END IF;
-      ELSIF request_.header ('REQUEST_METHOD') = 'POST'
-      THEN
-         IF name_array.exists (1) AND name_array (1) IS NOT NULL
-         THEN
-            FOR i IN name_array.first .. name_array.last
-            LOOP
-               --if the parameter ends with [ ] it is an array
-               IF name_array (i) LIKE '%[]'
-               THEN
-                  j           := 1;
-
-                  --Set Name of the parameter[n]
-                  l_name_array := substr (name_array (i), 1, instr (name_array (i), '[]') - 1) || '[' || j || ']';
-
-                  --Generate Array index
-                  WHILE l_post.exists (l_name_array)
-                  LOOP
-                     j           := j + 1;
-                     l_name_array := substr (name_array (i), 1, instr (name_array (i), '[]') - 1) || '[' || j || ']';
-                  END LOOP;
-
-                  l_post (l_name_array) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
-                  log_.debug ('Request input:'||l_name_array || '=' || l_post (l_name_array));
-               ELSE
-                  l_post (name_array (i)) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
-                  log_.debug ('Request input:'||name_array (i) || '=' || l_post (name_array (i)));
-               END IF;
-            END LOOP;
-         END IF;
+               l_get (l_name_array) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
+               log_.debug ('Request input:' || l_name_array || '=' || l_get (l_name_array));
+            ELSE
+               l_get (name_array (i)) := convert (value_array (i), request_.header ('REQUEST_CHARSET'), 'AL32UTF8');
+               log_.debug ('Request input:' || name_array (i) || '=' || l_get (name_array (i)));
+            END IF;
+         END LOOP;
       END IF;
 
       --Set request
       set_request_method;
-
-      IF request_.method = 'GET'
-      THEN
-         request_.inputs (l_get);
-      ELSE
-         request_.inputs (l_post);
-      END IF;
+      log_.debug ('The method is:' || request_.method);
+      request_.inputs (l_get);
    END set_request;
 
    FUNCTION get_error_source_code (p_errorbacktrace IN VARCHAR2, p_errorstack IN VARCHAR2)
@@ -575,9 +563,11 @@ AS
       l_http_output   htp.htbuf_arr;
       l_dummy         htp.htbuf_arr;
       l_lines         NUMBER DEFAULT 99999999 ;
-      
    BEGIN
       g_stop_process := TRUE;
+
+      -- delete all existing data in the view
+      view_.delete_data;
 
       -- Get error_style from application properties
       view_.data ('error_style', dbx.get_property ('error_style'));
@@ -592,9 +582,9 @@ AS
       view_.data ('callStack', dbms_utility.format_call_stack ());
 
       log_.error ('p_cod_error:' || p_error_code || ' p_msg_error:' || p_error_msg);
-      log_.error (CHR(10) || view_.get_data_varchar ('errorStack'));
-      log_.error (CHR(10) || view_.get_data_varchar ('errorBacktrace'));
-      log_.error (CHR(10) || view_.get_data_varchar ('callStack'));
+      log_.error (chr (10) || view_.get_data_varchar ('errorStack'));
+      log_.error (chr (10) || view_.get_data_varchar ('errorBacktrace'));
+      log_.error (chr (10) || view_.get_data_varchar ('callStack'));
       l_log_id    := log_.write;
 
       view_.data ('logId', to_char (l_log_id));
@@ -671,7 +661,7 @@ AS
       owa_util.mime_header ('text/html', FALSE, dbx.get_property ('encoding'));
       owa_util.status_line (500);
       owa_util.http_header_close;
-      
+
       --Run view
       view_.run (l_html_error, '500');
    END raise_exception;
@@ -729,12 +719,11 @@ AS
       --Set base_path propertie
       set_base_path;
 
-
       /***************
       * Get URI to route
       ***************/
 
-      --If is a queryString model, get de URL to route from reserved parameter 'p' in dbx.g$get or dbx.g$post array
+      --If is a queryString model, get de URL to route from reserved parameter 'p'
       IF request_.input ('p') IS NOT NULL
       THEN
          l_path      := '/' || p_appid || request_.input ('p');
@@ -755,6 +744,7 @@ AS
          l_path      := '/';
       END IF;
 
+
       /******************
       *   Load cookies
       ******************/
@@ -773,7 +763,9 @@ AS
       *  Routing
       ***************/
       dbx.g$path  := l_path;
+      log_.debug ('Request path:' || g$path);
       execute_app_router (router);
+
 
       IF NOT dbx.g_stop_process
       THEN
@@ -785,7 +777,9 @@ AS
          owa.get_page (l_http_output, l_lines);
 
          htp.init;
-         owa_util.mime_header (nvl (response_.content, 'text/html'), FALSE, dbx.get_property ('encoding'));
+         owa_util.mime_header (nvl (response_.content, 'text/html')
+                             , FALSE
+                             , nvl (dbx.get_property ('encoding'), 'UTF-8'));
          owa_util.status_line (nstatus => nvl (response_.status, 200), creason => NULL, bclose_header => FALSE);
          htp.prn (generate_cookie_header);
          print_http_header;
@@ -806,4 +800,3 @@ AS
          log_.write;
    END dispatcher;
 END dbx;
-/

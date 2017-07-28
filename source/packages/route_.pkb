@@ -147,7 +147,7 @@ AS
 
          IF l_retval > 0
          THEN
-            --dbax_log.debug ('Route Matched:' || c1.route_name || ' URL_PATTERN:' || c1.url_pattern);
+            log_.debug ('Route Matched:' || dbx.g$path || ' URL_PATTERN:' || l_url_pattern);
 
             IF l_is_parameter
             THEN
