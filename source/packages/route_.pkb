@@ -120,7 +120,7 @@ AS
          l_url_pattern :=
             regexp_replace (l_url_pattern
                           , '{(.*?)}'
-                          , '([[:print:]].*?)'
+                          , '([[:print:]][^/]*)'
                           , 1
                           , 0
                           , 'n');
