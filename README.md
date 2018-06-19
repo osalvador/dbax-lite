@@ -17,7 +17,7 @@ dbax is PL/SQL framework for MVC Web Development of high-performing database-dri
 
 ## Documentation
 
-[dbax documentation](https://dbax.io/documentation/en/)
+[dbax documentation](https://osalvador.github.io/dbax-lite/)
 
 ## Requirements
 
@@ -84,14 +84,6 @@ END;
 /
 ```
 
-
-[View Hello World application >](http://apps.dbax.io/hello)
-
-### More examples
-
-Working demos and sample code of applications made with dbax.
-
-[dbax Demo Applications >](http://apps.dbax.io/)
 
 
 ## Roadmap
